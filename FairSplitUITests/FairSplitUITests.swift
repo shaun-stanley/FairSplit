@@ -30,6 +30,17 @@ final class FairSplitUITests: XCTestCase {
     }
 
     @MainActor
+    func testGroupDetail_hasSections() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.cells.first?.tap()
+        XCTAssertTrue(app.staticTexts["Expenses"].exists)
+        XCTAssertTrue(app.staticTexts["Balances"].exists)
+        XCTAssertTrue(app.staticTexts["Settle Up"].exists)
+        XCTAssertTrue(app.staticTexts["Members"].exists)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
