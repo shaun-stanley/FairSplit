@@ -16,6 +16,10 @@
 ## Next Up (top first — keep ≤3)
 1. [TEST-1] Unit tests for settlement math (edge cases, rounding, settlements)
 2. [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
+1. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
+2. [TEST-1] Unit tests for settlement math (edge cases, rounding, settlements)
+3. [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
+
 
 ## In Progress
 (none)
@@ -32,6 +36,7 @@
 [CORE-3] Members can be added, renamed, and removed; expenses prevent deletion
 [CORE-4] Expenses can be added, edited, or removed
 
+
 ## Blocked
 (none)
 
@@ -41,6 +46,7 @@
 
 ### Core Experience
 - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
+- [CORE-4] Expense editing: edit/delete, swipe actions, context menu
 - [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
 - [CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
 - [CORE-7] Search expenses: title, note, amount range, member filters
@@ -117,6 +123,7 @@
 - 2025-08-24: MATH-2 — Added share-based uneven splits.
 - 2025-08-24: CORE-3 — Members can be added, renamed, and removed; expenses prevent deletion.
 - 2025-08-24: CORE-4 — Expenses can be added, edited, or removed.
+
 
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.
