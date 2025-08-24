@@ -4,14 +4,26 @@ import SwiftData
 struct AddExpenseView: View {
     var members: [Member]
     var currencyCode: String
+    var expense: Expense?
     var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member]) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var title: String = ""
+    @State private var title: String
     // Use numeric binding with currency formatting for polished input
-    @State private var amount: Double? = nil
+    @State private var amount: Double?
     @State private var payer: Member?
-    @State private var selected: Set<PersistentIdentifier> = []
+    @State private var selected: Set<PersistentIdentifier>
+
+    init(members: [Member], currencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member]) -> Void) {
+        self.members = members
+        self.currencyCode = currencyCode
+        self.expense = expense
+        self.onSave = onSave
+        _title = State(initialValue: expense?.title ?? "")
+        _amount = State(initialValue: expense.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
+        _payer = State(initialValue: expense?.payer)
+        _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
+    }
 
     var body: some View {
         Form {
@@ -40,14 +52,16 @@ struct AddExpenseView: View {
                 }
             }
         }
-        .navigationTitle("New Expense")
+        .navigationTitle(expense == nil ? "New Expense" : "Edit Expense")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             ToolbarItem(placement: .confirmationAction) { Button("Save", action: save).disabled(!canSave) }
         }
         .onAppear {
-            if payer == nil { payer = members.first }
-            if selected.isEmpty { selected = Set(members.map { $0.persistentModelID }) }
+            if expense == nil {
+                if payer == nil { payer = members.first }
+                if selected.isEmpty { selected = Set(members.map { $0.persistentModelID }) }
+            }
         }
     }
 

@@ -28,6 +28,14 @@ final class DataRepository {
         try? context.save()
     }
 
+    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member]) {
+        expense.title = title
+        expense.amount = amount
+        expense.payer = payer
+        expense.participants = participants
+        try? context.save()
+    }
+
     func delete(expenses: [Expense]) {
         for e in expenses { context.delete(e) }
         try? context.save()
