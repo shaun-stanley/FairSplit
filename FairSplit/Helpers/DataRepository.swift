@@ -15,24 +15,26 @@ final class DataRepository {
             let sam = Member(name: "Sam")
             let kai = Member(name: "Kai")
             let group = Group(name: "Sample Trip", defaultCurrency: "USD", members: [alex, sam, kai])
-            let e1 = Expense(title: "Groceries", amount: 36.50, payer: alex, participants: [alex, sam, kai])
+            let e1 = Expense(title: "Groceries", amount: 36.50, payer: alex, participants: [alex, sam, kai], category: .food, note: "Milk & eggs")
             group.expenses.append(e1)
             context.insert(group)
             try? context.save()
         }
     }
 
-    func addExpense(to group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member]) {
-        let expense = Expense(title: title, amount: amount, payer: payer, participants: participants)
+    func addExpense(to group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory? = nil, note: String? = nil) {
+        let expense = Expense(title: title, amount: amount, payer: payer, participants: participants, category: category, note: note)
         group.expenses.append(expense)
         try? context.save()
     }
 
-    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member]) {
+    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?) {
         expense.title = title
         expense.amount = amount
         expense.payer = payer
         expense.participants = participants
+        expense.category = category
+        expense.note = note
         try? context.save()
     }
 

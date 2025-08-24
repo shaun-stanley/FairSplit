@@ -12,6 +12,16 @@ struct ExpenseListView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(expense.title).font(.headline)
+                        if let category = expense.category {
+                            Text(category.displayName)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        if let note = expense.note, !note.isEmpty {
+                            Text(note)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                         if let payer = expense.payer {
                             Text("Paid by \(payer.name)")
                                 .font(.subheadline)
@@ -34,8 +44,8 @@ struct ExpenseListView: View {
         }
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included in
-                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included)
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note in
+                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note)
                 }
             }
         }

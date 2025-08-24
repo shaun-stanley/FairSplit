@@ -18,6 +18,16 @@ struct GroupDetailView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(expense.title).font(.headline)
+                            if let category = expense.category {
+                                Text(category.displayName)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let note = expense.note, !note.isEmpty {
+                                Text(note)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                             if let payer = expense.payer {
                                 Text("Paid by \(payer.name)")
                                     .font(.subheadline)
@@ -94,15 +104,15 @@ struct GroupDetailView: View {
         }
         .sheet(isPresented: $showingAddExpense) {
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, participants in
-                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants)
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, participants, category, note in
+                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note)
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, participants in
-                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: participants)
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, participants, category, note in
+                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note)
                 }
             }
         }
