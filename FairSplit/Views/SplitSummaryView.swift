@@ -15,6 +15,13 @@ struct SplitSummaryView: View {
             }
         }
         .navigationTitle("Summary")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink("Settle Up") {
+                    SettleUpView(group: group)
+                }
+            }
+        }
     }
 }
 

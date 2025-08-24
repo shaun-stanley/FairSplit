@@ -25,4 +25,24 @@ struct SplitCalculatorTests {
         #expect(net[a.persistentModelID] == Decimal(string: "6.00"))
         #expect(net[b.persistentModelID] == Decimal(string: "-6.00"))
     }
+
+    @Test
+    func proposedTransfers_matchesDebtsToCredits() {
+        let a = Member(name: "A")
+        let b = Member(name: "B")
+        let c = Member(name: "C")
+        let net: [PersistentIdentifier: Decimal] = [
+            a.persistentModelID: 5,
+            b.persistentModelID: -3,
+            c.persistentModelID: -2
+        ]
+        let transfers = SplitCalculator.proposedTransfers(netBalances: net, members: [a, b, c])
+        #expect(transfers.count == 2)
+        #expect(transfers[0].from == b)
+        #expect(transfers[0].to == a)
+        #expect(transfers[0].amount == 3)
+        #expect(transfers[1].from == c)
+        #expect(transfers[1].to == a)
+        #expect(transfers[1].amount == 2)
+    }
 }

@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [MVP-3] Settle Up: suggest transfers and record a Settlement entry
-2. [CORE-1] Groups list polish: “You owe / You’re owed” summary, search, sort by recent activity
-3. [MATH-1] Balances helper (greedy “who pays whom”), rounded to 2 decimals
+1. [CORE-1] Groups list polish: “You owe / You’re owed” summary, search, sort by recent activity
+2. [MATH-1] Balances helper (greedy “who pays whom”), rounded to 2 decimals
+3. [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
 
 ## In Progress
 (none)
@@ -27,7 +27,7 @@
 [DOC-1] Use GitHub CI badge in README
 
 ## Blocked
-(none)
+[MVP-3] Settle Up: suggest transfers and record a Settlement entry — missing `xcodebuild`; install Xcode CLI tools (`xcode-select --install`) and rerun `xcodebuild -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO build`
 
 ---
 
@@ -35,7 +35,6 @@
 
 ### Core Experience
 - [CORE-1] Groups list polish: “You owe / You’re owed” summary, search, sort by recent activity
-- [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
 - [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
 - [CORE-4] Expense editing: edit/delete, swipe actions, context menu
 - [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
