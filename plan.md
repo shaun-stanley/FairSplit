@@ -11,16 +11,17 @@
 - Build: ✅ runs on iOS Simulator
 - Persistence: ✅ SwiftData store with demo seed
 - Core features: Groups ☐  Expenses ☐  Balances ☐  Settle Up ☐
+- Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [MVP-2] Input polish: NumberFormatter for amount + validation; locale-aware currency
-2. [MVP-3] Settle Up: suggest transfers and record a Settlement entry
+1. [MVP-3] Settle Up: suggest transfers and record a Settlement entry
 
 ## In Progress
 (none)
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
+[MVP-2] Polished amount input with currency formatting and validation
 
 ## Blocked
 (none)
@@ -104,6 +105,7 @@
 
 ## Changelog
 - 2025-08-24: MVP-1 — Added SwiftData persistence and seeded a demo group (Alex, Sam, Kai) on first launch.
+- 2025-08-24: MVP-2 — Amount field uses locale-aware currency formatting and blocks invalid/empty values; lists and summary now show group currency.
 
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.

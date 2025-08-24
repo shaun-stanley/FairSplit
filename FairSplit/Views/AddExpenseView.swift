@@ -3,11 +3,13 @@ import SwiftData
 
 struct AddExpenseView: View {
     var members: [Member]
+    var currencyCode: String
     var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member]) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var title: String = ""
-    @State private var amountText: String = ""
+    // Use numeric binding with currency formatting for polished input
+    @State private var amount: Double? = nil
     @State private var payer: Member?
     @State private var selected: Set<PersistentIdentifier> = []
 
@@ -15,8 +17,10 @@ struct AddExpenseView: View {
         Form {
             Section("Details") {
                 TextField("Title", text: $title)
-                TextField("Amount", text: $amountText)
+                TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                     .keyboardType(.decimalPad)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
             }
             Section("Payer") {
                 Picker("Paid by", selection: $payer) {
@@ -49,13 +53,14 @@ struct AddExpenseView: View {
 
     private var canSave: Bool {
         guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
-        guard Decimal(string: amountText.replacingOccurrences(of: ",", with: ".")) != nil else { return false }
+        guard let amount, amount > 0 else { return false }
         guard payer != nil else { return false }
         return !selected.isEmpty
     }
 
     private func save() {
-        guard let amount = Decimal(string: amountText.replacingOccurrences(of: ",", with: ".")) else { return }
+        guard let amt = amount else { return }
+        let amount = Decimal(amt)
         let included = members.filter { selected.contains($0.persistentModelID) }
         onSave(title, amount, payer, included)
         dismiss()
@@ -66,6 +71,6 @@ struct AddExpenseView: View {
     // SwiftData previews would require a model container; keeping a static preview of the form.
     let m = [Member(name: "Alex"), Member(name: "Sam"), Member(name: "Kai")]
     return NavigationStack {
-        AddExpenseView(members: m) { _, _, _, _ in }
+        AddExpenseView(members: m, currencyCode: "USD") { _, _, _, _ in }
     }
 }

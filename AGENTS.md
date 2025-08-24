@@ -63,3 +63,9 @@ Use: xcodebuild -scheme FairSplit -destination 'generic/platform=iOS Simulator' 
 - On success:
   - Move the item to "Done" and append a dated entry to the Changelog in PLAN.md.
   - Commit with: "<ID> short summary".
+
+- Build with a pinned destination (reuse same simulator):
+  xcodebuild -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO build
+
+- Run tests on the same device, single worker:
+  xcodebuild test -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO -maximum-parallel-testing-workers 1

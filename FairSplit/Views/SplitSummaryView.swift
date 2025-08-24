@@ -10,7 +10,7 @@ struct SplitSummaryView: View {
             HStack {
                 Text(m.name)
                 Spacer()
-                Text(CurrencyFormatter.string(from: amount))
+                Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
                     .foregroundStyle(amount >= 0 ? .green : .red)
             }
         }

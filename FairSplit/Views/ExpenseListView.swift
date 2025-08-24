@@ -19,7 +19,7 @@ struct ExpenseListView: View {
                         }
                     }
                     Spacer()
-                    Text(CurrencyFormatter.string(from: expense.amount))
+                    Text(CurrencyFormatter.string(from: expense.amount, currencyCode: group.defaultCurrency))
                         .fontWeight(.semibold)
                 }
             }
@@ -34,7 +34,7 @@ struct ExpenseListView: View {
         }
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
-                AddExpenseView(members: group.members) { title, amount, payer, included in
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included in
                     DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included)
                 }
             }
