@@ -14,9 +14,8 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [CORE-1] Groups list polish: “You owe / You’re owed” summary, search, sort by recent activity
-2. [MATH-1] Balances helper (greedy “who pays whom”), rounded to 2 decimals
-3. [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
+1. [MATH-1] Balances helper (greedy “who pays whom”), rounded to 2 decimals
+2. [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
 
 ## In Progress
 (none)
@@ -26,6 +25,7 @@
 [MVP-2] Polished amount input with currency formatting and validation
 [DOC-1] Use GitHub CI badge in README
 [MVP-3] Settle Up suggests transfers and saves them
+[CORE-1] Groups list shows balance summary, search, and recent activity sorting
 
 ## Blocked
 (none)
@@ -35,7 +35,6 @@
 ## Backlog (move items up to “Next Up” when ready)
 
 ### Core Experience
-- [CORE-1] Groups list polish: “You owe / You’re owed” summary, search, sort by recent activity
 - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
 - [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
 - [CORE-4] Expense editing: edit/delete, swipe actions, context menu
@@ -112,6 +111,7 @@
 - 2025-08-24: MVP-2 — Amount field uses locale-aware currency formatting and blocks invalid/empty values; lists and summary now show group currency.
 - 2025-08-24: DOC-1 — Updated README with CI badge.
 - 2025-08-24: MVP-3 — Added Settle Up screen with suggested transfers and settlement history.
+- 2025-08-24: CORE-1 — Groups list shows balance summary, search, and recent activity sorting.
 
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.
