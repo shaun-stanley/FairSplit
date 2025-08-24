@@ -27,13 +27,58 @@ enum SplitCalculator {
     }
 
     /// Computes net balances per member: positive means they are owed, negative means they owe.
-    static func netBalances(expenses: [Expense], members: [Member]) -> [PersistentIdentifier: Decimal] {
+    static func netBalances(expenses: [Expense], members: [Member], settlements: [Settlement] = []) -> [PersistentIdentifier: Decimal] {
         var net: [PersistentIdentifier: Decimal] = Dictionary(uniqueKeysWithValues: members.map { ($0.persistentModelID, 0) })
         for expense in expenses {
             let shares = evenSplit(amount: expense.amount, among: expense.participants)
             if let payer = expense.payer { net[payer.persistentModelID, default: 0] += expense.amount }
             for (memberID, owed) in shares { net[memberID, default: 0] -= owed }
         }
+        for s in settlements {
+            net[s.from.persistentModelID, default: 0] += s.amount
+            net[s.to.persistentModelID, default: 0] -= s.amount
+        }
         return net
+    }
+
+    /// Suggests settlement transfers using a greedy algorithm on integer cents.
+    /// Returns an array of (from, to, amount) tuples; amount rounded to cents.
+    static func proposedTransfers(netBalances net: [PersistentIdentifier: Decimal], members: [Member]) -> [(from: Member, to: Member, amount: Decimal)] {
+        var creditors: [(id: PersistentIdentifier, cents: Int)] = []
+        var debtors: [(id: PersistentIdentifier, cents: Int)] = []
+
+        for (id, value) in net {
+            let cents = (NSDecimalNumber(decimal: value).multiplying(by: 100).rounding(accordingToBehavior: nil)).intValue
+            if cents > 0 { creditors.append((id, cents)) }
+            else if cents < 0 { debtors.append((id, -cents)) }
+        }
+
+        // Map IDs to members for quick lookup
+        let map: [PersistentIdentifier: Member] = Dictionary(uniqueKeysWithValues: members.map { ($0.persistentModelID, $0) })
+
+        // Greedy: largest creditors and debtors first
+        creditors.sort { $0.cents > $1.cents }
+        debtors.sort { $0.cents > $1.cents }
+
+        var i = 0, j = 0
+        var results: [(from: Member, to: Member, amount: Decimal)] = []
+        while i < debtors.count && j < creditors.count {
+            var debt = debtors[i].cents
+            var credit = creditors[j].cents
+            let pay = min(debt, credit)
+
+            if pay > 0, let from = map[debtors[i].id], let to = map[creditors[j].id] {
+                results.append((from: from, to: to, amount: Decimal(pay) / 100))
+            }
+
+            debt -= pay
+            credit -= pay
+            debtors[i].cents = debt
+            creditors[j].cents = credit
+
+            if debt == 0 { i += 1 }
+            if credit == 0 { j += 1 }
+        }
+        return results
     }
 }

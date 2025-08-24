@@ -32,5 +32,12 @@ final class DataRepository {
         for e in expenses { context.delete(e) }
         try? context.save()
     }
-}
 
+    func recordSettlements(for group: Group, transfers: [(from: Member, to: Member, amount: Decimal)]) {
+        for t in transfers {
+            let s = Settlement(from: t.from, to: t.to, amount: t.amount)
+            group.settlements.append(s)
+        }
+        try? context.save()
+    }
+}

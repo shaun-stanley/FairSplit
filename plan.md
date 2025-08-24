@@ -17,7 +17,7 @@
 1. [MVP-3] Settle Up: suggest transfers and record a Settlement entry
 
 ## In Progress
-(none)
+[MVP-3] Settle Up: suggest transfers and record a Settlement entry
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
