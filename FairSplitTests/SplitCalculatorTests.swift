@@ -75,4 +75,31 @@ struct SplitCalculatorTests {
         #expect(net[a.persistentModelID] == Decimal(string: "10.00"))
         #expect(net[b.persistentModelID] == Decimal(string: "-10.00"))
     }
+
+    @Test
+    func netBalances_appliesSettlements() {
+        let a = Member(name: "A")
+        let b = Member(name: "B")
+        let exp = Expense(title: "Dinner", amount: 20.00, payer: a, participants: [a, b])
+        let settlement = Settlement(from: b, to: a, amount: 5.00)
+        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b], settlements: [settlement])
+        #expect(net[a.persistentModelID] == Decimal(string: "5.00"))
+        #expect(net[b.persistentModelID] == Decimal(string: "-5.00"))
+    }
+
+    @Test
+    func proposedTransfers_handlesSmallRemainders() {
+        let a = Member(name: "A")
+        let b = Member(name: "B")
+        let c = Member(name: "C")
+        let net: [PersistentIdentifier: Decimal] = [
+            a.persistentModelID: Decimal(string: "0.02")!,
+            b.persistentModelID: Decimal(string: "-0.01")!,
+            c.persistentModelID: Decimal(string: "-0.01")!
+        ]
+        let transfers = SplitCalculator.proposedTransfers(netBalances: net, members: [a, b, c])
+        #expect(transfers.count == 2)
+        #expect(transfers.contains { $0.from === b && $0.to === a && $0.amount == Decimal(string: "0.01") })
+        #expect(transfers.contains { $0.from === c && $0.to === a && $0.amount == Decimal(string: "0.01") })
+    }
 }

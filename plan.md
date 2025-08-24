@@ -14,11 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [TEST-1] Unit tests for settlement math (edge cases, rounding, settlements)
-2. [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
-1. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
-2. [TEST-1] Unit tests for settlement math (edge cases, rounding, settlements)
-3. [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
+1. [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
+2. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
+3. [TEST-2] UI tests for add/edit/delete expense and settle flow
 
 
 ## In Progress
@@ -35,6 +33,7 @@
 [MATH-2] Unequal splits allow weighted shares
 [CORE-3] Members can be added, renamed, and removed; expenses prevent deletion
 [CORE-4] Expenses can be added, edited, or removed
+[TEST-1] Added unit tests for settlement math
 
 
 ## Blocked
@@ -123,6 +122,7 @@
 - 2025-08-24: MATH-2 — Added share-based uneven splits.
 - 2025-08-24: CORE-3 — Members can be added, renamed, and removed; expenses prevent deletion.
 - 2025-08-24: CORE-4 — Expenses can be added, edited, or removed.
+- 2025-08-24: TEST-1 — Added unit tests for settlement calculations.
 
 
 ## Vision
