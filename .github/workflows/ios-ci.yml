@@ -1,0 +1,23 @@
+name: iOS CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - name: Build
+        run: xcodebuild -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO build
+      - name: Test
+        run: |
+          if [ -d FairSplitTests ] || [ -d FairSplitUITests ]; then
+            xcodebuild test -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO -maximum-parallel-testing-workers 1
+          else
+            echo "No tests found, skipping."
+          fi

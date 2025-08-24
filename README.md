@@ -1,4 +1,5 @@
 # FairSplit
+[![iOS CI](https://github.com/OWNER/FairSplit/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/OWNER/FairSplit/actions/workflows/ios-ci.yml)
 
 A lightweight SwiftUI app scaffold for splitting expenses among participants. This repository is structured for clarity and quick iteration, with Models, Views, Helpers, and tests organized per AGENTS.md.
 
