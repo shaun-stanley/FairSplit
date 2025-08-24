@@ -17,3 +17,22 @@ final class Group {
         self.settlements = settlements
     }
 }
+
+extension Group {
+    /// Latest activity date from expenses or settlements.
+    var lastActivity: Date {
+        let expenseDate = expenses.map(\.date).max() ?? .distantPast
+        let settlementDate = settlements.map(\.date).max() ?? .distantPast
+        return max(expenseDate, settlementDate)
+    }
+
+    /// Net balance for a member: positive means they are owed money.
+    func balance(for member: Member) -> Decimal {
+        let net = SplitCalculator.netBalances(
+            expenses: expenses,
+            members: members,
+            settlements: settlements
+        )
+        return net[member.persistentModelID] ?? 0
+    }
+}
