@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		28AABB7E2E5AB3F4007E8474 /* plan.md in Sources */ = {isa = PBXBuildFile; fileRef = 28AABB7D2E5AB3F0007E8474 /* plan.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		28AC098A2E5AA733002A301A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		28AABB7D2E5AB3F0007E8474 /* plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = plan.md; sourceTree = "<group>"; };
 		28AC097A2E5AA732002A301A /* FairSplit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FairSplit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		28AC09892E5AA733002A301A /* FairSplitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FairSplitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		28AC09932E5AA733002A301A /* FairSplitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FairSplitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +80,7 @@
 		28AC09712E5AA732002A301A = {
 			isa = PBXGroup;
 			children = (
+				28AABB7D2E5AB3F0007E8474 /* plan.md */,
 				28AC097C2E5AA732002A301A /* FairSplit */,
 				28AC098C2E5AA733002A301A /* FairSplitTests */,
 				28AC09962E5AA733002A301A /* FairSplitUITests */,
@@ -236,6 +242,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28AABB7E2E5AB3F4007E8474 /* plan.md in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
