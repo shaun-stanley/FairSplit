@@ -61,8 +61,12 @@ struct GroupDetailView: View {
             }
 
             Section("Members") {
-                ForEach(group.members, id: \.persistentModelID) { member in
-                    Text(member.name)
+                NavigationLink(destination: MembersView(group: group)) {
+                    HStack {
+                        Text("Members")
+                        Spacer()
+                        Text("\(group.members.count)").foregroundStyle(.secondary)
+                    }
                 }
             }
         }
