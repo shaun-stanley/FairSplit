@@ -69,3 +69,13 @@ Use: xcodebuild -scheme FairSplit -destination 'generic/platform=iOS Simulator' 
 
 - Run tests on the same device, single worker:
   xcodebuild test -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO -maximum-parallel-testing-workers 1
+
+## CI Failure Handling
+- When a PR has a failing iOS CI check:
+  1) Read the latest PR comment containing "iOS CI failed" for the error summary.
+  2) If needed, download the attached xcodebuild-logs artifact and review the tail.
+  3) Diagnose in plain English, propose the fix, and push commits to the **same PR branch**.
+  4) Re-run CI by pushing; wait for green.
+  5) Update PLAN.md: move the item to "Blocked" with the diagnosis (while failing), then to "Done" with a one-line summary when green; add a dated Changelog entry.
+- Never run `xcodebuild` inside the Codex sandbox; rely on GitHub Actions for builds/tests.
+
