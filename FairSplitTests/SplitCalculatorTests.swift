@@ -39,4 +39,17 @@ struct SplitCalculatorTests {
         #expect(transfers.contains { $0.from === b && $0.to === a && $0.amount == Decimal(string: "10.00") })
         #expect(transfers.contains { $0.from === c && $0.to === a && $0.amount == Decimal(string: "10.00") })
     }
+
+    @Test
+    func balances_forGroup_returnsRoundedTransfers() {
+        let a = Member(name: "A")
+        let b = Member(name: "B")
+        let c = Member(name: "C")
+        let exp = Expense(title: "Meal", amount: 10.00, payer: a, participants: [a, b, c])
+        let g = Group(name: "G", defaultCurrency: "USD", members: [a, b, c], expenses: [exp])
+        let transfers = SplitCalculator.balances(for: g)
+        #expect(transfers.count == 2)
+        #expect(transfers.contains { $0.from === b && $0.to === a && $0.amount == Decimal(string: "3.33") })
+        #expect(transfers.contains { $0.from === c && $0.to === a && $0.amount == Decimal(string: "3.33") })
+    }
 }

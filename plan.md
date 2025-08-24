@@ -14,8 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [MATH-1] Balances helper (greedy “who pays whom”), rounded to 2 decimals
-2. [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
+1. [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
+2. [MATH-2] Unequal splits: shares / percentages / exact amounts (choose one simple mode first)
+3. [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
 
 ## In Progress
 (none)
@@ -26,6 +27,7 @@
 [DOC-1] Use GitHub CI badge in README
 [MVP-3] Settle Up suggests transfers and saves them
 [CORE-1] Groups list shows balance summary, search, and recent activity sorting
+[MATH-1] Added balances helper suggesting who pays whom
 
 ## Blocked
 (none)
@@ -45,7 +47,6 @@
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
 
 ### Money & Math
-- [MATH-1] Balances helper (greedy “who pays whom”), rounded to 2 decimals
 - [MATH-2] Unequal splits: shares / percentages / exact amounts (choose one simple mode first)
 - [MATH-3] Recurring expenses (monthly rent, subscriptions) with auto-add and pause
 - [MATH-4] Multi-currency per group with **manual FX rates** (safe, offline). Optional: remember last rate used
@@ -112,6 +113,7 @@
 - 2025-08-24: DOC-1 — Updated README with CI badge.
 - 2025-08-24: MVP-3 — Added Settle Up screen with suggested transfers and settlement history.
 - 2025-08-24: CORE-1 — Groups list shows balance summary, search, and recent activity sorting.
+- 2025-08-24: MATH-1 — Added balances helper that suggests who pays whom.
 
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.
