@@ -28,6 +28,14 @@ final class DataRepository {
         try? context.save()
     }
 
+    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member]) {
+        expense.title = title
+        expense.amount = amount
+        expense.payer = payer
+        expense.participants = participants
+        try? context.save()
+    }
+
     func delete(expenses: [Expense]) {
         for e in expenses { context.delete(e) }
         try? context.save()
@@ -40,4 +48,27 @@ final class DataRepository {
         }
         try? context.save()
     }
+    func addMember(to group: Group, name: String) {
+        let member = Member(name: name)
+        group.members.append(member)
+        try? context.save()
+    }
+
+    func rename(member: Member, to newName: String) {
+        member.name = newName
+        try? context.save()
+    }
+
+    /// Returns true if deletion succeeded; false if member is used in any expense.
+    func delete(member: Member, from group: Group) -> Bool {
+        let used = group.expenses.contains {
+            $0.payer?.persistentModelID == member.persistentModelID ||
+            $0.participants.contains(where: { $0.persistentModelID == member.persistentModelID })
+        }
+        guard !used else { return false }
+        context.delete(member)
+        try? context.save()
+        return true
+    }
+
 }

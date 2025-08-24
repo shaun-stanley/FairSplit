@@ -2,7 +2,10 @@ import SwiftUI
 import SwiftData
 
 struct GroupDetailView: View {
+    @Environment(\.modelContext) private var modelContext
     let group: Group
+    @State private var showingAddExpense = false
+    @State private var editingExpense: Expense?
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -24,6 +27,18 @@ struct GroupDetailView: View {
                         Spacer()
                         Text(CurrencyFormatter.string(from: expense.amount, currencyCode: group.defaultCurrency))
                             .fontWeight(.semibold)
+                    }
+                    .swipeActions {
+                        Button("Edit") { editingExpense = expense }.tint(.blue)
+                        Button("Delete", role: .destructive) {
+                            DataRepository(context: modelContext).delete(expenses: [expense])
+                        }
+                    }
+                    .contextMenu {
+                        Button("Edit") { editingExpense = expense }
+                        Button("Delete", role: .destructive) {
+                            DataRepository(context: modelContext).delete(expenses: [expense])
+                        }
                     }
                 }
             }
@@ -61,12 +76,36 @@ struct GroupDetailView: View {
             }
 
             Section("Members") {
-                ForEach(group.members, id: \.persistentModelID) { member in
-                    Text(member.name)
+                NavigationLink(destination: MembersView(group: group)) {
+                    HStack {
+                        Text("Members")
+                        Spacer()
+                        Text("\(group.members.count)").foregroundStyle(.secondary)
+                    }
                 }
             }
         }
         .navigationTitle(group.name)
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button { showingAddExpense = true } label: { Image(systemName: "plus") }
+                NavigationLink("Settle Up") { SettleUpView(group: group) }
+            }
+        }
+        .sheet(isPresented: $showingAddExpense) {
+            NavigationStack {
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, participants in
+                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants)
+                }
+            }
+        }
+        .sheet(item: $editingExpense) { expense in
+            NavigationStack {
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, participants in
+                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: participants)
+                }
+            }
+        }
     }
 }
 
