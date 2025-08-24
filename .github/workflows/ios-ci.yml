@@ -4,20 +4,30 @@ on:
   pull_request: { branches: [main] }
   push:        { branches: [main] }
 
+# avoid duplicate runs
 concurrency:
   group: ios-ci-${{ github.ref }}
   cancel-in-progress: true
 
+# allow the workflow to comment on PRs and read code
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   build-test:
     runs-on: macos-latest
+    env:
+      CI_LOG_DIR: ci-logs
     steps:
       - uses: actions/checkout@v4
+
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
-      - name: Show Xcode & simulators
+      - name: Show Xcode & available sims
         run: |
           xcodebuild -version
           xcrun simctl list devices available | sed -n '1,80p'
@@ -25,6 +35,7 @@ jobs:
       - name: Build (generic iOS Simulator)
         run: |
           set -o pipefail
+          mkdir -p "$CI_LOG_DIR"
           xcodebuild \
             -project FairSplit.xcodeproj \
             -scheme FairSplit \
@@ -32,7 +43,7 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             -parallel-testing-enabled NO \
-            build
+            build | tee "$CI_LOG_DIR/build.log"
 
       - name: Test (if tests exist)
         run: |
@@ -44,7 +55,48 @@ jobs:
               -sdk iphonesimulator \
               -destination 'generic/platform=iOS Simulator' \
               -parallel-testing-enabled NO \
-              -maximum-parallel-testing-workers 1
+              -maximum-parallel-testing-workers 1 \
+              | tee "$CI_LOG_DIR/test.log"
           else
-            echo "No tests yet — skipping."
+            echo "No tests yet — skipping." | tee "$CI_LOG_DIR/test.log"
           fi
+
+      # always save logs so you (and Codex) can download full context
+      - name: Upload xcodebuild logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-logs
+          path: ${{ env.CI_LOG_DIR }}/*.log
+          retention-days: 7
+
+      # on failure, post a concise tail of the logs to the PR
+      - name: Comment failure summary on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            function tail(p, n=80) {
+              try { return fs.readFileSync(p, 'utf8').split('\n').slice(-n).join('\n') } catch { return '(no log)'; }
+            }
+            const body = [
+              '❌ **iOS CI failed**',
+              '',
+              '**Build tail:**',
+              '```',
+              tail('ci-logs/build.log'),
+              '```',
+              '',
+              '**Test tail:**',
+              '```',
+              tail('ci-logs/test.log'),
+              '```',
+              '➡️ Download full logs from **Artifacts › xcodebuild-logs**.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
