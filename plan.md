@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
-2. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
-3. [TEST-2] UI tests for add/edit/delete expense and settle flow
+1. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
+2. [TEST-2] UI tests for add/edit/delete expense and settle flow
+3. [CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
 
 
 ## In Progress
@@ -34,6 +34,7 @@
 [CORE-3] Members can be added, renamed, and removed; expenses prevent deletion
 [CORE-4] Expenses can be added, edited, or removed
 [TEST-1] Added unit tests for settlement math
+[CORE-5] Expenses support categories and notes
 
 
 ## Blocked
@@ -44,11 +45,9 @@
 ## Backlog (move items up to “Next Up” when ready)
 
 ### Core Experience
-- [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
-- [CORE-4] Expense editing: edit/delete, swipe actions, context menu
-- [CORE-5] Categories & notes: optional category (Food/Travel/etc.) + free-text notes
-- [CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
-- [CORE-7] Search expenses: title, note, amount range, member filters
+ - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
+ - [CORE-4] Expense editing: edit/delete, swipe actions, context menu
+ - [CORE-7] Search expenses: title, note, amount range, member filters
 - [CORE-8] Undo/Redo for create/edit/delete operations
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
 
@@ -123,6 +122,7 @@
 - 2025-08-24: CORE-3 — Members can be added, renamed, and removed; expenses prevent deletion.
 - 2025-08-24: CORE-4 — Expenses can be added, edited, or removed.
 - 2025-08-24: TEST-1 — Added unit tests for settlement calculations.
+- 2025-08-24: CORE-5 — Added optional category and note fields to expenses.
 
 
 ## Vision

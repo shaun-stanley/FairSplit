@@ -5,7 +5,7 @@ struct AddExpenseView: View {
     var members: [Member]
     var currencyCode: String
     var expense: Expense?
-    var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member]) -> Void
+    var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var title: String
@@ -13,8 +13,10 @@ struct AddExpenseView: View {
     @State private var amount: Double?
     @State private var payer: Member?
     @State private var selected: Set<PersistentIdentifier>
+    @State private var category: ExpenseCategory?
+    @State private var note: String
 
-    init(members: [Member], currencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member]) -> Void) {
+    init(members: [Member], currencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?) -> Void) {
         self.members = members
         self.currencyCode = currencyCode
         self.expense = expense
@@ -23,6 +25,8 @@ struct AddExpenseView: View {
         _amount = State(initialValue: expense.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
         _payer = State(initialValue: expense?.payer)
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
+        _category = State(initialValue: expense?.category)
+        _note = State(initialValue: expense?.note ?? "")
     }
 
     var body: some View {
@@ -33,6 +37,15 @@ struct AddExpenseView: View {
                     .keyboardType(.decimalPad)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
+            }
+            Section("Category & Notes") {
+                Picker("Category", selection: $category) {
+                    Text("None").tag(nil as ExpenseCategory?)
+                    ForEach(ExpenseCategory.allCases) { cat in
+                        Text(cat.displayName).tag(cat as ExpenseCategory?)
+                    }
+                }
+                TextField("Note", text: $note)
             }
             Section("Payer") {
                 Picker("Paid by", selection: $payer) {
@@ -76,7 +89,8 @@ struct AddExpenseView: View {
         guard let amt = amount else { return }
         let amount = Decimal(amt)
         let included = members.filter { selected.contains($0.persistentModelID) }
-        onSave(title, amount, payer, included)
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        onSave(title, amount, payer, included, category, trimmed.isEmpty ? nil : trimmed)
         dismiss()
     }
 }
@@ -85,6 +99,6 @@ struct AddExpenseView: View {
     // SwiftData previews would require a model container; keeping a static preview of the form.
     let m = [Member(name: "Alex"), Member(name: "Sam"), Member(name: "Kai")]
     return NavigationStack {
-        AddExpenseView(members: m, currencyCode: "USD") { _, _, _, _ in }
+        AddExpenseView(members: m, currencyCode: "USD") { _, _, _, _, _, _ in }
     }
 }

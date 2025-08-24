@@ -9,14 +9,18 @@ final class Expense {
     var participants: [Member]
     @Relationship(deleteRule: .cascade) var shares: [ExpenseShare]
     var date: Date
+    var category: ExpenseCategory?
+    var note: String?
 
-    init(title: String, amount: Decimal, payer: Member?, participants: [Member], shares: [ExpenseShare] = [], date: Date = .now) {
+    init(title: String, amount: Decimal, payer: Member?, participants: [Member], shares: [ExpenseShare] = [], date: Date = .now, category: ExpenseCategory? = nil, note: String? = nil) {
         self.title = title
         self.amount = amount
         self.payer = payer
         self.participants = participants
         self.shares = shares
         self.date = date
+        self.category = category
+        self.note = note
     }
 }
 
