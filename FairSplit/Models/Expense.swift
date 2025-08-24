@@ -7,13 +7,15 @@ final class Expense {
     var amount: Decimal
     var payer: Member?
     var participants: [Member]
+    @Relationship(deleteRule: .cascade) var shares: [ExpenseShare]
     var date: Date
 
-    init(title: String, amount: Decimal, payer: Member?, participants: [Member], date: Date = .now) {
+    init(title: String, amount: Decimal, payer: Member?, participants: [Member], shares: [ExpenseShare] = [], date: Date = .now) {
         self.title = title
         self.amount = amount
         self.payer = payer
         self.participants = participants
+        self.shares = shares
         self.date = date
     }
 }

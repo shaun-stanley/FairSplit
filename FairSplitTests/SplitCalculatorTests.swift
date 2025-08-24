@@ -52,4 +52,27 @@ struct SplitCalculatorTests {
         #expect(transfers.contains { $0.from === b && $0.to === a && $0.amount == Decimal(string: "3.33") })
         #expect(transfers.contains { $0.from === c && $0.to === a && $0.amount == Decimal(string: "3.33") })
     }
+
+    @Test
+    func weightedSplit_respectsShares() {
+        let a = Member(name: "A")
+        let b = Member(name: "B")
+        let shareA = ExpenseShare(member: a, weight: 2)
+        let shareB = ExpenseShare(member: b, weight: 1)
+        let split = SplitCalculator.weightedSplit(amount: 9.00, shares: [shareA, shareB])
+        #expect(split[a.persistentModelID] == Decimal(string: "6.00"))
+        #expect(split[b.persistentModelID] == Decimal(string: "3.00"))
+    }
+
+    @Test
+    func netBalances_handlesWeightedExpenses() {
+        let a = Member(name: "A")
+        let b = Member(name: "B")
+        let shareA = ExpenseShare(member: a, weight: 2)
+        let shareB = ExpenseShare(member: b, weight: 1)
+        let exp = Expense(title: "Taxi", amount: 30.00, payer: a, participants: [a, b], shares: [shareA, shareB])
+        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b])
+        #expect(net[a.persistentModelID] == Decimal(string: "10.00"))
+        #expect(net[b.persistentModelID] == Decimal(string: "-10.00"))
+    }
 }
