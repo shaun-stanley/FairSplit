@@ -6,12 +6,8 @@ struct SettleUpView: View {
     var group: Group
     @State private var saved = false
 
-    private var net: [PersistentIdentifier: Decimal] {
-        SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements)
-    }
-
     private var proposals: [(from: Member, to: Member, amount: Decimal)] {
-        SplitCalculator.proposedTransfers(netBalances: net, members: group.members)
+        SplitCalculator.balances(for: group)
     }
 
     var body: some View {

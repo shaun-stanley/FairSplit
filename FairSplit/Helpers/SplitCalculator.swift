@@ -81,4 +81,11 @@ enum SplitCalculator {
         }
         return results
     }
+
+    /// Convenience helper to compute greedy settlement transfers for a group.
+    /// - Returns: Array of (from, to, amount) tuples; amounts rounded to cents.
+    static func balances(for group: Group) -> [(from: Member, to: Member, amount: Decimal)] {
+        let net = netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements)
+        return proposedTransfers(netBalances: net, members: group.members)
+    }
 }
