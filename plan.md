@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
-2. [MATH-2] Unequal splits: shares / percentages / exact amounts (choose one simple mode first)
-3. [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
+1. [MATH-2] Unequal splits: shares / percentages / exact amounts (choose one simple mode first)
+2. [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
+3. [UX-1] Dynamic Type everywhere; ensure layouts adapt up to Extra Large sizes
 
 ## In Progress
 (none)
@@ -30,7 +30,7 @@
 [MATH-1] Added balances helper suggesting who pays whom
 
 ## Blocked
-(none)
+[CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers — `xcodebuild` missing. Run `xcodebuild -scheme FairSplit -destination 'platform=iOS Simulator,name=iPhone 16' -parallel-testing-enabled NO build` on macOS with Xcode installed.
 
 ---
 

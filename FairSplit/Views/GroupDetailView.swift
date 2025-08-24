@@ -5,12 +5,51 @@ struct GroupDetailView: View {
     let group: Group
 
     var body: some View {
-        TabView {
-            ExpenseListView(group: group)
-                .tabItem { Label("Expenses", systemImage: "list.bullet") }
-            SplitSummaryView(group: group)
-                .tabItem { Label("Summary", systemImage: "person.3.sequence") }
+        ScrollView {
+            LazyVStack(alignment: .leading, pinnedViews: [.sectionHeaders]) {
+                Section(
+                    header: Text("Expenses")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.background)
+                ) {
+                    ExpenseListView(group: group)
+                }
+
+                Section(
+                    header: Text("Balances")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.background)
+                ) {
+                    SplitSummaryView(group: group)
+                }
+
+                Section(
+                    header: Text("Settle Up")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.background)
+                ) {
+                    SettleUpView(group: group)
+                }
+
+                Section(
+                    header: Text("Members")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.background)
+                ) {
+                    ForEach(group.members, id: \.persistentModelID) { member in
+                        Text(member.name)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 4)
+                    }
+                }
+            }
+            .padding(.horizontal)
         }
+        .navigationTitle(group.name)
     }
 }
 
