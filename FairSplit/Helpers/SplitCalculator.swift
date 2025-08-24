@@ -26,13 +26,43 @@ enum SplitCalculator {
         return result
     }
 
+    /// Splits a given amount among members using integer weight shares.
+    /// Any leftover cents are distributed to members in the order of the shares array.
+    static func weightedSplit(amount: Decimal, shares: [ExpenseShare]) -> [PersistentIdentifier: Decimal] {
+        let totalWeight = shares.reduce(0) { $0 + $1.weight }
+        guard totalWeight > 0 else { return [:] }
+        let centsTotal = (NSDecimalNumber(decimal: amount)
+            .multiplying(by: 100)
+            .rounding(accordingToBehavior: nil)).intValue
+
+        var result: [PersistentIdentifier: Decimal] = [:]
+        var allocated = 0
+        for share in shares {
+            let cents = centsTotal * share.weight / totalWeight
+            allocated += cents
+            result[share.member.persistentModelID] = Decimal(cents) / 100
+        }
+        var remainder = centsTotal - allocated
+        for share in shares where remainder > 0 {
+            let id = share.member.persistentModelID
+            result[id, default: 0] += 0.01
+            remainder -= 1
+        }
+        return result
+    }
+
     /// Computes net balances per member: positive means they are owed, negative means they owe.
     static func netBalances(expenses: [Expense], members: [Member], settlements: [Settlement] = []) -> [PersistentIdentifier: Decimal] {
         var net: [PersistentIdentifier: Decimal] = Dictionary(uniqueKeysWithValues: members.map { ($0.persistentModelID, 0) })
         for expense in expenses {
-            let shares = evenSplit(amount: expense.amount, among: expense.participants)
+            let split: [PersistentIdentifier: Decimal]
+            if expense.shares.isEmpty {
+                split = evenSplit(amount: expense.amount, among: expense.participants)
+            } else {
+                split = weightedSplit(amount: expense.amount, shares: expense.shares)
+            }
             if let payer = expense.payer { net[payer.persistentModelID, default: 0] += expense.amount }
-            for (memberID, owed) in shares { net[memberID, default: 0] -= owed }
+            for (memberID, owed) in split { net[memberID, default: 0] -= owed }
         }
         for s in settlements {
             net[s.from.persistentModelID, default: 0] += s.amount

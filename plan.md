@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [MATH-2] Unequal splits: shares / percentages / exact amounts (choose one simple mode first)
-2. [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
-3. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
+1. [CORE-3] Members management: add/rename/remove members; prevent deleting a member referenced by expenses
+2. [CORE-4] Expense editing: edit/delete, swipe actions, context menu
+3. [TEST-1] Unit tests for settlement math (edge cases, rounding, settlements)
 
 ## In Progress
 (none)
@@ -29,6 +29,7 @@
 [CORE-1] Groups list shows balance summary, search, and recent activity sorting
 [MATH-1] Added balances helper suggesting who pays whom
 [CORE-2] Group detail shows sections for expenses, balances, settle up, and members
+[MATH-2] Unequal splits allow weighted shares
 
 ## Blocked
 (none)
@@ -48,7 +49,6 @@
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
 
 ### Money & Math
-- [MATH-2] Unequal splits: shares / percentages / exact amounts (choose one simple mode first)
 - [MATH-3] Recurring expenses (monthly rent, subscriptions) with auto-add and pause
 - [MATH-4] Multi-currency per group with **manual FX rates** (safe, offline). Optional: remember last rate used
 - [MATH-5] Per-member totals and per-category totals in group
@@ -100,7 +100,6 @@
 - [PRIV-3] Clear personal data: wipe demo data / reset store
 
 ### Quality & Tooling
-- [TEST-1] Unit tests for settlement math (edge cases, rounding, settlements)
 - [TEST-2] UI tests for add/edit/delete expense and settle flow
 - [TEST-3] Snapshot tests for key screens (optional)
 - [OPS-1] Diagnostics toggle: structured `os_log` (no PII), exportable log file in Debug builds
@@ -116,6 +115,7 @@
 - 2025-08-24: CORE-1 — Groups list shows balance summary, search, and recent activity sorting.
 - 2025-08-24: MATH-1 — Added balances helper that suggests who pays whom.
 - 2025-08-24: CORE-2 — Group detail shows sections for expenses, balances, settle up, and members.
+- 2025-08-24: MATH-2 — Added share-based uneven splits.
 
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.
