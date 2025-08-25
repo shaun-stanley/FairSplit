@@ -18,7 +18,7 @@
 2. [CORE-7] Search expenses: title, note, amount range, member filters
 
 ## In Progress
-[CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
+[TEST-4] UI tests for add/delete expense and settle up flow
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -35,6 +35,7 @@
 [CORE-5] Expenses support categories and notes
 [CORE-4] Expense list supports swipe edit and delete with context menu
 [TEST-2] Added UI test for editing expenses
+[CORE-6] Attach receipts: add photo/scan using VisionKit; show thumbnail in list
 
 
 ## Blocked
@@ -122,6 +123,7 @@
 - 2025-08-24: CORE-5 — Added optional category and note fields to expenses.
 - 2025-08-24: CORE-4 — Expense list supports swipe edit and delete actions with context menu.
 - 2025-08-25: TEST-2 — Added UI test for editing expenses.
+- 2025-08-25: CORE-6 — Attach receipts with VisionKit scanner and thumbnails in lists.
 
 
 ## Vision
