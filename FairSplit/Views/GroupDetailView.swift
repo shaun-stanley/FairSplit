@@ -121,7 +121,7 @@ struct GroupDetailView: View {
                             } label: {
                                 HStack {
                                     Text(m.name)
-                                    if selectedMemberIDs.contains(m.persistentModelID) { Image(systemImage: "checkmark") }
+                                    if selectedMemberIDs.contains(m.persistentModelID) { Image(systemName: "checkmark") }
                                 }
                             }
                         }
@@ -174,8 +174,8 @@ struct GroupDetailView: View {
     private var filteredExpenses: [Expense] {
         let query = ExpenseQuery(
             searchText: searchText,
-            minAmount: minAmount.map(Decimal.init),
-            maxAmount: maxAmount.map(Decimal.init),
+            minAmount: minAmount.map { Decimal($0) },
+            maxAmount: maxAmount.map { Decimal($0) },
             memberIDs: selectedMemberIDs
         )
         return ExpenseFilterHelper.filtered(expenses: group.expenses, query: query)

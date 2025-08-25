@@ -130,8 +130,8 @@ struct ExpenseListView: View {
     private var filteredExpenses: [Expense] {
         let query = ExpenseQuery(
             searchText: searchText,
-            minAmount: minAmount.map(Decimal.init),
-            maxAmount: maxAmount.map(Decimal.init),
+            minAmount: minAmount.map { Decimal($0) },
+            maxAmount: maxAmount.map { Decimal($0) },
             memberIDs: selectedMemberIDs
         )
         return ExpenseFilterHelper.filtered(expenses: group.expenses, query: query)
