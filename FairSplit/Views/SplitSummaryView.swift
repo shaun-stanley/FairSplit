@@ -4,7 +4,7 @@ struct SplitSummaryView: View {
     var group: Group
 
     var body: some View {
-        let balances = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements)
+        let balances = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
         List(group.members, id: \.persistentModelID) { m in
             let amount = balances[m.persistentModelID] ?? 0
             HStack {

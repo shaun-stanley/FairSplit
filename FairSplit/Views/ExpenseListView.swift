@@ -93,15 +93,15 @@ struct ExpenseListView: View {
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
+                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, amount, currency, rate, payer, included, category, note, receipt in
+                    DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, included, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
+                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense) { title, amount, currency, rate, payer, included, category, note, receipt in
+                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
                 }
             }
         }

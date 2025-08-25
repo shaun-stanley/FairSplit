@@ -15,11 +15,11 @@
 
 ## Next Up (top first — keep ≤3)
 1. [CORE-8] Undo/Redo for create/edit/delete operations
-2. [CORE-9] App theming: light/dark with accent color; respect system appearance
-3. [UX-6] Polish primary actions placement (Add Expense, Settle Up)
+2. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
+3. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
 
 ## In Progress
-[UX-6] Polish primary actions placement (Add Expense, Settle Up)
+[MATH-4] Multi-currency per group with **manual FX rates** (safe, offline). Optional: remember last rate used
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -39,6 +39,7 @@
 [CORE-6] Attach receipts: add photo/scan using VisionKit; show thumbnail in list
 [TEST-4] UI tests for add/delete expense and settle up flow
 [CORE-7] Search expenses: title, note, amount range, member filters
+[UX-6] Polish primary actions placement (Add Expense, Settle Up)
 
 
 ## Blocked
@@ -129,6 +130,7 @@
 - 2025-08-25: CORE-6 — Attach receipts with VisionKit scanner and thumbnails in lists.
 - 2025-08-25: TEST-4 — UI tests for add/delete expense and settle up flow.
 - 2025-08-25: CORE-7 — Added expense search by text, amount range, and members.
+- 2025-08-26: UX-6 — Polished primary actions placement.
 
 
 ## Vision
