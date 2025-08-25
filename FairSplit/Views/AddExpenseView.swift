@@ -4,9 +4,9 @@ import SwiftData
 struct AddExpenseView: View {
     var members: [Member]
     /// Group's default currency
-    var currencyCode: String
+    var groupCurrencyCode: String
     var expense: Expense?
-    var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void
+    var onSave: (_ title: String, _ amount: Decimal, _ currencyCode: String, _ fxRateToGroup: Decimal?, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var title: String
@@ -21,9 +21,9 @@ struct AddExpenseView: View {
     @State private var receiptImageData: Data?
     @State private var showingScanner = false
 
-    init(members: [Member], currencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void) {
+    init(members: [Member], groupCurrencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ currencyCode: String, _ fxRateToGroup: Decimal?, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void) {
         self.members = members
-        self.currencyCode = currencyCode
+        self.groupCurrencyCode = groupCurrencyCode
         self.expense = expense
         self.onSave = onSave
         _title = State(initialValue: expense?.title ?? "")
@@ -32,7 +32,7 @@ struct AddExpenseView: View {
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
         _category = State(initialValue: expense?.category)
         _note = State(initialValue: expense?.note ?? "")
-        _expenseCurrency = State(initialValue: expense?.currencyCode ?? currencyCode)
+        _expenseCurrency = State(initialValue: expense?.currencyCode ?? groupCurrencyCode)
         _fxRate = State(initialValue: expense?.fxRateToGroupCurrency.map { Double(truncating: NSDecimalNumber(decimal: $0)) })
         _receiptImageData = State(initialValue: expense?.receiptImageData)
     }
@@ -41,7 +41,7 @@ struct AddExpenseView: View {
         Form {
             Section("Details") {
                 TextField("Title", text: $title)
-                TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                TextField("Amount", value: $amount, format: .currency(code: expenseCurrency))
                     .keyboardType(.decimalPad)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
@@ -61,8 +61,8 @@ struct AddExpenseView: View {
                         Text(code).tag(code)
                     }
                 }
-                if expenseCurrency != currencyCode {
-                    TextField("Rate to \(currencyCode)", value: $fxRate, format: .number)
+                if expenseCurrency != groupCurrencyCode {
+                    TextField("Rate to \(groupCurrencyCode)", value: $fxRate, format: .number)
                         .keyboardType(.decimalPad)
                 }
             }
@@ -138,7 +138,15 @@ struct AddExpenseView: View {
         let amount = Decimal(amt)
         let included = members.filter { selected.contains($0.persistentModelID) }
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        onSave(title, amount, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
+        let rateDecimal: Decimal?
+        if expenseCurrency == groupCurrencyCode {
+            rateDecimal = nil
+        } else if let fxRate {
+            rateDecimal = Decimal(fxRate)
+        } else {
+            rateDecimal = nil
+        }
+        onSave(title, amount, expenseCurrency, rateDecimal, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
         dismiss()
     }
 }
@@ -147,6 +155,6 @@ struct AddExpenseView: View {
     // SwiftData previews would require a model container; keeping a static preview of the form.
     let m = [Member(name: "Alex"), Member(name: "Sam"), Member(name: "Kai")]
     return NavigationStack {
-        AddExpenseView(members: m, currencyCode: "USD") { _, _, _, _, _, _, _ in }
+        AddExpenseView(members: m, groupCurrencyCode: "USD") { _, _, _, _, _, _, _, _, _ in }
     }
 }

@@ -20,7 +20,7 @@ struct SplitCalculatorTests {
         let a = Member(name: "A")
         let b = Member(name: "B")
         let exp = Expense(title: "Lunch", amount: 12.00, payer: a, participants: [a, b])
-        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b])
+        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b], defaultCurrency: "USD")
         // A paid 12, owes 6 => +6; B owes 6 => -6
         #expect(net[a.persistentModelID] == Decimal(string: "6.00"))
         #expect(net[b.persistentModelID] == Decimal(string: "-6.00"))
@@ -32,7 +32,7 @@ struct SplitCalculatorTests {
         let b = Member(name: "B")
         let c = Member(name: "C")
         let exp = Expense(title: "Meal", amount: 30.00, payer: a, participants: [a, b, c])
-        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b, c])
+        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b, c], defaultCurrency: "USD")
         let transfers = SplitCalculator.proposedTransfers(netBalances: net, members: [a, b, c])
         #expect(transfers.count == 2)
         // B and C each owe A ten
@@ -71,7 +71,7 @@ struct SplitCalculatorTests {
         let shareA = ExpenseShare(member: a, weight: 2)
         let shareB = ExpenseShare(member: b, weight: 1)
         let exp = Expense(title: "Taxi", amount: 30.00, payer: a, participants: [a, b], shares: [shareA, shareB])
-        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b])
+        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b], defaultCurrency: "USD")
         #expect(net[a.persistentModelID] == Decimal(string: "10.00"))
         #expect(net[b.persistentModelID] == Decimal(string: "-10.00"))
     }
@@ -82,7 +82,7 @@ struct SplitCalculatorTests {
         let b = Member(name: "B")
         let exp = Expense(title: "Dinner", amount: 20.00, payer: a, participants: [a, b])
         let settlement = Settlement(from: b, to: a, amount: 5.00)
-        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b], settlements: [settlement])
+        let net = SplitCalculator.netBalances(expenses: [exp], members: [a, b], settlements: [settlement], defaultCurrency: "USD")
         #expect(net[a.persistentModelID] == Decimal(string: "5.00"))
         #expect(net[b.persistentModelID] == Decimal(string: "-5.00"))
     }

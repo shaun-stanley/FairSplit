@@ -31,7 +31,8 @@ extension Group {
         let net = SplitCalculator.netBalances(
             expenses: expenses,
             members: members,
-            settlements: settlements
+            settlements: settlements,
+            defaultCurrency: defaultCurrency
         )
         return net[member.persistentModelID] ?? 0
     }
