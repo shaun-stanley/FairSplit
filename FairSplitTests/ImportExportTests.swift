@@ -5,7 +5,7 @@ import Testing
 struct ImportExportTests {
     @Test
     func exportGroup_hasExpenseRow() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let a = Member(name: "Alex")
@@ -18,7 +18,7 @@ struct ImportExportTests {
 
     @Test
     func importCSV_addsExpense() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let a = Member(name: "Alex")

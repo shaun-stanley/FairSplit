@@ -5,7 +5,7 @@ import Testing
 struct ExpenseEditingTests {
     @Test
     func updateExpense_changesFields() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let alex = Member(name: "Alex")
@@ -28,7 +28,7 @@ struct ExpenseEditingTests {
 
     @Test
     func deleteExpense_removesFromGroup() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let alex = Member(name: "Alex")
@@ -45,7 +45,7 @@ struct ExpenseEditingTests {
 
     @Test
     func addExpense_savesCategoryAndNote() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let alex = Member(name: "Alex")
