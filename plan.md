@@ -45,6 +45,7 @@
 [CORE-10] Groups can be added from list; sample group seeded on first launch
 [UX-7] Removed undo/redo toolbar; new groups appear immediately
 [BUG-1] Fixed new groups not appearing by including Settlement in model container
+[BUG-2] Seeded sample group with locale currency to ensure new groups appear
 
 
 ## Blocked
@@ -139,6 +140,7 @@
 - 2025-08-27: CORE-10 — Added group creation screen and seeded sample group on first launch.
 - 2025-08-28: UX-7 — Removed undo/redo toolbar buttons and ensured new groups appear immediately.
 - 2025-08-28: BUG-1 — Fixed missing Settlement model so new groups appear after creation.
+- 2025-08-29: BUG-2 — Seeded sample group using locale currency to ensure INR groups show.
 
 
 ## Vision
