@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [CORE-8] Undo/Redo for create/edit/delete operations
-2. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
-3. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
+1. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
+2. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
+3. [MATH-5] Per-member totals and per-category totals in group
 
 ## In Progress
-[MATH-4] Multi-currency per group with **manual FX rates** (safe, offline). Optional: remember last rate used
+[CORE-8] Undo/Redo for create/edit/delete operations
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -40,6 +40,7 @@
 [TEST-4] UI tests for add/delete expense and settle up flow
 [CORE-7] Search expenses: title, note, amount range, member filters
 [UX-6] Polish primary actions placement (Add Expense, Settle Up)
+[MATH-4] Expenses remember last used FX rate per currency
 
 
 ## Blocked
@@ -131,6 +132,7 @@
 - 2025-08-25: TEST-4 — UI tests for add/delete expense and settle up flow.
 - 2025-08-25: CORE-7 — Added expense search by text, amount range, and members.
 - 2025-08-26: UX-6 — Polished primary actions placement.
+- 2025-08-26: MATH-4 — Expenses remember last FX rate per currency.
 
 
 ## Vision

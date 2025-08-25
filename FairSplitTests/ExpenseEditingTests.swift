@@ -16,7 +16,7 @@ struct ExpenseEditingTests {
         context.insert(group)
         try context.save()
 
-        repo.update(expense: expense, title: "Dinner", amount: 25, payer: sam, participants: [alex, sam], category: .food, note: "Tapas")
+        repo.update(expense: expense, in: group, title: "Dinner", amount: 25, payer: sam, participants: [alex, sam], category: .food, note: "Tapas")
 
         #expect(expense.title == "Dinner")
         #expect(expense.amount == 25)

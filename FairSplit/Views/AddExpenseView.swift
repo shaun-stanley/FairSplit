@@ -5,6 +5,7 @@ struct AddExpenseView: View {
     var members: [Member]
     /// Group's default currency
     var groupCurrencyCode: String
+    var lastRates: [String: Decimal]
     var expense: Expense?
     var onSave: (_ title: String, _ amount: Decimal, _ currencyCode: String, _ fxRateToGroup: Decimal?, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void
 
@@ -21,19 +22,22 @@ struct AddExpenseView: View {
     @State private var receiptImageData: Data?
     @State private var showingScanner = false
 
-    init(members: [Member], groupCurrencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ currencyCode: String, _ fxRateToGroup: Decimal?, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void) {
+    init(members: [Member], groupCurrencyCode: String, expense: Expense? = nil, lastRates: [String: Decimal] = [:], onSave: @escaping (_ title: String, _ amount: Decimal, _ currencyCode: String, _ fxRateToGroup: Decimal?, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void) {
         self.members = members
         self.groupCurrencyCode = groupCurrencyCode
         self.expense = expense
+        self.lastRates = lastRates
         self.onSave = onSave
+        let initialCurrency = expense?.currencyCode ?? groupCurrencyCode
+        let initialFX = expense?.fxRateToGroupCurrency ?? (initialCurrency != groupCurrencyCode ? lastRates[initialCurrency] : nil)
         _title = State(initialValue: expense?.title ?? "")
         _amount = State(initialValue: expense.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
         _payer = State(initialValue: expense?.payer)
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
         _category = State(initialValue: expense?.category)
         _note = State(initialValue: expense?.note ?? "")
-        _expenseCurrency = State(initialValue: expense?.currencyCode ?? groupCurrencyCode)
-        _fxRate = State(initialValue: expense?.fxRateToGroupCurrency.map { Double(truncating: NSDecimalNumber(decimal: $0)) })
+        _expenseCurrency = State(initialValue: initialCurrency)
+        _fxRate = State(initialValue: initialFX.map { Double(truncating: NSDecimalNumber(decimal: $0)) })
         _receiptImageData = State(initialValue: expense?.receiptImageData)
     }
 
@@ -118,6 +122,15 @@ struct AddExpenseView: View {
                 self.showingScanner = false
             }
         }
+        .onChange(of: expenseCurrency) { new in
+            if new == groupCurrencyCode {
+                fxRate = nil
+            } else if let rate = lastRates[new] {
+                fxRate = Double(truncating: NSDecimalNumber(decimal: rate))
+            } else {
+                fxRate = nil
+            }
+        }
         .onAppear {
             if expense == nil {
                 if payer == nil { payer = members.first }
@@ -155,6 +168,6 @@ struct AddExpenseView: View {
     // SwiftData previews would require a model container; keeping a static preview of the form.
     let m = [Member(name: "Alex"), Member(name: "Sam"), Member(name: "Kai")]
     return NavigationStack {
-        AddExpenseView(members: m, groupCurrencyCode: "USD") { _, _, _, _, _, _, _, _, _ in }
+        AddExpenseView(members: m, groupCurrencyCode: "USD", lastRates: [:]) { _, _, _, _, _, _, _, _, _ in }
     }
 }
