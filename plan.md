@@ -16,9 +16,10 @@
 ## Next Up (top first — keep ≤3)
 1. [CORE-8] Undo/Redo for create/edit/delete operations
 2. [CORE-9] App theming: light/dark with accent color; respect system appearance
+3. [UX-6] Polish primary actions placement (Add Expense, Settle Up)
 
 ## In Progress
-[CORE-8] Undo/Redo for create/edit/delete operations
+[UX-6] Polish primary actions placement (Add Expense, Settle Up)
 
 ## Done
 [MVP-1] Added SwiftData and a demo group

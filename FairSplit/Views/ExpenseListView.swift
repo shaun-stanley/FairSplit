@@ -64,10 +64,7 @@ struct ExpenseListView: View {
         }
         .navigationTitle("Expenses")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) { EditButton() }
-            ToolbarItem(placement: .primaryAction) {
-                Button("Add Expense") { showingAdd = true }
-            }
+            ToolbarItem(placement: .navigationBarLeading) { EditButton() }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Section("Members") {
@@ -87,6 +84,14 @@ struct ExpenseListView: View {
                         }
                     }
                 } label: { Image(systemName: "line.3.horizontal.decrease.circle") }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button { showingAdd = true } label: { Image(systemName: "plus") }
+                    .accessibilityLabel("Add Expense")
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button("Add Expense") { showingAdd = true }
+                    .buttonStyle(.borderedProminent)
             }
             ToolbarItem(placement: .navigationBarLeading) {
                 HStack(spacing: 16) {

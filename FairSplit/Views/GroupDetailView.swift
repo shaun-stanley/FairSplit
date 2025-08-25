@@ -113,7 +113,6 @@ struct GroupDetailView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
-                NavigationLink("Settle Up") { SettleUpView(group: group) }
                 Menu {
                     Section("Members") {
                         ForEach(group.members, id: \.persistentModelID) { m in
@@ -140,6 +139,12 @@ struct GroupDetailView: View {
             ToolbarItemGroup(placement: .navigationBarLeading) {
                 if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
                 if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
+            }
+            ToolbarItem(placement: .bottomBar) {
+                NavigationLink(destination: SettleUpView(group: group)) {
+                    Text("Settle Up")
+                }
+                .buttonStyle(.borderedProminent)
             }
         }
         .searchable(text: $searchText, prompt: "Search expenses")
