@@ -3,6 +3,7 @@ import SwiftData
 
 struct SettleUpView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.undoManager) private var undoManager
     var group: Group
     @State private var saved = false
 
@@ -52,6 +53,12 @@ struct SettleUpView: View {
                 Button("Record Settlement", action: record)
                     .disabled(proposals.isEmpty)
             }
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack(spacing: 16) {
+                    if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
+                    if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
+                }
+            }
         }
         .alert("Settlement recorded", isPresented: $saved) {
             Button("OK", role: .cancel) {}
@@ -59,7 +66,7 @@ struct SettleUpView: View {
     }
 
     private func record() {
-        DataRepository(context: modelContext).recordSettlements(for: group, transfers: proposals)
+        DataRepository(context: modelContext, undoManager: undoManager).recordSettlements(for: group, transfers: proposals)
         saved = true
     }
 }
@@ -71,4 +78,3 @@ struct SettleUpView: View {
     let g = Group(name: "Preview", defaultCurrency: "USD", members: [a, b, c], expenses: [Expense(title: "Lunch", amount: 12, payer: a, participants: [a, b])])
     return NavigationStack { SettleUpView(group: g) }
 }
-

@@ -70,11 +70,21 @@ final class DataRepository {
     }
 
     func recordSettlements(for group: Group, transfers: [(from: Member, to: Member, amount: Decimal)]) {
+        var added: [Settlement] = []
         for t in transfers {
             let s = Settlement(from: t.from, to: t.to, amount: t.amount)
             group.settlements.append(s)
+            added.append(s)
         }
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                // Remove the settlements we just added
+                group.settlements.removeAll { s in added.contains(where: { $0.persistentModelID == s.persistentModelID }) }
+                try? repo.context.save()
+            }
+            undo.setActionName("Record Settlement")
+        }
     }
     func addMember(to group: Group, name: String) {
         let member = Member(name: name)
