@@ -14,11 +14,10 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [TEST-4] UI tests for add/delete expense and settle up flow
-2. [CORE-7] Search expenses: title, note, amount range, member filters
+1. [CORE-7] Search expenses: title, note, amount range, member filters
 
 ## In Progress
-[TEST-4] UI tests for add/delete expense and settle up flow
+[CORE-7] Search expenses: title, note, amount range, member filters
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -36,6 +35,7 @@
 [CORE-4] Expense list supports swipe edit and delete with context menu
 [TEST-2] Added UI test for editing expenses
 [CORE-6] Attach receipts: add photo/scan using VisionKit; show thumbnail in list
+[TEST-4] UI tests for add/delete expense and settle up flow
 
 
 ## Blocked
@@ -124,6 +124,7 @@
 - 2025-08-24: CORE-4 — Expense list supports swipe edit and delete actions with context menu.
 - 2025-08-25: TEST-2 — Added UI test for editing expenses.
 - 2025-08-25: CORE-6 — Attach receipts with VisionKit scanner and thumbnails in lists.
+- 2025-08-25: TEST-4 — UI tests for add/delete expense and settle up flow.
 
 
 ## Vision

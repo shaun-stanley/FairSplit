@@ -6,10 +6,15 @@ struct ExpenseListView: View {
     var group: Group
     @State private var showingAdd = false
     @State private var editingExpense: Expense?
+    @State private var searchText = ""
+    @State private var minAmount: Double?
+    @State private var maxAmount: Double?
+    @State private var selectedMemberIDs: Set<PersistentIdentifier> = []
+    @State private var showingAmountFilter = false
 
     var body: some View {
         List {
-            ForEach(group.expenses, id: \.persistentModelID) { expense in
+            ForEach(filteredExpenses, id: \.persistentModelID) { expense in
                 HStack {
                     if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
@@ -62,7 +67,28 @@ struct ExpenseListView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button("Add Expense") { showingAdd = true }
             }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Section("Members") {
+                        ForEach(group.members, id: \.persistentModelID) { m in
+                            Button { toggleMember(m) } label: {
+                                HStack {
+                                    Text(m.name)
+                                    if selectedMemberIDs.contains(m.persistentModelID) { Image(systemName: "checkmark") }
+                                }
+                            }
+                        }
+                    }
+                    Section("Amount") {
+                        Button("Amount Range…") { showingAmountFilter = true }
+                        if minAmount != nil || maxAmount != nil || !selectedMemberIDs.isEmpty || !searchText.isEmpty {
+                            Button("Clear Filters", role: .destructive) { clearFilters() }
+                        }
+                    }
+                } label: { Image(systemName: "line.3.horizontal.decrease.circle") }
+            }
         }
+        .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
                 AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note, receipt in
@@ -77,11 +103,53 @@ struct ExpenseListView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingAmountFilter) {
+            NavigationStack {
+                Form {
+                    Section("Amount Range") {
+                        TextField("Min", value: $minAmount, format: .number)
+                            .keyboardType(.decimalPad)
+                        TextField("Max", value: $maxAmount, format: .number)
+                            .keyboardType(.decimalPad)
+                    }
+                }
+                .navigationTitle("Amount Filter")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }
+                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { showingAmountFilter = false } }
+                }
+            }
+        }
     }
 
     private func delete(at offsets: IndexSet) {
         let toDelete = offsets.map { group.expenses[$0] }
         DataRepository(context: modelContext).delete(expenses: toDelete)
+    }
+
+    private var filteredExpenses: [Expense] {
+        let query = ExpenseQuery(
+            searchText: searchText,
+            minAmount: minAmount.map(Decimal.init),
+            maxAmount: maxAmount.map(Decimal.init),
+            memberIDs: selectedMemberIDs
+        )
+        return ExpenseFilterHelper.filtered(expenses: group.expenses, query: query)
+    }
+
+    private func toggleMember(_ m: Member) {
+        if selectedMemberIDs.contains(m.persistentModelID) {
+            selectedMemberIDs.remove(m.persistentModelID)
+        } else {
+            selectedMemberIDs.insert(m.persistentModelID)
+        }
+    }
+
+    private func clearFilters() {
+        searchText = ""
+        minAmount = nil
+        maxAmount = nil
+        selectedMemberIDs.removeAll()
     }
 }
 
