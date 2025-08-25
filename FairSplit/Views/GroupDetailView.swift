@@ -85,7 +85,20 @@ struct GroupDetailView: View {
                             Text("Settle Up")
                             Spacer()
                             if !settlementProposals.isEmpty {
-                                NavigationLink("Settle Up") { SettleUpView(group: group) }
+                                NavigationLink {
+                                    SettleUpView(group: group)
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Text("Settle Up")
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Open Settle Up")
                             }
                         }
             ) {
