@@ -5,7 +5,7 @@ import Testing
 struct UndoRedoTests {
     @Test
     func addExpense_thenUndo_removesIt() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let undo = UndoManager()
         let repo = DataRepository(context: context, undoManager: undo)
@@ -22,7 +22,7 @@ struct UndoRedoTests {
 
     @Test
     func updateExpense_thenUndo_restoresFields() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let undo = UndoManager()
         let repo = DataRepository(context: context, undoManager: undo)
@@ -41,7 +41,7 @@ struct UndoRedoTests {
 
     @Test
     func deleteExpense_thenUndo_restoresIt() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
         let context = ModelContext(container)
         let undo = UndoManager()
         let repo = DataRepository(context: context, undoManager: undo)
