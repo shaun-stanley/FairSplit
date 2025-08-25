@@ -3,6 +3,7 @@ import SwiftData
 
 struct AddExpenseView: View {
     var members: [Member]
+    /// Group's default currency
     var currencyCode: String
     var expense: Expense?
     var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void
@@ -15,6 +16,8 @@ struct AddExpenseView: View {
     @State private var selected: Set<PersistentIdentifier>
     @State private var category: ExpenseCategory?
     @State private var note: String
+    @State private var expenseCurrency: String
+    @State private var fxRate: Double?
     @State private var receiptImageData: Data?
     @State private var showingScanner = false
 
@@ -29,6 +32,8 @@ struct AddExpenseView: View {
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
         _category = State(initialValue: expense?.category)
         _note = State(initialValue: expense?.note ?? "")
+        _expenseCurrency = State(initialValue: expense?.currencyCode ?? currencyCode)
+        _fxRate = State(initialValue: expense?.fxRateToGroupCurrency.map { Double(truncating: NSDecimalNumber(decimal: $0)) })
         _receiptImageData = State(initialValue: expense?.receiptImageData)
     }
 
@@ -49,6 +54,17 @@ struct AddExpenseView: View {
                     }
                 }
                 TextField("Note", text: $note)
+            }
+            Section("Currency") {
+                Picker("Currency", selection: $expenseCurrency) {
+                    ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
+                        Text(code).tag(code)
+                    }
+                }
+                if expenseCurrency != currencyCode {
+                    TextField("Rate to \(currencyCode)", value: $fxRate, format: .number)
+                        .keyboardType(.decimalPad)
+                }
             }
             Section("Receipt") {
                 if let data = receiptImageData, let uiImage = UIImage(data: data) {

@@ -6,6 +6,11 @@ import SwiftUI
 final class Expense {
     var title: String
     var amount: Decimal
+    /// The currency in which `amount` is stored.
+    var currencyCode: String
+    /// Manual FX rate to convert `amount` into the group's default currency.
+    /// When `currencyCode` equals the group's currency, this can be nil.
+    var fxRateToGroupCurrency: Decimal?
     var payer: Member?
     var participants: [Member]
     @Relationship(deleteRule: .cascade) var shares: [ExpenseShare]
@@ -14,9 +19,11 @@ final class Expense {
     var note: String?
     @Attribute(.externalStorage) var receiptImageData: Data?
 
-    init(title: String, amount: Decimal, payer: Member?, participants: [Member], shares: [ExpenseShare] = [], date: Date = .now, category: ExpenseCategory? = nil, note: String? = nil, receiptImageData: Data? = nil) {
+    init(title: String, amount: Decimal, currencyCode: String = Locale.current.currency?.identifier ?? "USD", fxRateToGroupCurrency: Decimal? = nil, payer: Member?, participants: [Member], shares: [ExpenseShare] = [], date: Date = .now, category: ExpenseCategory? = nil, note: String? = nil, receiptImageData: Data? = nil) {
         self.title = title
         self.amount = amount
+        self.currencyCode = currencyCode
+        self.fxRateToGroupCurrency = fxRateToGroupCurrency
         self.payer = payer
         self.participants = participants
         self.shares = shares

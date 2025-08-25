@@ -49,7 +49,7 @@ struct GroupDetailView: View {
                             }
                         }
                         Spacer()
-                        Text(CurrencyFormatter.string(from: expense.amount, currencyCode: group.defaultCurrency))
+                        Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                             .fontWeight(.semibold)
                     }
                     .swipeActions {
@@ -68,7 +68,7 @@ struct GroupDetailView: View {
             }
 
             Section("Balances") {
-                let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements)
+                let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
                 ForEach(group.members, id: \.persistentModelID) { member in
                     let amount = net[member.persistentModelID] ?? 0
                     HStack {

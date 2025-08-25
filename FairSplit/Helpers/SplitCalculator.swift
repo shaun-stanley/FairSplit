@@ -2,6 +2,12 @@ import Foundation
 import SwiftData
 
 enum SplitCalculator {
+    /// Converts an expense amount into the group's default currency using the expense's manual FX rate when needed.
+    static func amountInGroupCurrency(for expense: Expense, defaultCurrency: String) -> Decimal {
+        if expense.currencyCode == defaultCurrency { return expense.amount }
+        let rate = expense.fxRateToGroupCurrency ?? 1
+        return expense.amount * rate
+    }
     /// Evenly splits a given amount (in currency) among members, rounded to cents.
     /// Any leftover cents are distributed to the first `remainder` members.
     static func evenSplit(amount: Decimal, among members: [Member]) -> [PersistentIdentifier: Decimal] {
@@ -52,16 +58,16 @@ enum SplitCalculator {
     }
 
     /// Computes net balances per member: positive means they are owed, negative means they owe.
-    static func netBalances(expenses: [Expense], members: [Member], settlements: [Settlement] = []) -> [PersistentIdentifier: Decimal] {
+    static func netBalances(expenses: [Expense], members: [Member], settlements: [Settlement] = [], defaultCurrency: String) -> [PersistentIdentifier: Decimal] {
         var net: [PersistentIdentifier: Decimal] = Dictionary(uniqueKeysWithValues: members.map { ($0.persistentModelID, 0) })
         for expense in expenses {
             let split: [PersistentIdentifier: Decimal]
             if expense.shares.isEmpty {
-                split = evenSplit(amount: expense.amount, among: expense.participants)
+                split = evenSplit(amount: amountInGroupCurrency(for: expense, defaultCurrency: defaultCurrency), among: expense.participants)
             } else {
-                split = weightedSplit(amount: expense.amount, shares: expense.shares)
+                split = weightedSplit(amount: amountInGroupCurrency(for: expense, defaultCurrency: defaultCurrency), shares: expense.shares)
             }
-            if let payer = expense.payer { net[payer.persistentModelID, default: 0] += expense.amount }
+            if let payer = expense.payer { net[payer.persistentModelID, default: 0] += amountInGroupCurrency(for: expense, defaultCurrency: defaultCurrency) }
             for (memberID, owed) in split { net[memberID, default: 0] -= owed }
         }
         for s in settlements {
@@ -115,7 +121,7 @@ enum SplitCalculator {
     /// Convenience helper to compute greedy settlement transfers for a group.
     /// - Returns: Array of (from, to, amount) tuples; amounts rounded to cents.
     static func balances(for group: Group) -> [(from: Member, to: Member, amount: Decimal)] {
-        let net = netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements)
+        let net = netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
         return proposedTransfers(netBalances: net, members: group.members)
     }
 }

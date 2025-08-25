@@ -44,7 +44,7 @@ struct ExpenseListView: View {
                         }
                     }
                     Spacer()
-                    Text(CurrencyFormatter.string(from: expense.amount, currencyCode: group.defaultCurrency))
+                    Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                         .fontWeight(.semibold)
                 }
                 .swipeActions {
