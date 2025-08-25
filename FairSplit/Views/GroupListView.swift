@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct GroupListView: View {
-    @Query private var groups: [Group]
+    @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.undoManager) private var undoManager
     @State private var searchText = ""
@@ -48,7 +48,10 @@ struct GroupListView: View {
         }
         .sheet(isPresented: $showingAdd) {
             AddGroupView { name, currency in
-                DataRepository(context: modelContext, undoManager: undoManager).addGroup(name: name, defaultCurrency: currency)
+                withAnimation {
+                    DataRepository(context: modelContext, undoManager: undoManager)
+                        .addGroup(name: name, defaultCurrency: currency)
+                }
                 searchText = ""
             }
         }
