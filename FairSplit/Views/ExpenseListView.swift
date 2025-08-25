@@ -89,20 +89,6 @@ struct ExpenseListView: View {
                 Button { showingAdd = true } label: { Image(systemName: "plus") }
                     .accessibilityLabel("Add Expense")
             }
-            ToolbarItem(placement: .bottomBar) {
-                Button("Add Expense") { showingAdd = true }
-                    .buttonStyle(.borderedProminent)
-            }
-            ToolbarItem(placement: .navigationBarLeading) {
-                HStack(spacing: 16) {
-                    if let undoManager = undoManager, undoManager.canUndo {
-                        Button("Undo") { undoManager.undo() }
-                    }
-                    if let undoManager = undoManager, undoManager.canRedo {
-                        Button("Redo") { undoManager.redo() }
-                    }
-                }
-            }
         }
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAdd) {

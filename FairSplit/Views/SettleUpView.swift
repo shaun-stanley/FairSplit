@@ -53,12 +53,7 @@ struct SettleUpView: View {
                 Button("Record Settlement", action: record)
                     .disabled(proposals.isEmpty)
             }
-            ToolbarItem(placement: .navigationBarLeading) {
-                HStack(spacing: 16) {
-                    if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
-                    if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
-                }
-            }
+            
         }
         .alert("Settlement recorded", isPresented: $saved) {
             Button("OK", role: .cancel) {}

@@ -31,12 +31,6 @@ struct MembersView: View {
         .navigationTitle("Members")
         .toolbar {
             ToolbarItem(placement: .primaryAction) { Button("Add") { showingAdd = true } }
-            ToolbarItem(placement: .navigationBarLeading) {
-                HStack(spacing: 16) {
-                    if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
-                    if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
-                }
-            }
         }
         .sheet(isPresented: $showingAdd) {
             NavigationStack {

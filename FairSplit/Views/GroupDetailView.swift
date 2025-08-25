@@ -136,16 +136,7 @@ struct GroupDetailView: View {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
             }
-            ToolbarItemGroup(placement: .navigationBarLeading) {
-                if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
-                if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
-            }
-            ToolbarItem(placement: .bottomBar) {
-                NavigationLink(destination: SettleUpView(group: group)) {
-                    Text("Settle Up")
-                }
-                .buttonStyle(.borderedProminent)
-            }
+            
         }
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAddExpense) {
