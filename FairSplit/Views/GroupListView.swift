@@ -40,16 +40,6 @@ struct GroupListView: View {
         .searchable(text: $searchText)
         .navigationTitle("Groups")
         .toolbar {
-            ToolbarItemGroup(placement: .bottomBar) {
-                Button(action: { undoManager?.undo() }) {
-                    Image(systemName: "arrow.uturn.backward")
-                }
-                .disabled(!(undoManager?.canUndo ?? false))
-                Button(action: { undoManager?.redo() }) {
-                    Image(systemName: "arrow.uturn.forward")
-                }
-                .disabled(!(undoManager?.canRedo ?? false))
-            }
             ToolbarItemGroup(placement: .primaryAction) {
                 Button(action: { showingAdd = true }) {
                     Image(systemName: "plus")
@@ -59,6 +49,7 @@ struct GroupListView: View {
         .sheet(isPresented: $showingAdd) {
             AddGroupView { name, currency in
                 DataRepository(context: modelContext, undoManager: undoManager).addGroup(name: name, defaultCurrency: currency)
+                searchText = ""
             }
         }
     }

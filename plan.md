@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
-2. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
-3. [MATH-5] Per-member totals and per-category totals in group
+1. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
+2. [MATH-5] Per-member totals and per-category totals in group
+3. [UX-2] Haptics on key actions (add expense, settle)
 
 ## In Progress
-[CORE-10] Group creation from list; seed sample group on first launch
+[DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -43,6 +43,7 @@
 [MATH-4] Expenses remember last used FX rate per currency
 [CORE-8] Undo/Redo for create/edit/delete operations
 [CORE-10] Groups can be added from list; sample group seeded on first launch
+[UX-7] Removed undo/redo toolbar; new groups appear immediately
 
 
 ## Blocked
@@ -64,11 +65,9 @@
 ### Persistence & Sync
 - [DATA-1] SwiftData migration support (lightweight model versioning)
 - [DATA-2] iCloud sync via **CloudKit** (private database). Simple last-write-wins, then improve conflict handling
-- [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
 
 ### Delight & Design (Apple-ish touches)
 - [UX-1] Dynamic Type everywhere; ensure layouts adapt up to Extra Large sizes
-- [UX-2] Haptics on key actions (add expense, settle)
 - [UX-3] SF Symbols for categories, payer, participants, settlement arrows
 - [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
 - [UX-5] Pull-to-refresh (no-op placeholder until CloudKit lands)
@@ -136,6 +135,7 @@
 - 2025-08-26: MATH-4 — Expenses remember last FX rate per currency.
 - 2025-08-27: CORE-8 — Added undo/redo toolbar for data actions.
 - 2025-08-27: CORE-10 — Added group creation screen and seeded sample group on first launch.
+- 2025-08-28: UX-7 — Removed undo/redo toolbar buttons and ensured new groups appear immediately.
 
 
 ## Vision
