@@ -38,7 +38,7 @@ struct ExpenseEditingTests {
         context.insert(group)
         try context.save()
 
-        repo.delete(expenses: [expense])
+        repo.delete(expenses: [expense], from: group)
 
         #expect(group.expenses.isEmpty)
 }

@@ -14,10 +14,11 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [CORE-7] Search expenses: title, note, amount range, member filters
+1. [CORE-8] Undo/Redo for create/edit/delete operations
+2. [CORE-9] App theming: light/dark with accent color; respect system appearance
 
 ## In Progress
-[CORE-7] Search expenses: title, note, amount range, member filters
+[CORE-8] Undo/Redo for create/edit/delete operations
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -36,6 +37,7 @@
 [TEST-2] Added UI test for editing expenses
 [CORE-6] Attach receipts: add photo/scan using VisionKit; show thumbnail in list
 [TEST-4] UI tests for add/delete expense and settle up flow
+[CORE-7] Search expenses: title, note, amount range, member filters
 
 
 ## Blocked
@@ -125,6 +127,7 @@
 - 2025-08-25: TEST-2 — Added UI test for editing expenses.
 - 2025-08-25: CORE-6 — Attach receipts with VisionKit scanner and thumbnails in lists.
 - 2025-08-25: TEST-4 — UI tests for add/delete expense and settle up flow.
+- 2025-08-25: CORE-7 — Added expense search by text, amount range, and members.
 
 
 ## Vision

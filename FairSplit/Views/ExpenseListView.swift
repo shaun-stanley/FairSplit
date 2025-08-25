@@ -3,6 +3,7 @@ import SwiftData
 
 struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.undoManager) private var undoManager
     var group: Group
     @State private var showingAdd = false
     @State private var editingExpense: Expense?
@@ -49,13 +50,13 @@ struct ExpenseListView: View {
                 .swipeActions {
                     Button("Edit") { editingExpense = expense }.tint(.blue)
                     Button("Delete", role: .destructive) {
-                        DataRepository(context: modelContext).delete(expenses: [expense])
+                        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
                     }
                 }
                 .contextMenu {
                     Button("Edit") { editingExpense = expense }
                     Button("Delete", role: .destructive) {
-                        DataRepository(context: modelContext).delete(expenses: [expense])
+                        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
                     }
                 }
             }
@@ -87,19 +88,29 @@ struct ExpenseListView: View {
                     }
                 } label: { Image(systemName: "line.3.horizontal.decrease.circle") }
             }
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack(spacing: 16) {
+                    if let undoManager = undoManager, undoManager.canUndo {
+                        Button("Undo") { undoManager.undo() }
+                    }
+                    if let undoManager = undoManager, undoManager.canRedo {
+                        Button("Redo") { undoManager.redo() }
+                    }
+                }
+            }
         }
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
                 AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note, receipt in
-                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
+                    DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
                 AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, included, category, note, receipt in
-                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
+                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
                 }
             }
         }
@@ -124,7 +135,7 @@ struct ExpenseListView: View {
 
     private func delete(at offsets: IndexSet) {
         let toDelete = offsets.map { group.expenses[$0] }
-        DataRepository(context: modelContext).delete(expenses: toDelete)
+        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
     }
 
     private var filteredExpenses: [Expense] {

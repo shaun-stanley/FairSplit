@@ -3,6 +3,7 @@ import SwiftData
 
 struct GroupDetailView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.undoManager) private var undoManager
     let group: Group
     @State private var showingAddExpense = false
     @State private var editingExpense: Expense?
@@ -54,13 +55,13 @@ struct GroupDetailView: View {
                     .swipeActions {
                         Button("Edit") { editingExpense = expense }.tint(.blue)
                         Button("Delete", role: .destructive) {
-                            DataRepository(context: modelContext).delete(expenses: [expense])
+                            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
                         }
                     }
                     .contextMenu {
                         Button("Edit") { editingExpense = expense }
                         Button("Delete", role: .destructive) {
-                            DataRepository(context: modelContext).delete(expenses: [expense])
+                            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
                         }
                     }
                 }
@@ -136,19 +137,23 @@ struct GroupDetailView: View {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
             }
+            ToolbarItemGroup(placement: .navigationBarLeading) {
+                if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
+                if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
+            }
         }
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAddExpense) {
             NavigationStack {
                 AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, participants, category, note, receipt in
-                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt)
+                    DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt)
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
                 AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, participants, category, note, receipt in
-                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt)
+                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt)
                 }
             }
         }

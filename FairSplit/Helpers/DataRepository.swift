@@ -3,9 +3,11 @@ import SwiftData
 
 final class DataRepository {
     private let context: ModelContext
+    private let undoManager: UndoManager?
 
-    init(context: ModelContext) {
+    init(context: ModelContext, undoManager: UndoManager? = nil) {
         self.context = context
+        self.undoManager = undoManager
     }
 
     func seedIfNeeded() {
@@ -26,9 +28,17 @@ final class DataRepository {
         let expense = Expense(title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receiptImageData)
         group.expenses.append(expense)
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.delete(expenses: [expense], from: group)
+            }
+            undo.setActionName("Add Expense")
+        }
     }
 
     func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?, receiptImageData: Data? = nil) {
+        // Capture old state for undo
+        let old = (expense.title, expense.amount, expense.payer, expense.participants, expense.category, expense.note, expense.receiptImageData)
         expense.title = title
         expense.amount = amount
         expense.payer = payer
@@ -37,11 +47,26 @@ final class DataRepository {
         expense.note = note
         expense.receiptImageData = receiptImageData
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.update(expense: expense, title: old.0, amount: old.1, payer: old.2, participants: old.3, category: old.4, note: old.5, receiptImageData: old.6)
+            }
+            undo.setActionName("Edit Expense")
+        }
     }
 
-    func delete(expenses: [Expense]) {
+    func delete(expenses: [Expense], from group: Group) {
+        // Keep references to restore on undo
+        let removed = expenses
         for e in expenses { context.delete(e) }
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                for e in removed { group.expenses.append(e) }
+                try? repo.context.save()
+            }
+            undo.setActionName("Delete Expense")
+        }
     }
 
     func recordSettlements(for group: Group, transfers: [(from: Member, to: Member, amount: Decimal)]) {
@@ -55,11 +80,24 @@ final class DataRepository {
         let member = Member(name: name)
         group.members.append(member)
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                _ = repo.delete(member: member, from: group)
+            }
+            undo.setActionName("Add Member")
+        }
     }
 
     func rename(member: Member, to newName: String) {
+        let oldName = member.name
         member.name = newName
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.rename(member: member, to: oldName)
+            }
+            undo.setActionName("Rename Member")
+        }
     }
 
     /// Returns true if deletion succeeded; false if member is used in any expense.
@@ -71,6 +109,13 @@ final class DataRepository {
         guard !used else { return false }
         context.delete(member)
         try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                group.members.append(member)
+                try? repo.context.save()
+            }
+            undo.setActionName("Delete Member")
+        }
         return true
     }
 
