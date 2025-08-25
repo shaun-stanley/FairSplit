@@ -80,28 +80,7 @@ struct GroupDetailView: View {
                 }
             }
 
-            Section(header:
-                        HStack {
-                            Text("Settle Up")
-                            Spacer()
-                            if !settlementProposals.isEmpty {
-                                NavigationLink {
-                                    SettleUpView(group: group)
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Text("Settle Up")
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Open Settle Up")
-                            }
-                        }
-            ) {
+            Section {
                 if settlementProposals.isEmpty {
                     ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
                 } else {
@@ -117,6 +96,25 @@ struct GroupDetailView: View {
                         }
                         .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
                     }
+                }
+            } header: {
+                HStack {
+                    Text("Settle Up")
+                    Spacer()
+                    NavigationLink {
+                        SettleUpView(group: group)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Settle Up")
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Open Settle Up")
                 }
             }
 
