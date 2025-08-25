@@ -19,7 +19,7 @@
 3. [MATH-5] Per-member totals and per-category totals in group
 
 ## In Progress
-[CORE-8] Undo/Redo for create/edit/delete operations
+[CORE-10] Group creation from list; seed sample group on first launch
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -41,6 +41,8 @@
 [CORE-7] Search expenses: title, note, amount range, member filters
 [UX-6] Polish primary actions placement (Add Expense, Settle Up)
 [MATH-4] Expenses remember last used FX rate per currency
+[CORE-8] Undo/Redo for create/edit/delete operations
+[CORE-10] Groups can be added from list; sample group seeded on first launch
 
 
 ## Blocked
@@ -52,7 +54,6 @@
 
 ### Core Experience
  - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
-- [CORE-8] Undo/Redo for create/edit/delete operations
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
 
 ### Money & Math
@@ -133,6 +134,8 @@
 - 2025-08-25: CORE-7 — Added expense search by text, amount range, and members.
 - 2025-08-26: UX-6 — Polished primary actions placement.
 - 2025-08-26: MATH-4 — Expenses remember last FX rate per currency.
+- 2025-08-27: CORE-8 — Added undo/redo toolbar for data actions.
+- 2025-08-27: CORE-10 — Added group creation screen and seeded sample group on first launch.
 
 
 ## Vision

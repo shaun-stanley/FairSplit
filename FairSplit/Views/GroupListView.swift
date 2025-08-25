@@ -3,7 +3,10 @@ import SwiftData
 
 struct GroupListView: View {
     @Query private var groups: [Group]
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.undoManager) private var undoManager
     @State private var searchText = ""
+    @State private var showingAdd = false
 
     private var filteredGroups: [Group] {
         let filtered = groups.filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
@@ -36,6 +39,28 @@ struct GroupListView: View {
         }
         .searchable(text: $searchText)
         .navigationTitle("Groups")
+        .toolbar {
+            ToolbarItemGroup(placement: .bottomBar) {
+                Button(action: { undoManager?.undo() }) {
+                    Image(systemName: "arrow.uturn.backward")
+                }
+                .disabled(!(undoManager?.canUndo ?? false))
+                Button(action: { undoManager?.redo() }) {
+                    Image(systemName: "arrow.uturn.forward")
+                }
+                .disabled(!(undoManager?.canRedo ?? false))
+            }
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button(action: { showingAdd = true }) {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showingAdd) {
+            AddGroupView { name, currency in
+                DataRepository(context: modelContext, undoManager: undoManager).addGroup(name: name, defaultCurrency: currency)
+            }
+        }
     }
 }
 

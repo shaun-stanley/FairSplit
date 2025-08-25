@@ -130,6 +130,18 @@ struct GroupDetailView: View {
         }
         .navigationTitle(group.name)
         .toolbar {
+            ToolbarItemGroup(placement: .bottomBar) {
+                if let undoManager {
+                    Button { undoManager.undo() } label: {
+                        Label("Undo", systemImage: "arrow.uturn.backward")
+                    }
+                    .disabled(!undoManager.canUndo)
+                    Button { undoManager.redo() } label: {
+                        Label("Redo", systemImage: "arrow.uturn.forward")
+                    }
+                    .disabled(!undoManager.canRedo)
+                }
+            }
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                 Menu {
@@ -155,7 +167,7 @@ struct GroupDetailView: View {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
             }
-            
+
         }
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAddExpense) {
