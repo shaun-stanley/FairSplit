@@ -3,6 +3,7 @@ import SwiftData
 
 struct MembersView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.undoManager) private var undoManager
     let group: Group
 
     @State private var showingAdd = false
@@ -21,7 +22,7 @@ struct MembersView: View {
                             renameText = member.name
                         }.tint(.blue)
                         Button("Delete", role: .destructive) {
-                            let ok = DataRepository(context: modelContext).delete(member: member, from: group)
+                            let ok = DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
                             if !ok { alertMessage = "This member is used in expenses and cannot be deleted." }
                         }
                     }
@@ -29,8 +30,12 @@ struct MembersView: View {
         }
         .navigationTitle("Members")
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("Add") { showingAdd = true }
+            ToolbarItem(placement: .primaryAction) { Button("Add") { showingAdd = true } }
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack(spacing: 16) {
+                    if let undoManager, undoManager.canUndo { Button("Undo") { undoManager.undo() } }
+                    if let undoManager, undoManager.canRedo { Button("Redo") { undoManager.redo() } }
+                }
             }
         }
         .sheet(isPresented: $showingAdd) {
@@ -43,7 +48,7 @@ struct MembersView: View {
                         Button("Save") {
                             let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
-                            DataRepository(context: modelContext).addMember(to: group, name: trimmed)
+                            DataRepository(context: modelContext, undoManager: undoManager).addMember(to: group, name: trimmed)
                             showingAdd = false
                             newName = ""
                         }.disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -61,7 +66,7 @@ struct MembersView: View {
                         Button("Save") {
                             let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
-                            DataRepository(context: modelContext).rename(member: member, to: trimmed)
+                            DataRepository(context: modelContext, undoManager: undoManager).rename(member: member, to: trimmed)
                             renaming = nil
                         }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
