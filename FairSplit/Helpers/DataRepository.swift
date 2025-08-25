@@ -22,19 +22,20 @@ final class DataRepository {
         }
     }
 
-    func addExpense(to group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory? = nil, note: String? = nil) {
-        let expense = Expense(title: title, amount: amount, payer: payer, participants: participants, category: category, note: note)
+    func addExpense(to group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory? = nil, note: String? = nil, receiptImageData: Data? = nil) {
+        let expense = Expense(title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receiptImageData)
         group.expenses.append(expense)
         try? context.save()
     }
 
-    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?) {
+    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?, receiptImageData: Data? = nil) {
         expense.title = title
         expense.amount = amount
         expense.payer = payer
         expense.participants = participants
         expense.category = category
         expense.note = note
+        expense.receiptImageData = receiptImageData
         try? context.save()
     }
 

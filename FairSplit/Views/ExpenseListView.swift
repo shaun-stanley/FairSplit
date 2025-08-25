@@ -11,6 +11,14 @@ struct ExpenseListView: View {
         List {
             ForEach(group.expenses, id: \.persistentModelID) { expense in
                 HStack {
+                    if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipped()
+                            .cornerRadius(6)
+                    }
                     VStack(alignment: .leading) {
                         Text(expense.title).font(.headline)
                         if let category = expense.category {
@@ -57,15 +65,15 @@ struct ExpenseListView: View {
         }
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note in
-                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note)
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note, receipt in
+                    DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
-                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, included, category, note in
-                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note)
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, included, category, note, receipt in
+                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt)
                 }
             }
         }

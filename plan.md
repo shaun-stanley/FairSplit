@@ -14,12 +14,11 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
-2. [TEST-4] UI tests for add/delete expense and settle up flow
-3. [CORE-7] Search expenses: title, note, amount range, member filters
+1. [TEST-4] UI tests for add/delete expense and settle up flow
+2. [CORE-7] Search expenses: title, note, amount range, member filters
 
 ## In Progress
-(none)
+[CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
 
 ## Done
 [MVP-1] Added SwiftData and a demo group

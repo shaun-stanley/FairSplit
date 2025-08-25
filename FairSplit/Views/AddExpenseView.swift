@@ -5,7 +5,7 @@ struct AddExpenseView: View {
     var members: [Member]
     var currencyCode: String
     var expense: Expense?
-    var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?) -> Void
+    var onSave: (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var title: String
@@ -15,8 +15,10 @@ struct AddExpenseView: View {
     @State private var selected: Set<PersistentIdentifier>
     @State private var category: ExpenseCategory?
     @State private var note: String
+    @State private var receiptImageData: Data?
+    @State private var showingScanner = false
 
-    init(members: [Member], currencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?) -> Void) {
+    init(members: [Member], currencyCode: String, expense: Expense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?, _ receipt: Data?) -> Void) {
         self.members = members
         self.currencyCode = currencyCode
         self.expense = expense
@@ -27,6 +29,7 @@ struct AddExpenseView: View {
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
         _category = State(initialValue: expense?.category)
         _note = State(initialValue: expense?.note ?? "")
+        _receiptImageData = State(initialValue: expense?.receiptImageData)
     }
 
     var body: some View {
@@ -46,6 +49,27 @@ struct AddExpenseView: View {
                     }
                 }
                 TextField("Note", text: $note)
+            }
+            Section("Receipt") {
+                if let data = receiptImageData, let uiImage = UIImage(data: data) {
+                    HStack(alignment: .center) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 64, height: 64)
+                            .clipped()
+                            .cornerRadius(8)
+                        Spacer()
+                        Button("Remove") { receiptImageData = nil }
+                            .foregroundStyle(.red)
+                    }
+                } else {
+                    Button {
+                        showingScanner = true
+                    } label: {
+                        Label("Scan Receipt", systemImage: "doc.viewfinder")
+                    }
+                }
             }
             Section("Payer") {
                 Picker("Paid by", selection: $payer) {
@@ -70,6 +94,14 @@ struct AddExpenseView: View {
             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             ToolbarItem(placement: .confirmationAction) { Button("Save", action: save).disabled(!canSave) }
         }
+        .sheet(isPresented: $showingScanner) {
+            DocumentScannerView { imageData in
+                self.receiptImageData = imageData
+                self.showingScanner = false
+            } onCancel: {
+                self.showingScanner = false
+            }
+        }
         .onAppear {
             if expense == nil {
                 if payer == nil { payer = members.first }
@@ -90,7 +122,7 @@ struct AddExpenseView: View {
         let amount = Decimal(amt)
         let included = members.filter { selected.contains($0.persistentModelID) }
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        onSave(title, amount, payer, included, category, trimmed.isEmpty ? nil : trimmed)
+        onSave(title, amount, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
         dismiss()
     }
 }
@@ -99,6 +131,6 @@ struct AddExpenseView: View {
     // SwiftData previews would require a model container; keeping a static preview of the form.
     let m = [Member(name: "Alex"), Member(name: "Sam"), Member(name: "Kai")]
     return NavigationStack {
-        AddExpenseView(members: m, currencyCode: "USD") { _, _, _, _, _, _ in }
+        AddExpenseView(members: m, currencyCode: "USD") { _, _, _, _, _, _, _ in }
     }
 }
