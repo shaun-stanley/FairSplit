@@ -5,6 +5,7 @@ struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
     var group: Group
     @State private var showingAdd = false
+    @State private var editingExpense: Expense?
 
     var body: some View {
         List {
@@ -32,6 +33,18 @@ struct ExpenseListView: View {
                     Text(CurrencyFormatter.string(from: expense.amount, currencyCode: group.defaultCurrency))
                         .fontWeight(.semibold)
                 }
+                .swipeActions {
+                    Button("Edit") { editingExpense = expense }.tint(.blue)
+                    Button("Delete", role: .destructive) {
+                        DataRepository(context: modelContext).delete(expenses: [expense])
+                    }
+                }
+                .contextMenu {
+                    Button("Edit") { editingExpense = expense }
+                    Button("Delete", role: .destructive) {
+                        DataRepository(context: modelContext).delete(expenses: [expense])
+                    }
+                }
             }
             .onDelete(perform: delete)
         }
@@ -46,6 +59,13 @@ struct ExpenseListView: View {
             NavigationStack {
                 AddExpenseView(members: group.members, currencyCode: group.defaultCurrency) { title, amount, payer, included, category, note in
                     DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note)
+                }
+            }
+        }
+        .sheet(item: $editingExpense) { expense in
+            NavigationStack {
+                AddExpenseView(members: group.members, currencyCode: group.defaultCurrency, expense: expense) { title, amount, payer, included, category, note in
+                    DataRepository(context: modelContext).update(expense: expense, title: title, amount: amount, payer: payer, participants: included, category: category, note: note)
                 }
             }
         }
