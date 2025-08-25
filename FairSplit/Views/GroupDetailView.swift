@@ -80,7 +80,15 @@ struct GroupDetailView: View {
                 }
             }
 
-            Section("Settle Up") {
+            Section(header:
+                        HStack {
+                            Text("Settle Up")
+                            Spacer()
+                            if !settlementProposals.isEmpty {
+                                NavigationLink("Settle Up") { SettleUpView(group: group) }
+                            }
+                        }
+            ) {
                 if settlementProposals.isEmpty {
                     ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
                 } else {
