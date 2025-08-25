@@ -27,6 +27,9 @@ final class DataRepository {
     func addExpense(to group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory? = nil, note: String? = nil, receiptImageData: Data? = nil, currencyCode: String? = nil, fxRateToGroupCurrency: Decimal? = nil) {
         let expense = Expense(title: title, amount: amount, currencyCode: currencyCode ?? group.defaultCurrency, fxRateToGroupCurrency: fxRateToGroupCurrency, payer: payer, participants: participants, category: category, note: note, receiptImageData: receiptImageData)
         group.expenses.append(expense)
+        if let rate = fxRateToGroupCurrency, expense.currencyCode != group.defaultCurrency {
+            group.lastFXRates[expense.currencyCode] = rate
+        }
         try? context.save()
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
@@ -36,7 +39,7 @@ final class DataRepository {
         }
     }
 
-    func update(expense: Expense, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?, receiptImageData: Data? = nil, currencyCode: String? = nil, fxRateToGroupCurrency: Decimal? = nil) {
+    func update(expense: Expense, in group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?, receiptImageData: Data? = nil, currencyCode: String? = nil, fxRateToGroupCurrency: Decimal? = nil) {
         // Capture old state for undo
         let old = (expense.title, expense.amount, expense.currencyCode, expense.fxRateToGroupCurrency, expense.payer, expense.participants, expense.category, expense.note, expense.receiptImageData)
         expense.title = title
@@ -48,10 +51,16 @@ final class DataRepository {
         expense.category = category
         expense.note = note
         expense.receiptImageData = receiptImageData
+        if let rate = fxRateToGroupCurrency {
+            let code = currencyCode ?? expense.currencyCode
+            if code != group.defaultCurrency {
+                group.lastFXRates[code] = rate
+            }
+        }
         try? context.save()
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
-                repo.update(expense: expense, title: old.0, amount: old.1, payer: old.4, participants: old.5, category: old.6, note: old.7, receiptImageData: old.8, currencyCode: old.2, fxRateToGroupCurrency: old.3)
+                repo.update(expense: expense, in: group, title: old.0, amount: old.1, payer: old.4, participants: old.5, category: old.6, note: old.7, receiptImageData: old.8, currencyCode: old.2, fxRateToGroupCurrency: old.3)
             }
             undo.setActionName("Edit Expense")
         }

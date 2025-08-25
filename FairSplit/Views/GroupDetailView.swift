@@ -160,15 +160,15 @@ struct GroupDetailView: View {
         .searchable(text: $searchText, prompt: "Search expenses")
         .sheet(isPresented: $showingAddExpense) {
             NavigationStack {
-                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, amount, currency, rate, payer, participants, category, note, receipt in
+                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
                     DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
-                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
+                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
                 }
             }
         }

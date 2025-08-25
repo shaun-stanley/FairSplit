@@ -33,7 +33,7 @@ struct ReceiptAttachmentTests {
         try context.save()
 
         let newReceipt = Data([0x0A, 0x0B])
-        repo.update(expense: e, title: "Lunch", amount: 10, payer: alex, participants: [alex], category: nil, note: nil, receiptImageData: newReceipt)
+        repo.update(expense: e, in: group, title: "Lunch", amount: 10, payer: alex, participants: [alex], category: nil, note: nil, receiptImageData: newReceipt)
 
         #expect(e.receiptImageData == newReceipt)
     }

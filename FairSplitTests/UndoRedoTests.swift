@@ -33,7 +33,7 @@ struct UndoRedoTests {
         context.insert(g)
         try context.save()
 
-        repo.update(expense: e, title: "Latte", amount: 4, payer: a, participants: [a], category: nil, note: "test")
+        repo.update(expense: e, in: g, title: "Latte", amount: 4, payer: a, participants: [a], category: nil, note: "test")
         #expect(e.title == "Latte")
         undo.undo()
         #expect(e.title == "Coffee")

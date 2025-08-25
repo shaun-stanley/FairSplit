@@ -5,6 +5,7 @@ import SwiftData
 final class Group {
     var name: String
     var defaultCurrency: String
+    @Attribute var lastFXRates: [String: Decimal] = [:]
     @Relationship(deleteRule: .cascade) var members: [Member]
     @Relationship(deleteRule: .cascade) var expenses: [Expense]
     @Relationship(deleteRule: .cascade) var settlements: [Settlement]
