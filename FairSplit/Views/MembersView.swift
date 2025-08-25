@@ -30,18 +30,6 @@ struct MembersView: View {
         }
         .navigationTitle("Members")
         .toolbar {
-            ToolbarItemGroup(placement: .bottomBar) {
-                if let undoManager {
-                    Button { undoManager.undo() } label: {
-                        Label("Undo", systemImage: "arrow.uturn.backward")
-                    }
-                    .disabled(!undoManager.canUndo)
-                    Button { undoManager.redo() } label: {
-                        Label("Redo", systemImage: "arrow.uturn.forward")
-                    }
-                    .disabled(!undoManager.canRedo)
-                }
-            }
             ToolbarItem(placement: .primaryAction) { Button("Add") { showingAdd = true } }
         }
         .sheet(isPresented: $showingAdd) {
