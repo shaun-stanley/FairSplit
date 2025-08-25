@@ -14,8 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [TEST-2] UI tests for add/edit/delete expense and settle flow
-2. [CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
+1. [CORE-6] Attach receipts: add photo/scan using **VisionKit** document scanner; show thumbnail in expense row
+2. [TEST-4] UI tests for add/delete expense and settle up flow
+3. [CORE-7] Search expenses: title, note, amount range, member filters
 
 ## In Progress
 (none)
@@ -34,6 +35,7 @@
 [TEST-1] Added unit tests for settlement math
 [CORE-5] Expenses support categories and notes
 [CORE-4] Expense list supports swipe edit and delete with context menu
+[TEST-2] Added UI test for editing expenses
 
 
 ## Blocked
@@ -45,7 +47,6 @@
 
 ### Core Experience
  - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
- - [CORE-7] Search expenses: title, note, amount range, member filters
 - [CORE-8] Undo/Redo for create/edit/delete operations
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
 
@@ -101,7 +102,6 @@
 - [PRIV-3] Clear personal data: wipe demo data / reset store
 
 ### Quality & Tooling
-- [TEST-2] UI tests for add/edit/delete expense and settle flow
 - [TEST-3] Snapshot tests for key screens (optional)
 - [OPS-1] Diagnostics toggle: structured `os_log` (no PII), exportable log file in Debug builds
 - [OPS-2] Performance audit: measure large group (1k expenses) list scrolling and compute time
@@ -122,6 +122,7 @@
 - 2025-08-24: TEST-1 — Added unit tests for settlement calculations.
 - 2025-08-24: CORE-5 — Added optional category and note fields to expenses.
 - 2025-08-24: CORE-4 — Expense list supports swipe edit and delete actions with context menu.
+- 2025-08-25: TEST-2 — Added UI test for editing expenses.
 
 
 ## Vision
