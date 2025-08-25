@@ -24,6 +24,31 @@ final class DataRepository {
         }
     }
 
+    func addGroup(name: String, defaultCurrency: String) {
+        let group = Group(name: name, defaultCurrency: defaultCurrency)
+        context.insert(group)
+        try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.delete(groups: [group])
+            }
+            undo.setActionName("Add Group")
+        }
+    }
+
+    func delete(groups: [Group]) {
+        let removed = groups
+        for g in groups { context.delete(g) }
+        try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                for g in removed { repo.context.insert(g) }
+                try? repo.context.save()
+            }
+            undo.setActionName("Delete Group")
+        }
+    }
+
     func addExpense(to group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory? = nil, note: String? = nil, receiptImageData: Data? = nil, currencyCode: String? = nil, fxRateToGroupCurrency: Decimal? = nil) {
         let expense = Expense(title: title, amount: amount, currencyCode: currencyCode ?? group.defaultCurrency, fxRateToGroupCurrency: fxRateToGroupCurrency, payer: payer, participants: participants, category: category, note: note, receiptImageData: receiptImageData)
         group.expenses.append(expense)
