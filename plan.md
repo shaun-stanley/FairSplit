@@ -46,6 +46,7 @@
 [UX-7] Removed undo/redo toolbar; new groups appear immediately
 [BUG-1] Fixed new groups not appearing by including Settlement in model container
 [BUG-2] Seeded sample group with locale currency to ensure new groups appear
+[BUG-3] Ensure groups list refreshes when adding a new group
 
 
 ## Blocked
@@ -141,6 +142,7 @@
 - 2025-08-28: UX-7 — Removed undo/redo toolbar buttons and ensured new groups appear immediately.
 - 2025-08-28: BUG-1 — Fixed missing Settlement model so new groups appear after creation.
 - 2025-08-29: BUG-2 — Seeded sample group using locale currency to ensure INR groups show.
+- 2025-08-30: BUG-3 — Fixed groups list not updating after adding a group.
 
 
 ## Vision
