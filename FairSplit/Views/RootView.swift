@@ -17,6 +17,7 @@ private struct SplitRootView: View {
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.undoManager) private var undoManager
+    @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @State private var selected: Group?
     @State private var showingAdd = false
     @State private var showingSettings = false
@@ -58,7 +59,7 @@ private struct SplitRootView: View {
         .sheet(isPresented: $showingAdd) {
             AddGroupView { name in
                 withAnimation {
-                    DataRepository(context: modelContext, undoManager: undoManager).addGroup(name: name, defaultCurrency: "INR")
+                    DataRepository(context: modelContext, undoManager: undoManager).addGroup(name: name, defaultCurrency: defaultCurrency)
                 }
             }
         }
@@ -70,4 +71,3 @@ private struct SplitRootView: View {
     RootView()
         .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self], inMemory: true)
 }
-

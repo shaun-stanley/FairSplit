@@ -7,6 +7,7 @@ enum AppSettings {
     static let notificationsEnabledKey = "notifications_enabled"
     static let notificationsHourKey = "notifications_hour"
     static let notificationsMinuteKey = "notifications_minute"
+    static let defaultCurrencyKey = "default_currency_code"
 
     static let accentPresets: [(id: String, color: Color)] = [
         ("blue", .blue), ("green", .green), ("teal", .teal), ("indigo", .indigo),
@@ -25,4 +26,14 @@ enum AppSettings {
         default: return nil
         }
     }
+
+    static func defaultCurrencyCode() -> String {
+        if let saved = UserDefaults.standard.string(forKey: defaultCurrencyKey), !saved.isEmpty { return saved }
+        if let code = Locale.current.currency?.identifier { return code }
+        return "USD"
+    }
+
+    static let currencyPresets: [String] = [
+        "INR", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CNY", "SGD", "AED"
+    ]
 }

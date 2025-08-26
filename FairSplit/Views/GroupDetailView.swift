@@ -44,12 +44,12 @@ struct GroupDetailView: View {
     var body: some View {
         List {
             archivedBanner()
-            totalsSections()
-            activitySection()
-            recurringSection()
-            expensesSection()
             balancesSection()
             settleUpSection()
+            expensesSection()
+            recurringSection()
+            totalsSections()
+            activitySection()
             membersSection()
         }
         .navigationTitle(group.name)
@@ -390,16 +390,15 @@ struct GroupDetailView: View {
                     .fontWeight(.semibold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
-                if !expense.comments.isEmpty {
+                Button(action: { commentingExpense = expense }) {
                     HStack(spacing: 4) {
                         Image(systemName: "text.bubble")
-                            .foregroundStyle(.secondary)
-                        Text("\(expense.comments.count)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        Text(expense.comments.isEmpty ? "Comments" : "\(expense.comments.count)")
                     }
-                    .accessibilityLabel("\(expense.comments.count) comments")
                 }
+                .buttonStyle(.bordered)
+                .font(.caption)
+                .accessibilityLabel(expense.comments.isEmpty ? "Add comment" : "\(expense.comments.count) comments")
             }
         }
         .accessibilityElement(children: .ignore)

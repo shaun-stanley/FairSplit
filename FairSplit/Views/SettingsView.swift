@@ -5,6 +5,7 @@ struct SettingsView: View {
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage(AppSettings.cloudSyncKey) private var cloudSync: Bool = false
     @AppStorage("privacy_lock_enabled") private var privacyLock: Bool = false
+    @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @Environment(\.dismiss) private var dismiss
     @State private var reminderTime: Date = {
         var comps = DateComponents()
@@ -18,6 +19,20 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Currency") {
+                    Picker("Default Currency", selection: $defaultCurrency) {
+                        ForEach(AppSettings.currencyPresets, id: \.self) { code in
+                            HStack {
+                                Text(Locale.current.localizedString(forCurrencyCode: code) ?? code)
+                                Spacer()
+                                Text(code).foregroundStyle(.secondary)
+                            }.tag(code)
+                        }
+                    }
+                    Text("Used for new groups and formatting.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
                 Section("Privacy") {
                     Toggle(isOn: $privacyLock) {
                         VStack(alignment: .leading, spacing: 2) {

@@ -5,6 +5,7 @@ struct GroupListView: View {
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.undoManager) private var undoManager
+    @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @State private var searchText = ""
     @State private var showingAdd = false
 
@@ -67,7 +68,7 @@ struct GroupListView: View {
             AddGroupView { name in
                 withAnimation {
                     DataRepository(context: modelContext, undoManager: undoManager)
-                        .addGroup(name: name, defaultCurrency: "INR")
+                        .addGroup(name: name, defaultCurrency: defaultCurrency)
                 }
                 searchText = ""
             }

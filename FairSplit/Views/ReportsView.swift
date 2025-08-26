@@ -6,9 +6,15 @@ import SwiftData
 
 struct ReportsView: View {
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
+    @State private var selectedGroupID: PersistentIdentifier?
+
+    private var scopedGroups: [Group] {
+        if let id = selectedGroupID, let g = groups.first(where: { $0.persistentModelID == id }) { return [g] }
+        return groups
+    }
 
     private var overallTotal: Decimal {
-        groups.reduce(0) { $0 + groupTotal($1) }
+        scopedGroups.reduce(0) { $0 + groupTotal($1) }
     }
 
     private func groupTotal(_ group: Group) -> Decimal {
@@ -19,7 +25,7 @@ struct ReportsView: View {
 
     private var categoryTotals: [(ExpenseCategory, Decimal)] {
         var map: [ExpenseCategory: Decimal] = [:]
-        for g in groups {
+        for g in scopedGroups {
             for e in g.expenses {
                 if let cat = e.category {
                     let amt = SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: g.defaultCurrency)
@@ -34,13 +40,26 @@ struct ReportsView: View {
     }
 
     private var monthlyTotals: [(StatsCalculator.YearMonth, Decimal)] {
-        let totals = StatsCalculator.totalsByMonth(groups: groups)
+        let totals = StatsCalculator.totalsByMonth(groups: scopedGroups)
         return totals.keys.sorted().map { ($0, totals[$0] ?? 0) }
     }
 
     var body: some View {
         NavigationStack {
             List {
+                if !groups.isEmpty {
+                    Section("Scope") {
+                        Picker("Group", selection: Binding(get: {
+                            selectedGroupID
+                        }, set: { selectedGroupID = $0 })) {
+                            Text("All Groups").tag(nil as PersistentIdentifier?)
+                            ForEach(groups, id: \.persistentModelID) { g in
+                                Text(g.name).tag(g.persistentModelID as PersistentIdentifier?)
+                            }
+                        }
+                        .pickerStyle(.navigationLink)
+                    }
+                }
                 Section("Overview") {
                     HStack {
                         Text("Total across groups")
@@ -51,14 +70,14 @@ struct ReportsView: View {
                     HStack {
                         Text("Groups")
                         Spacer()
-                        Text("\(groups.count)")
+                        Text("\(scopedGroups.count)")
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                if !groups.isEmpty {
+                if !scopedGroups.isEmpty {
                     Section("Per Group Totals") {
-                        ForEach(groups.sorted { $0.lastActivity > $1.lastActivity }, id: \.persistentModelID) { g in
+                        ForEach(scopedGroups.sorted { $0.lastActivity > $1.lastActivity }, id: \.persistentModelID) { g in
                             HStack(alignment: .firstTextBaseline) {
                                 Text(g.name)
                                 Spacer(minLength: 8)
@@ -68,6 +87,26 @@ struct ReportsView: View {
                             }
                             .accessibilityElement(children: .ignore)
                             .accessibilityLabel("Group \(g.name), total \(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))")
+                        }
+                    }
+                }
+
+                // Simple KPI section
+                if !monthlyTotals.isEmpty {
+                    Section("Highlights") {
+                        let totalMonths = max(1, Set(monthlyTotals.map { $0.0 }).count)
+                        let avg = overallTotal / Decimal(totalMonths)
+                        HStack {
+                            Text("Average per month")
+                            Spacer()
+                            Text(CurrencyFormatter.string(from: avg))
+                                .foregroundStyle(.secondary)
+                        }
+                        HStack {
+                            Text("Months covered")
+                            Spacer()
+                            Text("\(totalMonths)")
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
