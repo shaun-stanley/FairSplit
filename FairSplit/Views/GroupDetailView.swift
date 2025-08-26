@@ -28,6 +28,23 @@ struct GroupDetailView: View {
     @State private var showingCurrencyPicker = false
     @State private var newCurrencyCode: String = AppSettings.defaultCurrencyCode()
     @State private var confirmCurrencyChange = false
+    @State private var selectedAnchor: Anchor? = nil
+
+    private enum Anchor: String, Hashable {
+        case balances, settle, expenses, recurring, totals, activity, members
+    }
+
+    private var anchorItems: [(title: String, anchor: Anchor)] {
+        [
+            ("Balances", .balances),
+            ("Settle Up", .settle),
+            ("Expenses", .expenses),
+            ("Recurring", .recurring),
+            ("Totals", .totals),
+            ("Activity", .activity),
+            ("Members", .members)
+        ]
+    }
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -45,15 +62,18 @@ struct GroupDetailView: View {
     }
 
     var body: some View {
-        List {
-            archivedBanner()
-            balancesSection()
-            settleUpSection()
-            expensesSection()
-            recurringSection()
-            totalsSections()
-            activitySection()
-            membersSection()
+        ScrollViewReader { proxy in
+            List {
+                archivedBanner()
+                balancesSection().id(Anchor.balances)
+                settleUpSection().id(Anchor.settle)
+                expensesSection().id(Anchor.expenses)
+                recurringSection().id(Anchor.recurring)
+                totalsSections().id(Anchor.totals)
+                activitySection().id(Anchor.activity)
+                membersSection().id(Anchor.members)
+            }
+            .safeAreaInset(edge: .top) { pillBar(proxy: proxy) }
         }
         .navigationTitle(group.name)
         .listStyle(.insetGrouped)
@@ -617,6 +637,39 @@ struct GroupDetailView: View {
         if let payer = expense.payer { parts.append("Paid by \(payer.name)") }
         if let note = expense.note, !note.isEmpty { parts.append(note) }
         return parts.joined(separator: ", ")
+    }
+}
+
+// MARK: - Pill Bar
+extension GroupDetailView {
+    @ViewBuilder
+    private func pillBar(proxy: ScrollViewProxy) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(anchorItems, id: \.anchor) { item in
+                    Button {
+                        withAnimation(.easeInOut) {
+                            proxy.scrollTo(item.anchor, anchor: .top)
+                            selectedAnchor = item.anchor
+                        }
+                    } label: {
+                        Text(item.title)
+                            .font(.subheadline)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                            .background(selectedAnchor == item.anchor ? Color.accentColor : Color.secondary.opacity(0.15))
+                            .foregroundStyle(selectedAnchor == item.anchor ? .white : .primary)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Jump to \(item.title)")
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .background(.ultraThinMaterial)
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 }
 
