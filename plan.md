@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [NAV-1] Tab bar navigation: Groups, Reports, Settings
-2. [UX-1] Dynamic Type audit; layouts for large sizes
-3. [A11Y-1] VoiceOver labels/traits for interactive elements
+1. [UX-1] Dynamic Type audit; layouts for large sizes
+2. [A11Y-1] VoiceOver labels/traits for interactive elements
+3. [CORE-2] Group detail: sticky section headers (Expenses, Balances, Settle Up, Members)
 
 ## In Progress
-[NAV-1] Tab bar navigation: Groups, Reports, Settings
+[UX-1] Dynamic Type audit; layouts for large sizes
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -53,6 +53,7 @@
 [MATH-5] Per-member totals and per-category totals in group
 [CORE-9] App theming: light/dark with accent color; respect system appearance
 [PLAT-1] iPad split view & keyboard shortcuts
+[NAV-1] Tab bar navigation: Groups, Reports, Settings
 
 
 ## Blocked
@@ -155,6 +156,7 @@
 - 2025-08-26: MATH-5 — Added totals by member and totals by category in Group detail.
 - 2025-08-26: CORE-9 — Added theming settings (appearance + accent) and applied app-wide.
 - 2025-08-26: PLAT-1 — Added iPad split view with sidebar and Command-N for New Group.
+- 2025-08-26: NAV-1 — Added tab bar with Groups, Reports, and Settings; new Reports summary view.
 
 
 ## Vision
