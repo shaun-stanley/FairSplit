@@ -38,36 +38,6 @@ struct GroupListView: View {
                 }
             }
         }
-            NavigationLink(destination: GroupDetailView(group: group)) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(group.name)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                    if let me = group.members.first {
-                        let balance = group.balance(for: me)
-                        if balance > 0 {
-                            Text("You're owed \(balance.formatted(.currency(code: group.defaultCurrency)))")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        } else if balance < 0 {
-                            Text("You owe \((-balance).formatted(.currency(code: group.defaultCurrency)))")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        } else {
-                            Text("All settled")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                    }
-                }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(groupAccessibilityLabel(group))
-                .accessibilityHint("Opens group details")
-            }
-        }
         .overlay {
             if activeGroups.isEmpty && archivedGroups.isEmpty {
                 ContentUnavailableView {
