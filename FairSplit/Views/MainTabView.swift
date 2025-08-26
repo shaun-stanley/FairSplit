@@ -10,7 +10,7 @@ struct MainTabView: View {
 
             DirectListView()
                 .tabItem {
-                    Label("Direct", systemImage: "person.fill.and.arrow.right")
+                    Label("Direct", systemImage: "arrow.left.arrow.right")
                 }
 
             ReportsView()
