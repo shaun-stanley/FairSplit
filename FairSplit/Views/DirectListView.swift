@@ -33,18 +33,6 @@ struct DirectListView: View {
         }
         return results.sorted { $0.0.name < $1.0.name }
     }
-
-    init(contacts: [Contact], existing: DirectExpense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ payer: Contact, _ other: Contact, _ note: String?) -> Void) {
-        self.contacts = contacts
-        self.existing = existing
-        self.onSave = onSave
-        _title = State(initialValue: existing?.title ?? "")
-        _amount = State(initialValue: existing.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
-        _payer = State(initialValue: existing?.payer)
-        _other = State(initialValue: existing?.other)
-        _note = State(initialValue: existing?.note ?? "")
-    }
-
     var body: some View {
         NavigationStack {
             List {
@@ -256,4 +244,3 @@ struct AddDirectExpenseView: View {
         dismiss()
     }
 }
-
