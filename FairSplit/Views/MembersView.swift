@@ -13,6 +13,9 @@ struct MembersView: View {
     @State private var alertMessage: String?
     @State private var mergingSource: Member?
     @State private var mergingTarget: Member?
+    #if canImport(ContactsUI)
+    @State private var showingContacts = false
+    #endif
 
     var body: some View {
         List {
@@ -36,7 +39,17 @@ struct MembersView: View {
         }
         .navigationTitle("Members")
         .toolbar {
-            ToolbarItem(placement: .primaryAction) { Button("Add") { showingAdd = true } }
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button("New Member") { showingAdd = true }
+                    #if canImport(ContactsUI)
+                    Button("From Contacts…") { showingContacts = true }
+                    #endif
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Member")
+            }
         }
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
@@ -101,6 +114,23 @@ struct MembersView: View {
                 }
             }
         }
+        #if canImport(ContactsUI)
+        .sheet(isPresented: $showingContacts) {
+            ContactsPickerView { contacts in
+                let existing = Set(group.members.map { $0.name.lowercased() })
+                let repo = DataRepository(context: modelContext, undoManager: undoManager)
+                for c in contacts {
+                    let name = buildName(from: c)
+                    if !name.isEmpty && !existing.contains(name.lowercased()) {
+                        repo.addMember(to: group, name: name)
+                    }
+                }
+                showingContacts = false
+            } onCancel: {
+                showingContacts = false
+            }
+        }
+        #endif
         .alert("Cannot Delete Member", isPresented: Binding(get: { alertMessage != nil }, set: { if !$0 { alertMessage = nil } })) {
             Button("OK", role: .cancel) { alertMessage = nil }
         } message: {
@@ -108,6 +138,17 @@ struct MembersView: View {
         }
     }
 }
+
+#if canImport(Contacts)
+import Contacts
+private func buildName(from contact: CNContact) -> String {
+    let composed = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces)
+    if !composed.isEmpty { return composed }
+    if !contact.nickname.isEmpty { return contact.nickname }
+    if !contact.organizationName.isEmpty { return contact.organizationName }
+    return ""
+}
+#endif
 
 #Preview {
     let m1 = Member(name: "Alex")

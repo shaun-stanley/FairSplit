@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [SYS-5] Notifications — reminders to settle or log recurring
-2. [SHARE-2] Invite from Contacts: add members via picker (no server)
-3. [SYS-1] Widgets — show top group totals + quick Add
+1. [SHARE-2] Invite from Contacts: add members via picker (no server)
+2. [SYS-1] Widgets — show top group totals + quick Add
+3. [PAY-3] Placeholder Apple Pay button: share amount & memo
 
 ## In Progress
-(none)
+[SHARE-2] Invite from Contacts: add members via picker (no server)
 
 ## Done
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
