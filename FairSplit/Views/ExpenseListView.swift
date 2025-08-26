@@ -16,7 +16,7 @@ struct ExpenseListView: View {
     var body: some View {
         List {
             ForEach(filteredExpenses, id: \.persistentModelID) { expense in
-                HStack {
+                HStack(alignment: .top, spacing: 12) {
                     if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
                             .resizable()
@@ -25,8 +25,11 @@ struct ExpenseListView: View {
                             .clipped()
                             .cornerRadius(6)
                     }
-                    VStack(alignment: .leading) {
-                        Text(expense.title).font(.headline)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(expense.title)
+                            .font(.headline)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
                         if let category = expense.category {
                             Text(category.displayName)
                                 .font(.subheadline)
@@ -36,6 +39,7 @@ struct ExpenseListView: View {
                             Text(note)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
+                                .lineLimit(3)
                         }
                         if let payer = expense.payer {
                             Text("Paid by \(payer.name)")
@@ -43,9 +47,12 @@ struct ExpenseListView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .layoutPriority(1)
                     Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                         .fontWeight(.semibold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                 }
                 .swipeActions {
                     Button("Edit") { editingExpense = expense }.tint(.blue)

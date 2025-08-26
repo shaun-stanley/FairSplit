@@ -64,7 +64,7 @@ struct GroupDetailView: View {
             }
             Section("Expenses") {
                 ForEach(filteredExpenses, id: \.persistentModelID) { expense in
-                    HStack {
+                    HStack(alignment: .top, spacing: 12) {
                         if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage)
                                 .resizable()
@@ -73,8 +73,11 @@ struct GroupDetailView: View {
                                 .clipped()
                                 .cornerRadius(6)
                         }
-                        VStack(alignment: .leading) {
-                            Text(expense.title).font(.headline)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(expense.title)
+                                .font(.headline)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
                             if let category = expense.category {
                                 Text(category.displayName)
                                     .font(.subheadline)
@@ -84,6 +87,7 @@ struct GroupDetailView: View {
                                 Text(note)
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
+                                    .lineLimit(3)
                             }
                             if let payer = expense.payer {
                                 Text("Paid by \(payer.name)")
@@ -91,9 +95,12 @@ struct GroupDetailView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        Spacer()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .layoutPriority(1)
                         Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                             .fontWeight(.semibold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                     }
                     .swipeActions {
                         Button("Edit") { editingExpense = expense }.tint(.blue)
@@ -119,6 +126,8 @@ struct GroupDetailView: View {
                         Spacer()
                         Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
                             .foregroundStyle(amount >= 0 ? .green : .red)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                     }
                 }
             }
@@ -136,6 +145,8 @@ struct GroupDetailView: View {
                             Spacer()
                             Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
                                 .fontWeight(.semibold)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
                         .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
                     }

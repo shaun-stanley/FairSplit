@@ -51,10 +51,12 @@ struct ReportsView: View {
                 if !groups.isEmpty {
                     Section("Per Group Totals") {
                         ForEach(groups.sorted { $0.lastActivity > $1.lastActivity }, id: \.persistentModelID) { g in
-                            HStack {
+                            HStack(alignment: .firstTextBaseline) {
                                 Text(g.name)
-                                Spacer()
+                                Spacer(minLength: 8)
                                 Text(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.75)
                             }
                         }
                     }
@@ -64,10 +66,12 @@ struct ReportsView: View {
                     Section("Totals by Category") {
                         ForEach(Array(categoryTotals.enumerated()), id: \.offset) { _, item in
                             let (cat, amount) = item
-                            HStack {
+                            HStack(alignment: .firstTextBaseline) {
                                 Text(cat.displayName)
-                                Spacer()
+                                Spacer(minLength: 8)
                                 Text(CurrencyFormatter.string(from: amount))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.75)
                             }
                         }
                     }
