@@ -22,7 +22,6 @@
 (none)
 
 ## Done
-[WID-2] Widgets: app writes top group summary to App Group; widget reads and displays it (opt-in)
 [SYS-4] Spotlight: indexed groups and expenses; reindex on launch
 [PRIV-1] App privacy lock: toggle in Settings; Face ID/Touch ID overlay on launch/background
 [SHARE-3] Deep links: fairsplit://add-expense opens Add Expense; fairsplit://group?name=… opens that group
@@ -81,7 +80,7 @@
 
 
 ## Blocked
-(none)
+- [SYS-1/WID] Widget target temporarily removed to fix Xcode project parse error. Code scaffold remains; re-add target via Xcode.
 
 ---
 
@@ -157,6 +156,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: FIX — Restored project.pbxproj to resolve parse error; will re-add Widget target via Xcode UI.
 - 2025-08-26: WID-2 — Widget now displays top group total from shared defaults when App Group is enabled.
 - 2025-08-26: SYS-4 — Indexed groups and expenses for Spotlight search; reindex on launch.
 - 2025-08-26: PRIV-1 — Added Privacy Lock with biometric unlock and a Settings toggle.
