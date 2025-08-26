@@ -14,7 +14,7 @@ struct GroupListView: View {
     }
 
     var body: some View {
-        List(filteredGroups) { group in
+        List(filteredGroups, id: \.persistentModelID) { group in
             NavigationLink(destination: GroupDetailView(group: group)) {
                 VStack(alignment: .leading) {
                     Text(group.name)
@@ -44,6 +44,7 @@ struct GroupListView: View {
                 Button(action: { showingAdd = true }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add Group")
             }
         }
         .sheet(isPresented: $showingAdd) {

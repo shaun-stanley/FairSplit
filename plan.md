@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
-2. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
-3. [MATH-5] Per-member totals and per-category totals in group
+1. [BUG-4] Groups not showing in simulator after creation (fix list identity + test)
+2. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
+3. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
 
 ## In Progress
-(none)
+[BUG-4] Groups not showing in simulator after creation (fix list identity + test)
 
 ## Done
 [MVP-1] Added SwiftData and a demo group

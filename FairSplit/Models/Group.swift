@@ -9,13 +9,15 @@ final class Group {
     @Relationship(deleteRule: .cascade) var members: [Member]
     @Relationship(deleteRule: .cascade) var expenses: [Expense]
     @Relationship(deleteRule: .cascade) var settlements: [Settlement]
+    var createdAt: Date
 
-    init(name: String, defaultCurrency: String, members: [Member] = [], expenses: [Expense] = [], settlements: [Settlement] = []) {
+    init(name: String, defaultCurrency: String, members: [Member] = [], expenses: [Expense] = [], settlements: [Settlement] = [], createdAt: Date = .now) {
         self.name = name
         self.defaultCurrency = defaultCurrency
         self.members = members
         self.expenses = expenses
         self.settlements = settlements
+        self.createdAt = createdAt
     }
 }
 
@@ -24,7 +26,7 @@ extension Group {
     var lastActivity: Date {
         let expenseDate = expenses.map(\.date).max() ?? .distantPast
         let settlementDate = settlements.map(\.date).max() ?? .distantPast
-        return max(expenseDate, settlementDate)
+        return max(createdAt, max(expenseDate, settlementDate))
     }
 
     /// Net balance for a member: positive means they are owed money.
