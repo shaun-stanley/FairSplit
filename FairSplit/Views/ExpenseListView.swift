@@ -12,6 +12,7 @@ struct ExpenseListView: View {
     @State private var maxAmount: Double?
     @State private var selectedMemberIDs: Set<PersistentIdentifier> = []
     @State private var showingAmountFilter = false
+    @State private var showingAddItemized = false
 
     var body: some View {
         List {
@@ -106,8 +107,21 @@ struct ExpenseListView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button { showingAdd = true } label: { Image(systemName: "plus") }
-                    .accessibilityLabel("Add Expense")
+                Menu {
+                    Button {
+                        showingAdd = true
+                    } label: {
+                        Label("Add Expense", systemImage: "plus")
+                    }
+                    Button {
+                        showingAddItemized = true
+                    } label: {
+                        Label("Add Itemized Expense", systemImage: "list.bullet.rectangle.portrait")
+                    }
+                } label: {
+                    Image(systemName: "plus.circle")
+                }
+                .accessibilityLabel("Add Expense")
             }
         }
         .searchable(text: $searchText, prompt: "Search expenses")
@@ -139,6 +153,25 @@ struct ExpenseListView: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }
                     ToolbarItem(placement: .confirmationAction) { Button("Apply") { showingAmountFilter = false } }
+                }
+            }
+        }
+        .sheet(isPresented: $showingAddItemized) {
+            NavigationStack {
+                ItemizedExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, items, tax, tip, allocation, payer, category, note, receipt in
+                    DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
+                        to: group,
+                        title: title,
+                        items: items.map { ($0.0, $0.1, $0.2) },
+                        tax: tax,
+                        tip: tip,
+                        allocation: allocation,
+                        payer: payer,
+                        category: category,
+                        note: note,
+                        receiptImageData: receipt,
+                        currencyCode: group.defaultCurrency
+                    )
                 }
             }
         }

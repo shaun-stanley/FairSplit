@@ -19,9 +19,10 @@
 3. [CORE-14] Itemized bill split (per-item, tax/tip allocation)
 
 ## In Progress
-[REPORTS-2] Charts and monthly summaries (by person/category/time)
+[CORE-14] Itemized bill split (per-item, tax/tip allocation)
 
 ## Done
+[REPORTS-2] Charts and monthly summaries: category bar chart, monthly trend line
 [PAY-1] Marked settlements as paid with optional receipt image; swipe actions in Settle Up
 [MVP-1] Added SwiftData and a demo group
 [MVP-2] Polished amount input with currency formatting and validation
@@ -139,6 +140,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: REPORTS-2 — Added category bar chart and monthly trend line in Reports; monthly totals in StatsCalculator.
 - 2025-08-26: PAY-1 — Mark settlements as paid with optional receipt; swipe actions and scanner from Settle Up.
 - 2025-08-24: MVP-1 — Added SwiftData persistence and seeded a demo group (Alex, Sam, Kai) on first launch.
 - 2025-08-24: MVP-2 — Amount field uses locale-aware currency formatting and blocks invalid/empty values; lists and summary now show group currency.

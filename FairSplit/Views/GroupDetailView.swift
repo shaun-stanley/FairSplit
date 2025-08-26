@@ -7,6 +7,7 @@ struct GroupDetailView: View {
     @Environment(\.undoManager) private var undoManager
     let group: Group
     @State private var showingAddExpense = false
+    @State private var showingAddItemized = false
     @State private var editingExpense: Expense?
     @State private var searchText = ""
     @State private var minAmount: Double?
@@ -239,6 +240,8 @@ struct GroupDetailView: View {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     .accessibilityLabel("Add Expense")
+                Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
+                    .accessibilityLabel("Add Itemized Expense")
                 Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
                     .accessibilityLabel("Add Recurring Expense")
                 Menu {
@@ -293,6 +296,25 @@ struct GroupDetailView: View {
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
                     DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                }
+            }
+        }
+        .sheet(isPresented: $showingAddItemized) {
+            NavigationStack {
+                ItemizedExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, items, tax, tip, allocation, payer, category, note, receipt in
+                    DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
+                        to: group,
+                        title: title,
+                        items: items.map { ($0.0, $0.1, $0.2) },
+                        tax: tax,
+                        tip: tip,
+                        allocation: allocation,
+                        payer: payer,
+                        category: category,
+                        note: note,
+                        receiptImageData: receipt,
+                        currencyCode: group.defaultCurrency
+                    )
                 }
             }
         }

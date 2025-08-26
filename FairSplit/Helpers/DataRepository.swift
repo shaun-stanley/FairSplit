@@ -65,6 +65,30 @@ final class DataRepository {
         }
     }
 
+    func addItemizedExpense(to group: Group, title: String, items: [(title: String, amount: Decimal, participants: [Member])], tax: Decimal? = nil, tip: Decimal? = nil, allocation: Expense.TaxTipAllocation = .proportional, payer: Member?, category: ExpenseCategory? = nil, note: String? = nil, receiptImageData: Data? = nil, currencyCode: String? = nil, fxRateToGroupCurrency: Decimal? = nil) {
+        let totalItems = items.reduce(0) { $0 + $1.amount }
+        let total = totalItems + (tax ?? 0) + (tip ?? 0)
+        let expense = Expense(title: title, amount: total, currencyCode: currencyCode ?? group.defaultCurrency, fxRateToGroupCurrency: fxRateToGroupCurrency, payer: payer, participants: Array(Set(items.flatMap { $0.participants })), category: category, note: note, receiptImageData: receiptImageData)
+        expense.tax = tax
+        expense.tip = tip
+        expense.taxTipAllocation = allocation
+        for i in items {
+            let item = ItemizedItem(title: i.title, amount: i.amount, participants: i.participants)
+            expense.items.append(item)
+        }
+        group.expenses.append(expense)
+        if let rate = fxRateToGroupCurrency, expense.currencyCode != group.defaultCurrency {
+            group.lastFXRates[expense.currencyCode] = rate
+        }
+        try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.delete(expenses: [expense], from: group)
+            }
+            undo.setActionName("Add Itemized Expense")
+        }
+    }
+
     func update(expense: Expense, in group: Group, title: String, amount: Decimal, payer: Member?, participants: [Member], category: ExpenseCategory?, note: String?, receiptImageData: Data? = nil, currencyCode: String? = nil, fxRateToGroupCurrency: Decimal? = nil) {
         // Capture old state for undo
         let old = (expense.title, expense.amount, expense.currencyCode, expense.fxRateToGroupCurrency, expense.payer, expense.participants, expense.category, expense.note, expense.receiptImageData)

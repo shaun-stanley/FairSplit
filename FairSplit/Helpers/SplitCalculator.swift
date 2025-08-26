@@ -62,7 +62,9 @@ enum SplitCalculator {
         var net: [PersistentIdentifier: Decimal] = Dictionary(uniqueKeysWithValues: members.map { ($0.persistentModelID, 0) })
         for expense in expenses {
             let split: [PersistentIdentifier: Decimal]
-            if expense.shares.isEmpty {
+            if !expense.items.isEmpty {
+                split = itemizedSplit(expense: expense, defaultCurrency: defaultCurrency)
+            } else if expense.shares.isEmpty {
                 split = evenSplit(amount: amountInGroupCurrency(for: expense, defaultCurrency: defaultCurrency), among: expense.participants)
             } else {
                 split = weightedSplit(amount: amountInGroupCurrency(for: expense, defaultCurrency: defaultCurrency), shares: expense.shares)
@@ -123,5 +125,58 @@ enum SplitCalculator {
     static func balances(for group: Group) -> [(from: Member, to: Member, amount: Decimal)] {
         let net = netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
         return proposedTransfers(netBalances: net, members: group.members)
+    }
+
+    /// Splits an itemized expense with optional tax/tip, returning owed amounts per member.
+    static func itemizedSplit(expense: Expense, defaultCurrency: String) -> [PersistentIdentifier: Decimal] {
+        var result: [PersistentIdentifier: Decimal] = [:]
+        // 1) Split each item evenly among its participants (in group currency)
+        for item in expense.items {
+            let amount = item.amount // assume item amounts already in expense.currencyCode
+            // Convert if needed
+            var itemInGroup = amount
+            if expense.currencyCode != defaultCurrency {
+                let rate = expense.fxRateToGroupCurrency ?? 1
+                itemInGroup = amount * rate
+            }
+            let split = evenSplit(amount: itemInGroup, among: item.participants)
+            for (id, share) in split { result[id, default: 0] += share }
+        }
+        let preTaxTotals = result
+        let sumPreTax = preTaxTotals.values.reduce(0, +)
+        // 2) Allocate tax and tip either evenly across all participants, or proportional to pre-tax totals
+        func allocate(extra: Decimal?) {
+            guard let extra, extra > 0, !expense.participants.isEmpty else { return }
+            switch expense.taxTipAllocation {
+            case .even:
+                let even = evenSplit(amount: extra, among: expense.participants)
+                for (id, share) in even { result[id, default: 0] += share }
+            case .proportional:
+                guard sumPreTax > 0 else {
+                    let even = evenSplit(amount: extra, among: expense.participants)
+                    for (id, share) in even { result[id, default: 0] += share }
+                    return
+                }
+                // Use cents to minimize rounding drift
+                let centsTotal = (NSDecimalNumber(decimal: extra).multiplying(by: 100).rounding(accordingToBehavior: nil)).intValue
+                var allocations: [PersistentIdentifier: Int] = [:]
+                var allocated = 0
+                for (id, pre) in preTaxTotals {
+                    let cents = (NSDecimalNumber(decimal: pre).multiplying(by: 100).rounding(accordingToBehavior: nil)).intValue
+                    let share = centsTotal * cents / max(1, (NSDecimalNumber(decimal: sumPreTax).multiplying(by: 100).rounding(accordingToBehavior: nil)).intValue)
+                    allocations[id, default: 0] += share
+                    allocated += share
+                }
+                var remainder = centsTotal - allocated
+                for id in expense.participants.map({ $0.persistentModelID }) where remainder > 0 {
+                    allocations[id, default: 0] += 1
+                    remainder -= 1
+                }
+                for (id, cents) in allocations { result[id, default: 0] += Decimal(cents) / 100 }
+            }
+        }
+        allocate(extra: expense.tax)
+        allocate(extra: expense.tip)
+        return result
     }
 }
