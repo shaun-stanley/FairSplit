@@ -101,5 +101,5 @@ private extension GroupListView {
 
 #Preview {
     GroupListView()
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self], inMemory: true)
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self], inMemory: true)
 }

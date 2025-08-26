@@ -16,7 +16,9 @@ struct ContentView: View {
     var body: some View {
         MainTabView()
         .task {
-            DataRepository(context: modelContext).seedIfNeeded()
+            let repo = DataRepository(context: modelContext)
+            repo.seedIfNeeded()
+            repo.generateDueRecurring()
         }
         .preferredColorScheme(AppSettings.scheme(for: appearance))
         .tint(AppSettings.color(for: accentID))
@@ -25,5 +27,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self], inMemory: true)
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self], inMemory: true)
 }

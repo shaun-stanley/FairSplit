@@ -9,6 +9,7 @@ final class Group {
     @Relationship(deleteRule: .cascade) var members: [Member]
     @Relationship(deleteRule: .cascade) var expenses: [Expense]
     @Relationship(deleteRule: .cascade) var settlements: [Settlement]
+    @Relationship(deleteRule: .cascade) var recurring: [RecurringExpense] = []
     var createdAt: Date
 
     init(name: String, defaultCurrency: String, members: [Member] = [], expenses: [Expense] = [], settlements: [Settlement] = [], createdAt: Date = .now) {

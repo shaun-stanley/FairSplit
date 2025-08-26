@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-3] SF Symbols for categories and actions
-2. [UX-2] Haptics on key actions (add expense, settle)
-3. [UX-5] Pull-to-refresh (placeholder)
+1. [DATA-2] iCloud sync via CloudKit (private database)
+2. [CORE-11] Direct (non-group) expenses between two people
+3. [SHARE-3] Deep links: open a specific group/expense via URL scheme
 
 ## In Progress
-[UX-5] Pull-to-refresh (placeholder)
+[MATH-3] Recurring expenses (daily/weekly/monthly) with auto-add and pause
 
 ## Done
 [MVP-1] Added SwiftData and a demo group

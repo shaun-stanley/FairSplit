@@ -169,4 +169,50 @@ final class DataRepository {
         return true
     }
 
+    // MARK: - Recurring Expenses
+    func addRecurring(to group: Group, title: String, amount: Decimal, frequency: RecurrenceFrequency, nextDate: Date, payer: Member?, participants: [Member], category: ExpenseCategory? = nil, note: String? = nil) {
+        let r = RecurringExpense(title: title, amount: amount, frequency: frequency, nextDate: nextDate, payer: payer, participants: participants, category: category, note: note)
+        group.recurring.append(r)
+        try? context.save()
+    }
+
+    func togglePause(_ r: RecurringExpense) {
+        r.isPaused.toggle()
+        try? context.save()
+    }
+
+    func deleteRecurring(_ r: RecurringExpense, from group: Group) {
+        if let idx = group.recurring.firstIndex(where: { $0.persistentModelID == r.persistentModelID }) {
+            group.recurring.remove(at: idx)
+            try? context.save()
+        }
+    }
+
+    func generateOnce(_ r: RecurringExpense, in group: Group) {
+        let expense = Expense(title: r.title, amount: r.amount, currencyCode: group.defaultCurrency, payer: r.payer, participants: r.participants, category: r.category, note: r.note)
+        group.expenses.append(expense)
+        if let next = nextOccurrence(after: r.nextDate, frequency: r.frequency) { r.nextDate = next }
+        try? context.save()
+    }
+
+    func generateDueRecurring(now: Date = .now) {
+        let fetch = FetchDescriptor<Group>(predicate: #Predicate { _ in true })
+        guard let groups = try? context.fetch(fetch) else { return }
+        for g in groups { generateDueRecurring(in: g, now: now) }
+    }
+
+    func generateDueRecurring(in group: Group, now: Date = .now) {
+        for r in group.recurring where !r.isPaused && r.nextDate <= now {
+            generateOnce(r, in: group)
+        }
+    }
+
+    private func nextOccurrence(after date: Date, frequency: RecurrenceFrequency) -> Date? {
+        let cal = Calendar.current
+        switch frequency {
+        case .daily: return cal.date(byAdding: .day, value: 1, to: date)
+        case .weekly: return cal.date(byAdding: .weekOfYear, value: 1, to: date)
+        case .monthly: return cal.date(byAdding: .month, value: 1, to: date)
+        }
+    }
 }

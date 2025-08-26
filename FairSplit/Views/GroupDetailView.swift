@@ -20,6 +20,7 @@ struct GroupDetailView: View {
     @State private var shareText: String = ""
     @State private var shareURL: URL?
     @State private var importError: String?
+    @State private var showingAddRecurring = false
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -62,6 +63,35 @@ struct GroupDetailView: View {
                     }
                 }
             }
+            Section("Recurring") {
+                if group.recurring.isEmpty {
+                    ContentUnavailableView("No recurring expenses", systemImage: "arrow.triangle.2.circlepath")
+                } else {
+                    ForEach(group.recurring, id: \.persistentModelID) { r in
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(r.title).font(.headline)
+                                Text("Next: \(r.nextDate, style: .date)")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Menu {
+                                Button(r.isPaused ? "Resume" : "Pause") { DataRepository(context: modelContext).togglePause(r) }
+                                Button("Run Now") { DataRepository(context: modelContext).generateOnce(r, in: group) }
+                                Button("Delete", role: .destructive) { DataRepository(context: modelContext).deleteRecurring(r, from: group) }
+                            } label: {
+                                Image(systemName: "ellipsis.circle")
+                            }
+                            .accessibilityLabel("Recurring actions")
+                        }
+                    }
+                }
+            }
+            .headerProminence(.increased)
+
             Section("Expenses") {
                 ForEach(filteredExpenses, id: \.persistentModelID) { expense in
                     HStack(alignment: .top, spacing: 12) {
@@ -209,6 +239,8 @@ struct GroupDetailView: View {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     .accessibilityLabel("Add Expense")
+                Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
+                    .accessibilityLabel("Add Recurring Expense")
                 Menu {
                     Section("Members") {
                         ForEach(group.members, id: \.persistentModelID) { m in
@@ -285,6 +317,11 @@ struct GroupDetailView: View {
         .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: { Text(importError ?? "") }
+        .sheet(isPresented: $showingAddRecurring) {
+            AddRecurringView(members: group.members) { title, amount, freq, start, payer, participants, category, note in
+                DataRepository(context: modelContext).addRecurring(to: group, title: title, amount: amount, frequency: freq, nextDate: start, payer: payer, participants: participants, category: category, note: note)
+            }
+        }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
@@ -349,7 +386,7 @@ struct GroupDetailView: View {
 
 #Preview {
     if let container = try? ModelContainer(
-        for: Group.self, Member.self, Expense.self, Settlement.self,
+        for: Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     ) {
         let member = Member(name: "A")
