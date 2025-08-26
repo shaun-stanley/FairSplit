@@ -28,5 +28,39 @@ enum StatsCalculator {
         }
         return totals
     }
-}
 
+    struct YearMonth: Hashable, Comparable {
+        let year: Int
+        let month: Int
+        static func < (lhs: YearMonth, rhs: YearMonth) -> Bool {
+            if lhs.year == rhs.year { return lhs.month < rhs.month }
+            return lhs.year < rhs.year
+        }
+        var label: String {
+            var comps = DateComponents()
+            comps.year = year
+            comps.month = month
+            let cal = Calendar.current
+            if let date = cal.date(from: comps) {
+                return date.formatted(.dateTime.month(.abbreviated).year())
+            }
+            return "\(year)-\(month)"
+        }
+    }
+
+    /// Returns totals per month (across all provided groups) in each group's currency converted per expense.
+    static func totalsByMonth(groups: [Group]) -> [YearMonth: Decimal] {
+        var totals: [YearMonth: Decimal] = [:]
+        let cal = Calendar.current
+        for g in groups {
+            for e in g.expenses {
+                let comps = cal.dateComponents([.year, .month], from: e.date)
+                guard let y = comps.year, let m = comps.month else { continue }
+                let key = YearMonth(year: y, month: m)
+                let amount = SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: g.defaultCurrency)
+                totals[key, default: 0] += amount
+            }
+        }
+        return totals
+    }
+}

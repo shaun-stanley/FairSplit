@@ -1,4 +1,5 @@
 import SwiftUI
+import Charts
 import SwiftData
 
 struct ReportsView: View {
@@ -28,6 +29,11 @@ struct ReportsView: View {
             if let v = map[c], v > 0 { return (c, v) }
             return nil
         }
+    }
+
+    private var monthlyTotals: [(StatsCalculator.YearMonth, Decimal)] {
+        let totals = StatsCalculator.totalsByMonth(groups: groups)
+        return totals.keys.sorted().map { ($0, totals[$0] ?? 0) }
     }
 
     var body: some View {
@@ -66,6 +72,16 @@ struct ReportsView: View {
 
                 if !categoryTotals.isEmpty {
                     Section("Totals by Category") {
+                        // Chart
+                        Chart(categoryTotals, id: \.0) { (cat, amount) in
+                            BarMark(
+                                x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
+                                y: .value("Category", cat.displayName)
+                            )
+                        }
+                        .frame(height: 220)
+                        .accessibilityLabel("Category totals chart")
+                        // List (readable values)
                         ForEach(Array(categoryTotals.enumerated()), id: \.offset) { _, item in
                             let (cat, amount) = item
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -83,6 +99,23 @@ struct ReportsView: View {
                             .accessibilityElement(children: .ignore)
                             .accessibilityLabel("\(cat.displayName), total \(CurrencyFormatter.string(from: amount))")
                         }
+                    }
+                }
+
+                if !monthlyTotals.isEmpty {
+                    Section("Monthly Trend") {
+                        Chart(monthlyTotals, id: \.0) { (ym, amount) in
+                            LineMark(
+                                x: .value("Month", ym.label),
+                                y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
+                            )
+                            PointMark(
+                                x: .value("Month", ym.label),
+                                y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
+                            )
+                        }
+                        .frame(height: 220)
+                        .accessibilityLabel("Monthly totals chart")
                     }
                 }
             }
