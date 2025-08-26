@@ -27,6 +27,7 @@ struct GroupDetailView: View {
     @State private var commentingExpense: Expense?
     @State private var showingCurrencyPicker = false
     @State private var newCurrencyCode: String = AppSettings.defaultCurrencyCode()
+    @State private var confirmCurrencyChange = false
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -61,6 +62,9 @@ struct GroupDetailView: View {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     .accessibilityLabel("Add Expense")
                     .disabled(group.isArchived)
+                    #if canImport(TipKit)
+                    .popoverTip(Tips.addExpense)
+                    #endif
                 Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
                     .accessibilityLabel("Add Itemized Expense")
                     .disabled(group.isArchived)
@@ -155,18 +159,34 @@ struct GroupDetailView: View {
                         }
                     }
                     .pickerStyle(.navigationLink)
+                    Section("About") {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Changing the group currency updates how totals and balances are displayed.")
+                            Text("Existing expenses are not converted automatically.")
+                            Text("Expenses logged in other currencies continue to use their set conversion rates (you can edit an expense to adjust its rate).")
+                        }
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    }
                 }
                 .navigationTitle("Group Currency")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingCurrencyPicker = false } }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") {
-                            group.defaultCurrency = newCurrencyCode
-                            try? modelContext.save()
-                            showingCurrencyPicker = false
-                        }
+                        Button("Save") { confirmCurrencyChange = true }
                         .disabled(newCurrencyCode.isEmpty || newCurrencyCode == group.defaultCurrency)
                     }
+                }
+                .alert("Change Group Currency?", isPresented: $confirmCurrencyChange) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Change", role: .destructive) {
+                        group.defaultCurrency = newCurrencyCode
+                        try? modelContext.save()
+                        Diagnostics.event("Group currency changed to \(newCurrencyCode)")
+                        showingCurrencyPicker = false
+                    }
+                } message: {
+                    Text("This updates display currency for this group to \(newCurrencyCode). Existing expenses are not converted automatically. Expenses in other currencies keep their set conversion rates.")
                 }
             }
         }

@@ -8,6 +8,7 @@ enum AppSettings {
     static let notificationsHourKey = "notifications_hour"
     static let notificationsMinuteKey = "notifications_minute"
     static let defaultCurrencyKey = "default_currency_code"
+    static let diagnosticsEnabledKey = "diagnostics_enabled"
 
     static let accentPresets: [(id: String, color: Color)] = [
         ("blue", .blue), ("green", .green), ("teal", .teal), ("indigo", .indigo),

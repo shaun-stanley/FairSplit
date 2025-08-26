@@ -37,6 +37,8 @@ struct ContentView: View {
             SpotlightIndexer.reindexAll(context: modelContext)
             // Seed widget data (if App Group is enabled)
             WidgetDataWriter.updateTopGroupSummary(groups: groups)
+            // Configure coach marks
+            Tips.configure()
         }
         .onChange(of: groups) { _, newValue in
             WidgetDataWriter.updateTopGroupSummary(groups: newValue)

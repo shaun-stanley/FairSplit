@@ -6,7 +6,10 @@ struct SettingsView: View {
     @AppStorage(AppSettings.cloudSyncKey) private var cloudSync: Bool = false
     @AppStorage("privacy_lock_enabled") private var privacyLock: Bool = false
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
+    @AppStorage(AppSettings.diagnosticsEnabledKey) private var diagnosticsEnabled: Bool = false
     @Environment(\.dismiss) private var dismiss
+    @State private var showingShare = false
+    @State private var exportURL: URL?
     @State private var reminderTime: Date = {
         var comps = DateComponents()
         let hour = UserDefaults.standard.object(forKey: AppSettings.notificationsHourKey) as? Int ?? 9
@@ -40,6 +43,25 @@ struct SettingsView: View {
                             Text("Require Face ID/Touch ID to view the app.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                Section("Diagnostics") {
+                    Toggle(isOn: $diagnosticsEnabled) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Diagnostics Logs")
+                            Text("Writes non-sensitive events to the system log and an in-app log for export.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Button("Export Logs…") {
+                        let text = DiagnosticsLog.shared.exportText()
+                        let data = text.data(using: .utf8) ?? Data()
+                        if let url = try? TempFileWriter.writeTemporary(data: data, fileName: "FairSplit-Diagnostics-\(Int(Date().timeIntervalSince1970))", fileExtension: "txt") {
+                            // Present share sheet by flipping a binding via local state
+                            exportURL = url
+                            showingShare = true
                         }
                     }
                 }
@@ -126,6 +148,11 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
+            }
+            .sheet(isPresented: $showingShare) {
+                if let url = exportURL {
+                    ShareSheet(activityItems: [url])
+                }
             }
         }
     }

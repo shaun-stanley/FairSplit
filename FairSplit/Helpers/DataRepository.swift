@@ -49,6 +49,7 @@ final class DataRepository {
         let group = Group(name: name, defaultCurrency: defaultCurrency)
         context.insert(group)
         try? context.save()
+        Diagnostics.event("Group created (\(name)) [\(defaultCurrency)]")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 repo.delete(groups: [group])
@@ -61,6 +62,7 @@ final class DataRepository {
         group.isArchived = archived
         group.archivedAt = archived ? .now : nil
         try? context.save()
+        Diagnostics.event(archived ? "Group archived" : "Group unarchived")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 repo.setArchived(!archived, for: group)
@@ -73,6 +75,7 @@ final class DataRepository {
         let removed = groups
         for g in groups { context.delete(g) }
         try? context.save()
+        Diagnostics.event("Expense added (\(title)) [\(expense.currencyCode)]")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 for g in removed { repo.context.insert(g) }
@@ -89,6 +92,7 @@ final class DataRepository {
             group.lastFXRates[expense.currencyCode] = rate
         }
         try? context.save()
+        Diagnostics.event("Expense updated (\(expense.title))")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 repo.delete(expenses: [expense], from: group)
@@ -113,6 +117,7 @@ final class DataRepository {
             group.lastFXRates[expense.currencyCode] = rate
         }
         try? context.save()
+        Diagnostics.event("Expenses deleted (\(expenses.count))")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 repo.delete(expenses: [expense], from: group)
@@ -166,6 +171,7 @@ final class DataRepository {
         let settlement = Settlement(from: from, to: to, amount: amount, date: .now, isPaid: isPaid, receiptImageData: receiptImageData)
         group.settlements.append(settlement)
         try? context.save()
+        Diagnostics.event("Settlement recorded")
         if let undo = undoManager {
             // Capture stable identifiers only to satisfy Swift 6 Sendable rules
             let groupID = group.persistentModelID
@@ -193,6 +199,7 @@ final class DataRepository {
         let member = Member(name: name)
         group.members.append(member)
         try? context.save()
+        Diagnostics.event("Member added")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 _ = repo.delete(member: member, from: group)
