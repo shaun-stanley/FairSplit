@@ -19,9 +19,10 @@
 3. [L10N-2] Indian numbering format (₹1,23,456)
 
 ## In Progress
-[SYS-2] Live Activity: running trip summary with balance
+(none)
 
 ## Done
+[SYS-2] Live Activity: start/stop a simple running summary from Group actions (guarded by ActivityKit)
 [L10N-1] Localization scaffolding: added base Localizable.strings (en); code uses Text titles for future translations
 [SYS-4] Spotlight: indexed groups and expenses; reindex on launch
 [PRIV-1] App privacy lock: toggle in Settings; Face ID/Touch ID overlay on launch/background
@@ -157,6 +158,7 @@
 ---
 
 ## Changelog
+- 2025-08-27: SYS-2 — Added Live Activity scaffold with start/stop controls in Group actions; safely guarded with ActivityKit checks.
 - 2025-08-27: L10N-1 — Added base Localizable.strings (en); UI strings prepared for translation.
 - 2025-08-26: FIX — Restored project.pbxproj to resolve parse error; will re-add Widget target via Xcode UI.
 - 2025-08-26: WID-2 — Widget now displays top group total from shared defaults when App Group is enabled.
