@@ -75,7 +75,7 @@ final class DataRepository {
         let removed = groups
         for g in groups { context.delete(g) }
         try? context.save()
-        Diagnostics.event("Expense added (\(title)) [\(expense.currencyCode)]")
+        Diagnostics.event("Groups deleted (\(removed.count))")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 for g in removed { repo.context.insert(g) }
@@ -92,7 +92,7 @@ final class DataRepository {
             group.lastFXRates[expense.currencyCode] = rate
         }
         try? context.save()
-        Diagnostics.event("Expense updated (\(expense.title))")
+        Diagnostics.event("Expense added (\(title)) [\(expense.currencyCode)]")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 repo.delete(expenses: [expense], from: group)
@@ -117,7 +117,7 @@ final class DataRepository {
             group.lastFXRates[expense.currencyCode] = rate
         }
         try? context.save()
-        Diagnostics.event("Expenses deleted (\(expenses.count))")
+        Diagnostics.event("Itemized expense added (\(title)) [\(expense.currencyCode)]")
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
                 repo.delete(expenses: [expense], from: group)
