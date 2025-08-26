@@ -42,232 +42,13 @@ struct GroupDetailView: View {
 
     var body: some View {
         List {
-            if group.isArchived {
-                Section {
-                    HStack(spacing: 8) {
-                        Image(systemName: "archivebox")
-                            .foregroundStyle(.secondary)
-                        Text("This group is archived. Data is read-only.")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
-                Section("Totals by Member") {
-                    ForEach(0..<totalsByMember.count, id: \.self) { i in
-                        let (member, amount) = totalsByMember[i]
-                        HStack {
-                            Text(member.name)
-                            Spacer()
-                            Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
-                        }
-                    }
-                }
-                if !totalsByCategory.isEmpty {
-                    Section("Totals by Category") {
-                        ForEach(0..<totalsByCategory.count, id: \.self) { i in
-                            let (category, amount) = totalsByCategory[i]
-                            HStack {
-                                Text(category.displayName)
-                                Spacer()
-                                Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
-                            }
-                        }
-                    }
-                }
-            }
-            Section("Recurring") {
-                if group.recurring.isEmpty {
-                    ContentUnavailableView("No recurring expenses", systemImage: "arrow.triangle.2.circlepath")
-                } else {
-                    ForEach(group.recurring, id: \.persistentModelID) { r in
-                        HStack(spacing: 8) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                                .foregroundStyle(.secondary)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(r.title).font(.headline)
-                                Text("Next: \(r.nextDate, style: .date)")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Menu {
-                                Button(r.isPaused ? "Resume" : "Pause") { DataRepository(context: modelContext).togglePause(r) }
-                                Button("Run Now") { DataRepository(context: modelContext).generateOnce(r, in: group) }
-                                Button("Delete", role: .destructive) { DataRepository(context: modelContext).deleteRecurring(r, from: group) }
-                            } label: {
-                                Image(systemName: "ellipsis.circle")
-                            }
-                            .accessibilityLabel("Recurring actions")
-                        }
-                    }
-                }
-            }
-            .headerProminence(.increased)
-
-            Section("Expenses") {
-                ForEach(filteredExpenses, id: \.persistentModelID) { expense in
-                    HStack(alignment: .top, spacing: 12) {
-                        if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 40, height: 40)
-                                .clipped()
-                                .cornerRadius(6)
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 6) {
-                                if let category = expense.category {
-                                    Image(systemName: category.symbolName)
-                                        .foregroundStyle(.secondary)
-                                }
-                                Text(expense.title)
-                            }
-                                .font(.headline)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.leading)
-                            if let category = expense.category {
-                                Text(category.displayName)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            if let note = expense.note, !note.isEmpty {
-                                Text(note)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(3)
-                            }
-                            if let payer = expense.payer {
-                                Text("Paid by \(payer.name)")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        .layoutPriority(1)
-                        Spacer(minLength: 8)
-                        Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
-                            .fontWeight(.semibold)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                    }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(expenseAccessibilityLabel(expense))
-                    .swipeActions(allowFullSwipe: false) {
-                        if !group.isArchived {
-                            Button("Edit") { editingExpense = expense }.tint(.blue)
-                            Button("Delete", role: .destructive) {
-                                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                                Haptics.success()
-                            }
-                        }
-                    }
-                    .contextMenu {
-                        if !group.isArchived {
-                            Button("Edit") { editingExpense = expense }
-                            Button("Delete", role: .destructive) {
-                                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                                Haptics.success()
-                            }
-                        }
-                    }
-                }
-            }
-            .headerProminence(.increased)
-
-            Section("Balances") {
-                let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
-                ForEach(group.members, id: \.persistentModelID) { member in
-                    let amount = net[member.persistentModelID] ?? 0
-                    HStack(spacing: 8) {
-                        HStack(spacing: 6) {
-                            Image(systemName: amount >= 0 ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
-                                .foregroundStyle(amount >= 0 ? .green : .red)
-                                .accessibilityHidden(true)
-                            Text(member.name)
-                        }
-                        Spacer()
-                        Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
-                            .foregroundStyle(amount >= 0 ? .green : .red)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                    }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("\(member.name), balance \(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))")
-                    .contextMenu {
-                        Button("Copy Amount") {
-                            let text = CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency)
-                            UIPasteboard.general.string = text
-                            Haptics.success()
-                        }
-                        if amount < 0 {
-                            Button("Message \(member.name)") {
-                                composeBody = "Hi \(member.name), you owe \(CurrencyFormatter.string(from: -amount, currencyCode: group.defaultCurrency)) for \(group.name)."
-                                showComposer = true
-                            }
-                        }
-                    }
-                }
-            }
-            .headerProminence(.increased)
-
-            Section {
-                if settlementProposals.isEmpty {
-                    ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
-                } else {
-                    ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
-                        HStack {
-                            Text(item.from.name)
-                            Image(systemName: "arrow.right.circle")
-                                .foregroundStyle(.secondary)
-                            Text(item.to.name)
-                            Spacer()
-                            Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
-                                .fontWeight(.semibold)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.75)
-                        }
-                        .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
-                    }
-                }
-            } header: {
-                HStack {
-                    Text("Settle Up")
-                    Spacer()
-                    if !group.isArchived {
-                        NavigationLink {
-                            SettleUpView(group: group)
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text("Settle Up")
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Open Settle Up")
-                    } else {
-                        Text("Unavailable in archived groups")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .headerProminence(.increased)
-
-            Section("Members") {
-                NavigationLink(destination: MembersView(group: group)) {
-                    HStack {
-                        Text("Members")
-                        Spacer()
-                        Text("\(group.members.count)").foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .headerProminence(.increased)
+            archivedBanner()
+            totalsSections()
+            recurringSection()
+            expensesSection()
+            balancesSection()
+            settleUpSection()
+            membersSection()
         }
         .navigationTitle(group.name)
         .listStyle(.insetGrouped)
@@ -422,6 +203,258 @@ struct GroupDetailView: View {
                 showComposer = false
             }
         }
+    }
+
+    // MARK: - Section Builders
+    @ViewBuilder private func archivedBanner() -> some View {
+        if group.isArchived {
+            Section {
+                HStack(spacing: 8) {
+                    Image(systemName: "archivebox")
+                        .foregroundStyle(.secondary)
+                    Text("This group is archived. Data is read-only.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func totalsSections() -> some View {
+        if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
+            Section("Totals by Member") {
+                ForEach(0..<totalsByMember.count, id: \.self) { i in
+                    let (member, amount) = totalsByMember[i]
+                    HStack {
+                        Text(member.name)
+                        Spacer()
+                        Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                    }
+                }
+            }
+            if !totalsByCategory.isEmpty {
+                Section("Totals by Category") {
+                    ForEach(0..<totalsByCategory.count, id: \.self) { i in
+                        let (category, amount) = totalsByCategory[i]
+                        HStack {
+                            Text(category.displayName)
+                            Spacer()
+                            Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func recurringSection() -> some View {
+        Section("Recurring") {
+            if group.recurring.isEmpty {
+                ContentUnavailableView("No recurring expenses", systemImage: "arrow.triangle.2.circlepath")
+            } else {
+                ForEach(group.recurring, id: \.persistentModelID) { r in
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(r.title).font(.headline)
+                            Text("Next: \(r.nextDate, style: .date)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Menu {
+                            Button(r.isPaused ? "Resume" : "Pause") { DataRepository(context: modelContext).togglePause(r) }
+                            Button("Run Now") { DataRepository(context: modelContext).generateOnce(r, in: group) }
+                            Button("Delete", role: .destructive) { DataRepository(context: modelContext).deleteRecurring(r, from: group) }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                        .accessibilityLabel("Recurring actions")
+                    }
+                }
+            }
+        }
+        .headerProminence(.increased)
+    }
+
+    @ViewBuilder private func expensesSection() -> some View {
+        Section("Expenses") {
+            ForEach(filteredExpenses, id: \.persistentModelID) { expense in
+                expenseRow(expense)
+            }
+        }
+        .headerProminence(.increased)
+    }
+
+    @ViewBuilder private func expenseRow(_ expense: Expense) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 40)
+                    .clipped()
+                    .cornerRadius(6)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    if let category = expense.category {
+                        Image(systemName: category.symbolName)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text(expense.title)
+                }
+                .font(.headline)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+                if let category = expense.category {
+                    Text(category.displayName)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                if let note = expense.note, !note.isEmpty {
+                    Text(note)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+                if let payer = expense.payer {
+                    Text("Paid by \(payer.name)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .layoutPriority(1)
+            Spacer(minLength: 8)
+            Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
+                .fontWeight(.semibold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(expenseAccessibilityLabel(expense))
+        .swipeActions(allowFullSwipe: false) {
+            if !group.isArchived {
+                Button("Edit") { editingExpense = expense }.tint(.blue)
+                Button("Delete", role: .destructive) {
+                    DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                    Haptics.success()
+                }
+            }
+        }
+        .contextMenu {
+            if !group.isArchived {
+                Button("Edit") { editingExpense = expense }
+                Button("Delete", role: .destructive) {
+                    DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                    Haptics.success()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func balancesSection() -> some View {
+        Section("Balances") {
+            let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
+            ForEach(group.members, id: \.persistentModelID) { member in
+                let amount = net[member.persistentModelID] ?? 0
+                balanceRow(member: member, amount: amount)
+            }
+        }
+        .headerProminence(.increased)
+    }
+
+    @ViewBuilder private func balanceRow(member: Member, amount: Decimal) -> some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: amount >= 0 ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
+                    .foregroundStyle(amount >= 0 ? .green : .red)
+                    .accessibilityHidden(true)
+                Text(member.name)
+            }
+            Spacer()
+            Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                .foregroundStyle(amount >= 0 ? .green : .red)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(member.name), balance \(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))")
+        .contextMenu {
+            Button("Copy Amount") {
+                let text = CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency)
+                UIPasteboard.general.string = text
+                Haptics.success()
+            }
+            if amount < 0 {
+                Button("Message \(member.name)") {
+                    composeBody = "Hi \(member.name), you owe \(CurrencyFormatter.string(from: -amount, currencyCode: group.defaultCurrency)) for \(group.name)."
+                    showComposer = true
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func settleUpSection() -> some View {
+        Section {
+            if settlementProposals.isEmpty {
+                ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
+            } else {
+                ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
+                    HStack {
+                        Text(item.from.name)
+                        Image(systemName: "arrow.right.circle")
+                            .foregroundStyle(.secondary)
+                        Text(item.to.name)
+                        Spacer()
+                        Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
+                }
+            }
+        } header: {
+            HStack {
+                Text("Settle Up")
+                Spacer()
+                if !group.isArchived {
+                    NavigationLink {
+                        SettleUpView(group: group)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Settle Up")
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Open Settle Up")
+                } else {
+                    Text("Unavailable in archived groups")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .headerProminence(.increased)
+    }
+
+    @ViewBuilder private func membersSection() -> some View {
+        Section("Members") {
+            NavigationLink(destination: MembersView(group: group)) {
+                HStack {
+                    Text("Members")
+                    Spacer()
+                    Text("\(group.members.count)").foregroundStyle(.secondary)
+                }
+            }
+        }
+        .headerProminence(.increased)
     }
 
     private var filteredExpenses: [Expense] {
