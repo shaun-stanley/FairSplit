@@ -68,8 +68,13 @@ struct ReportsView: View {
                     Section("Totals by Category") {
                         ForEach(Array(categoryTotals.enumerated()), id: \.offset) { _, item in
                             let (cat, amount) = item
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(cat.displayName)
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: cat.symbolName)
+                                        .foregroundStyle(.secondary)
+                                        .accessibilityHidden(true)
+                                    Text(cat.displayName)
+                                }
                                 Spacer(minLength: 8)
                                 Text(CurrencyFormatter.string(from: amount))
                                     .lineLimit(1)

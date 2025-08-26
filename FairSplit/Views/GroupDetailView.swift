@@ -130,8 +130,13 @@ struct GroupDetailView: View {
                 let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
                 ForEach(group.members, id: \.persistentModelID) { member in
                     let amount = net[member.persistentModelID] ?? 0
-                    HStack {
-                        Text(member.name)
+                    HStack(spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: amount >= 0 ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
+                                .foregroundStyle(amount >= 0 ? .green : .red)
+                                .accessibilityHidden(true)
+                            Text(member.name)
+                        }
                         Spacer()
                         Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
                             .foregroundStyle(amount >= 0 ? .green : .red)
@@ -151,7 +156,7 @@ struct GroupDetailView: View {
                     ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
                         HStack {
                             Text(item.from.name)
-                            Image(systemName: "arrow.right")
+                            Image(systemName: "arrow.right.circle")
                                 .foregroundStyle(.secondary)
                             Text(item.to.name)
                             Spacer()
