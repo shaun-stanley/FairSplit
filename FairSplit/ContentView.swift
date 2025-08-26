@@ -32,6 +32,8 @@ struct ContentView: View {
             NotificationsManager.refreshFromSettings()
             // Apply privacy lock on launch if enabled
             if privacyLockEnabled { lockAndAuthenticate() }
+            // Index content for Spotlight
+            SpotlightIndexer.reindexAll(context: modelContext)
         }
         .onChange(of: privacyLockEnabled) { _, newValue in
             if newValue { lockAndAuthenticate() } else { isLocked = false }
