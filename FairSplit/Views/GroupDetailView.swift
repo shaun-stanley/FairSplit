@@ -64,16 +64,19 @@ struct GroupDetailView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
-                archivedBanner()
-                balancesSection().id(Anchor.balances)
-                settleUpSection().id(Anchor.settle)
-                expensesSection().id(Anchor.expenses)
-                recurringSection().id(Anchor.recurring)
-                totalsSections().id(Anchor.totals)
-                activitySection().id(Anchor.activity)
-                membersSection().id(Anchor.members)
+                Section {
+                    archivedBannerRow()
+                    balancesRows().id(Anchor.balances)
+                    settleUpRows().id(Anchor.settle)
+                    expensesRows().id(Anchor.expenses)
+                    recurringRows().id(Anchor.recurring)
+                    totalsRows().id(Anchor.totals)
+                    activityRows().id(Anchor.activity)
+                    membersRows().id(Anchor.members)
+                } header: {
+                    pillBar(proxy: proxy)
+                }
             }
-            .safeAreaInset(edge: .top) { pillBar(proxy: proxy) }
             .onAppear {
                 // Restore last selected section
                 if let saved = UserDefaults.standard.string(forKey: lastSectionKey()), let a = Anchor(rawValue: saved) {
@@ -318,18 +321,7 @@ struct GroupDetailView: View {
     }
 
     // MARK: - Section Builders
-    @ViewBuilder private func archivedBanner() -> some View {
-        if group.isArchived {
-            Section {
-                HStack(spacing: 8) {
-                    Image(systemName: "archivebox")
-                        .foregroundStyle(.secondary)
-                    Text("This group is archived. Data is read-only.")
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
+    @ViewBuilder private func archivedBanner() -> some View { EmptyView() }
 
     @ViewBuilder private func totalsSections() -> some View {
         if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
@@ -519,15 +511,13 @@ struct GroupDetailView: View {
         }
     }
 
-    @ViewBuilder private func balancesSection() -> some View {
-        Section("Balances") {
-            let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
-            ForEach(group.members, id: \.persistentModelID) { member in
-                let amount = net[member.persistentModelID] ?? 0
-                balanceRow(member: member, amount: amount)
-            }
+    @ViewBuilder private func balancesRows() -> some View {
+        headerRow("Balances")
+        let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
+        ForEach(group.members, id: \.persistentModelID) { member in
+            let amount = net[member.persistentModelID] ?? 0
+            balanceRow(member: member, amount: amount)
         }
-        .headerProminence(.increased)
     }
 
     @ViewBuilder private func balanceRow(member: Member, amount: Decimal) -> some View {
@@ -561,69 +551,63 @@ struct GroupDetailView: View {
         }
     }
 
-    @ViewBuilder private func settleUpSection() -> some View {
-        Section {
-            if settlementProposals.isEmpty {
-                ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
-            } else {
-                ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
-                    HStack {
-                        Text(item.from.name)
-                        Image(systemName: "arrow.right.circle")
+    @ViewBuilder private func settleUpRows() -> some View {
+        HStack {
+            Text("Settle Up").font(.headline)
+            Spacer()
+            if !group.isArchived {
+                NavigationLink {
+                    SettleUpView(group: group)
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("Settle Up")
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(item.to.name)
-                        Spacer()
-                        Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
-                            .fontWeight(.semibold)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
                     }
-                    .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 }
-            }
-        } header: {
-            HStack {
-                Text("Settle Up")
-                Spacer()
-                if !group.isArchived {
-                    NavigationLink {
-                        SettleUpView(group: group)
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text("Settle Up")
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Open Settle Up")
-                    #if canImport(TipKit)
-                    .popoverTip(AppTips.settleUp)
-                    #endif
-                } else {
-                    Text("Unavailable in archived groups")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open Settle Up")
+                #if canImport(TipKit)
+                .popoverTip(AppTips.settleUp)
+                #endif
+            } else {
+                Text("Unavailable in archived groups")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
         }
-        .headerProminence(.increased)
+        if settlementProposals.isEmpty {
+            ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
+        } else {
+            ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
+                HStack {
+                    Text(item.from.name)
+                    Image(systemName: "arrow.right.circle")
+                        .foregroundStyle(.secondary)
+                    Text(item.to.name)
+                    Spacer()
+                    Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
+                        .fontWeight(.semibold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
+            }
+        }
     }
 
-    @ViewBuilder private func membersSection() -> some View {
-        Section("Members") {
-            NavigationLink(destination: MembersView(group: group)) {
-                HStack {
-                    Text("Members")
-                    Spacer()
-                    Text("\(group.members.count)").foregroundStyle(.secondary)
-                }
+    @ViewBuilder private func membersRows() -> some View {
+        headerRow("Members")
+        NavigationLink(destination: MembersView(group: group)) {
+            HStack {
+                Text("Open Members")
+                Spacer()
+                Text("\(group.members.count)").foregroundStyle(.secondary)
             }
         }
-        .headerProminence(.increased)
     }
 
     private var filteredExpenses: [Expense] {
@@ -679,7 +663,7 @@ extension GroupDetailView {
                         if let sel = selectedAnchor { UserDefaults.standard.set(sel.rawValue, forKey: lastSectionKey()) }
                     } label: {
                         Text(item.title)
-                            .font(.subheadline)
+                            .font(.callout)
                             .padding(.vertical, 6)
                             .padding(.horizontal, 12)
                             .background(selectedAnchor == item.anchor ? Color.accentColor : Color.secondary.opacity(0.15))
@@ -693,8 +677,7 @@ extension GroupDetailView {
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
-        .background(.bar)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .background(Color.clear)
     }
 
     private func lastSectionKey() -> String {
