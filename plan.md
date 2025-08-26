@@ -19,10 +19,11 @@
 3. [SHARE-2] Invite from Contacts: add members via picker (no server)
 
 ## In Progress
-[DATA-2] iCloud sync (CloudKit) — basic on/off with local fallback
+(none)
 
 ## Done
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
+[DATA-2] iCloud sync toggle added in Settings; keeps local-only for now until entitlements/CI enable CloudKit
 [BUG-5] Guarded charts so CI doesn't break; archive unchanged
 [UX-9] Balance row quick actions in Group Detail: copy amount, message owing member
 [PAY-2] Quick actions: copy amount and compose message from Settle Up proposals/history
@@ -148,6 +149,7 @@
 
 ## Changelog
 - 2025-08-26: CORE-12 — Added per-expense comments and a Recent Activity section in Group Detail.
+- 2025-08-26: DATA-2 — Added iCloud Sync toggle in Settings with local fallback; CloudKit wiring to follow once entitlements available.
 - 2025-08-26: PAY-2 — Added "Message Payer" to settlement history; proposals already supported copy/message.
 - 2025-08-26: BUG-5 — Guard charts with compile-time checks so CI doesn't fail; archive unchanged.
 - 2025-08-26: UX-9 — Balance row quick actions to copy amount or compose message for members who owe.
