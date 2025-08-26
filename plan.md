@@ -19,7 +19,7 @@
 3. [L10N-2] Indian numbering format (₹1,23,456)
 
 ## In Progress
-[L10N-1] Localize strings; support RTL
+(none)
 
 ## Done
 [L10N-1] Localization scaffolding: added base Localizable.strings (en); code uses Text titles for future translations
