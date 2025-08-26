@@ -71,6 +71,9 @@ struct ReportsView: View {
                             }
                         }
                         .pickerStyle(.navigationLink)
+                        #if canImport(TipKit)
+                        .popoverTip(Tips.filters)
+                        #endif
                     }
                 }
                 Section("Overview") {

@@ -49,6 +49,9 @@ struct MembersView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Member")
+                #if canImport(TipKit)
+                .popoverTip(Tips.addMember)
+                #endif
             }
         }
         .sheet(isPresented: $showingAdd) {

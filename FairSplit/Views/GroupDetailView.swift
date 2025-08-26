@@ -88,9 +88,15 @@ struct GroupDetailView: View {
                 Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
                     .accessibilityLabel("Add Itemized Expense")
                     .disabled(group.isArchived)
+                    #if canImport(TipKit)
+                    .popoverTip(Tips.addItemized)
+                    #endif
                 Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
                     .accessibilityLabel("Add Recurring Expense")
                     .disabled(group.isArchived)
+                    #if canImport(TipKit)
+                    .popoverTip(Tips.addRecurring)
+                    #endif
                 Menu {
                     Section("Members") {
                         ForEach(group.members, id: \.persistentModelID) { m in
@@ -162,6 +168,9 @@ struct GroupDetailView: View {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                         .accessibilityLabel("Filters and actions")
                 }
+                #if canImport(TipKit)
+                .popoverTip(Tips.filters)
+                #endif
             }
 
         }
@@ -581,6 +590,9 @@ struct GroupDetailView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Open Settle Up")
+                    #if canImport(TipKit)
+                    .popoverTip(Tips.settleUp)
+                    #endif
                 } else {
                     Text("Unavailable in archived groups")
                         .font(.subheadline)

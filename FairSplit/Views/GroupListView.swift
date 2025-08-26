@@ -62,6 +62,9 @@ struct GroupListView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Group")
+                #if canImport(TipKit)
+                .popoverTip(Tips.addGroup)
+                #endif
             }
         }
         .sheet(isPresented: $showingAdd) {
