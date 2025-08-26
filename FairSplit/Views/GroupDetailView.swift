@@ -24,9 +24,42 @@ struct GroupDetailView: View {
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
     }
+    private var totalsByMember: [(Member, Decimal)] {
+        let totals = StatsCalculator.totalsByMember(for: group)
+        return group.members.map { ($0, totals[$0.persistentModelID] ?? 0) }
+    }
+    private var totalsByCategory: [(ExpenseCategory, Decimal)] {
+        let totals = StatsCalculator.totalsByCategory(for: group)
+        return ExpenseCategory.allCases.compactMap { cat in
+            if let value = totals[cat], value > 0 { return (cat, value) }
+            return nil
+        }
+    }
 
     var body: some View {
         List {
+            if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
+                Section("Totals by Member") {
+                    ForEach(totalsByMember, id: \.(0).persistentModelID) { (member, amount) in
+                        HStack {
+                            Text(member.name)
+                            Spacer()
+                            Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                        }
+                    }
+                }
+                if !totalsByCategory.isEmpty {
+                    Section("Totals by Category") {
+                        ForEach(totalsByCategory, id: \.0.id) { (category, amount) in
+                            HStack {
+                                Text(category.displayName)
+                                Spacer()
+                                Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                            }
+                        }
+                    }
+                }
+            }
             Section("Expenses") {
                 ForEach(filteredExpenses, id: \.persistentModelID) { expense in
                     HStack {
