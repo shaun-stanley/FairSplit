@@ -14,6 +14,6 @@ struct FairSplitApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self])
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self, Contact.self, DirectExpense.self])
     }
 }

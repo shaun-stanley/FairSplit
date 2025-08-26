@@ -19,7 +19,7 @@
 3. [SHARE-3] Deep links: open a specific group/expense via URL scheme
 
 ## In Progress
-[MATH-3] Recurring expenses (daily/weekly/monthly) with auto-add and pause
+[CORE-11] Direct (non-group) expenses between two people
 
 ## Done
 [MVP-1] Added SwiftData and a demo group

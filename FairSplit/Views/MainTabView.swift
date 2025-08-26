@@ -8,6 +8,11 @@ struct MainTabView: View {
                     Label("Groups", systemImage: "person.3")
                 }
 
+            DirectListView()
+                .tabItem {
+                    Label("Direct", systemImage: "person.fill.and.arrow.right")
+                }
+
             ReportsView()
                 .tabItem {
                     Label("Reports", systemImage: "chart.bar")
@@ -25,4 +30,3 @@ struct MainTabView: View {
     MainTabView()
         .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self], inMemory: true)
 }
-
