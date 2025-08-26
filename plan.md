@@ -19,7 +19,7 @@
 3. [SHARE-3] Deep links: open a specific group/expense via URL scheme
 
 ## In Progress
-[CORE-11] Direct (non-group) expenses between two people
+[SHARE-3] Deep links: open a specific group/expense via URL scheme
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -167,7 +167,11 @@
 - 2025-08-26: CORE-2 — Sticky section headers and grouped look in Group Detail.
 - 2025-08-26: UX-3 — Added SF Symbols for expense categories, balances (up/down arrows), and settle-up/report rows.
 - 2025-08-26: UX-2 — Added subtle haptics for adding an expense, recording settlement, and deleting expenses.
+- 2025-08-26: MATH-3 — Recurring expenses with add/pause/delete/run-now and auto-generate on launch.
+- 2025-08-26: CORE-11 — Direct expenses: contacts, balances per pair, recent list, add/edit/delete flows.
 
 
+[MATH-3] Recurring expenses (daily/weekly/monthly) with auto-add and pause
+[CORE-11] Direct (non-group) expenses between two people
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.
