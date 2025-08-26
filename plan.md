@@ -19,7 +19,7 @@
 3. [PRIV-1] App privacy lock (Face ID)
 
 ## In Progress
-(none)
+[SYS-3] App Intents: quick “Log expense” and “Show balances”
 
 ## Done
 [SYS-1] Widgets: placeholder widget with quick Add deep link; opens Add Expense in most recent group
