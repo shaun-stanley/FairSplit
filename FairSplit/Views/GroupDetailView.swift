@@ -864,18 +864,23 @@ extension GroupDetailView {
     // MARK: - Segmented Bar (pinned)
     @ViewBuilder
     private func segmentedBar(proxy: ScrollViewProxy) -> some View {
-        VStack {
-            Picker("Tab", selection: $selectedDetailTab) {
-                ForEach(DetailTab.allCases, id: \.self) { t in
-                    Text(t.title).tag(t)
+        VStack(spacing: 0) {
+            // Transparent spacer so the large navigation title remains visible
+            Color.clear.frame(height: 44)
+            // Segmented control container with its own background + divider
+            VStack {
+                Picker("Tab", selection: $selectedDetailTab) {
+                    ForEach(DetailTab.allCases, id: \.self) { t in
+                        Text(t.title).tag(t)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .background(Color(.systemBackground))
+            .overlay(alignment: .bottom) { Divider() }
         }
-        .background(Color(.systemBackground))
-        .overlay(alignment: .bottom) { Divider() }
     }
 
     private func anchor(for tab: DetailTab) -> Anchor {
