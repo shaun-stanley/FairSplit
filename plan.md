@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-1] Dynamic Type audit; layouts for large sizes
-2. [A11Y-1] VoiceOver labels/traits for interactive elements
-3. [CORE-2] Group detail: sticky section headers (Expenses, Balances, Settle Up, Members)
+1. [UX-3] SF Symbols for categories and actions
+2. [UX-2] Haptics on key actions (add expense, settle)
+3. [UX-5] Pull-to-refresh (placeholder)
 
 ## In Progress
-[CORE-2] Group detail: sticky section headers (Expenses, Balances, Settle Up, Members)
+[UX-3] SF Symbols for categories and actions
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -56,6 +56,7 @@
 [NAV-1] Tab bar navigation: Groups, Reports, Settings
 [UX-1] Dynamic Type audit; layouts for large sizes
 [A11Y-1] VoiceOver labels/traits for interactive elements
+[CORE-2] Group detail: sticky section headers (Expenses, Balances, Settle Up, Members)
 
 
 ## Blocked
@@ -161,6 +162,7 @@
 - 2025-08-26: NAV-1 — Added tab bar with Groups, Reports, and Settings; new Reports summary view.
 - 2025-08-26: UX-1 — Improved Dynamic Type: multiline titles/notes, content-first layouts, and readable trailing amounts.
 - 2025-08-26: A11Y-1 — Added VoiceOver labels and traits for rows and toolbar actions across Groups, Group Detail, Expense List, and Reports.
+- 2025-08-26: CORE-2 — Sticky section headers and grouped look in Group Detail.
 
 
 ## Vision
