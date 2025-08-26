@@ -14,6 +14,7 @@ final class Expense {
     var payer: Member?
     var participants: [Member]
     @Relationship(deleteRule: .cascade) var shares: [ExpenseShare]
+    @Relationship(deleteRule: .cascade) var comments: [Comment] = []
     var date: Date
     var category: ExpenseCategory?
     var note: String?

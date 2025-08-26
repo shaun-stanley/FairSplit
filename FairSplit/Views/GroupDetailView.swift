@@ -24,6 +24,7 @@ struct GroupDetailView: View {
     @State private var showingAddRecurring = false
     @State private var showComposer = false
     @State private var composeBody: String = ""
+    @State private var commentingExpense: Expense?
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -44,6 +45,7 @@ struct GroupDetailView: View {
         List {
             archivedBanner()
             totalsSections()
+            activitySection()
             recurringSection()
             expensesSection()
             balancesSection()
@@ -166,6 +168,11 @@ struct GroupDetailView: View {
                 ShareSheet(activityItems: [shareText])
             }
         }
+        .sheet(item: $commentingExpense) { expense in
+            NavigationStack {
+                ExpenseCommentsView(expense: expense, isArchived: group.isArchived)
+            }
+        }
         .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: { Text(importError ?? "") }
@@ -277,6 +284,48 @@ struct GroupDetailView: View {
         .headerProminence(.increased)
     }
 
+    @ViewBuilder private func activitySection() -> some View {
+        let expenseEvents = group.expenses.map { e in
+            (
+                date: e.date,
+                icon: "list.bullet",
+                text: {
+                    let who = e.payer?.name ?? "Someone"
+                    let amt = CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency)
+                    return "Expense: \(who) paid \(amt) — \(e.title)"
+                }()
+            )
+        }
+        let settlementEvents = group.settlements.map { s in
+            (
+                date: s.date,
+                icon: "arrow.right.circle",
+                text: {
+                    let amt = CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)
+                    return "Settlement: \(s.from.name) → \(s.to.name) \(amt)"
+                }()
+            )
+        }
+        let events = (expenseEvents + settlementEvents).sorted { $0.date > $1.date }.prefix(10)
+        if !events.isEmpty {
+            Section("Recent Activity") {
+                ForEach(Array(events.enumerated()), id: \.offset) { _, item in
+                    HStack(spacing: 8) {
+                        Image(systemName: item.icon)
+                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.text)
+                            Text(item.date.formatted(date: .abbreviated, time: .omitted))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .headerProminence(.increased)
+        }
+    }
+
     @ViewBuilder private func expensesSection() -> some View {
         Section("Expenses") {
             ForEach(filteredExpenses, id: \.persistentModelID) { expense in
@@ -326,10 +375,22 @@ struct GroupDetailView: View {
             }
             .layoutPriority(1)
             Spacer(minLength: 8)
-            Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
-                .fontWeight(.semibold)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
+            VStack(alignment: .trailing, spacing: 6) {
+                Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                if !expense.comments.isEmpty {
+                    HStack(spacing: 4) {
+                        Image(systemName: "text.bubble")
+                            .foregroundStyle(.secondary)
+                        Text("\(expense.comments.count)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("\(expense.comments.count) comments")
+                }
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(expenseAccessibilityLabel(expense))
@@ -350,6 +411,7 @@ struct GroupDetailView: View {
                     Haptics.success()
                 }
             }
+            Button("Comments") { commentingExpense = expense }
         }
     }
 

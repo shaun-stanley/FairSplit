@@ -5,7 +5,7 @@ import Testing
 struct ArchiveGroupTests {
     @Test
     func archive_setsFlagsAndDates() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, Comment.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let g = Group(name: "Trip", defaultCurrency: "USD")
@@ -23,4 +23,3 @@ struct ArchiveGroupTests {
         #expect(g.archivedAt == nil || g.archivedAt != archivedAt)
     }
 }
-

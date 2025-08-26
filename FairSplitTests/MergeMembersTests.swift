@@ -5,7 +5,7 @@ import Testing
 struct MergeMembersTests {
     @Test
     func merge_reassignsParticipantsAndPayer_andRemovesSelfSettlements() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self, ExpenseShare.self, ItemizedItem.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self, ExpenseShare.self, ItemizedItem.self, Comment.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
 
@@ -36,4 +36,3 @@ struct MergeMembersTests {
         #expect(g.settlements.isEmpty)
     }
 }
-

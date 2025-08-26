@@ -5,7 +5,7 @@ import Testing
 struct SettlementPaidTests {
     @Test
     func recordSingleSettlement_marksPaidAndSavesReceipt() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, Comment.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
 
@@ -32,4 +32,3 @@ struct SettlementPaidTests {
         #expect(s2.receiptImageData == nil)
     }
 }
-

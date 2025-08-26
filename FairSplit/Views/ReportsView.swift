@@ -132,5 +132,5 @@ struct ReportsView: View {
 
 #Preview {
     ReportsView()
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self], inMemory: true)
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self], inMemory: true)
 }

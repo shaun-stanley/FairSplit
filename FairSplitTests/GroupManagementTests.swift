@@ -5,7 +5,7 @@ import Testing
 struct GroupManagementTests {
     @Test
     func addGroup_thenUndo_removesIt() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, Comment.self)
         let context = ModelContext(container)
         let undo = UndoManager()
         let repo = DataRepository(context: context, undoManager: undo)

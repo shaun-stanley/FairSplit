@@ -25,6 +25,26 @@ final class DataRepository {
         }
     }
 
+    // MARK: - Comments
+    func addComment(to expense: Expense, text: String, authorName: String? = nil) {
+        let comment = Comment(text: text, date: .now, author: authorName)
+        expense.comments.append(comment)
+        try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.deleteComment(comment, from: expense)
+            }
+            undo.setActionName("Add Comment")
+        }
+    }
+
+    func deleteComment(_ comment: Comment, from expense: Expense) {
+        if let index = expense.comments.firstIndex(where: { $0.persistentModelID == comment.persistentModelID }) {
+            expense.comments.remove(at: index)
+            try? context.save()
+        }
+    }
+
     func addGroup(name: String, defaultCurrency: String) {
         let group = Group(name: name, defaultCurrency: defaultCurrency)
         context.insert(group)

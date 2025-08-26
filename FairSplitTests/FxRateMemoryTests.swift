@@ -5,7 +5,7 @@ import Testing
 struct FxRateMemoryTests {
     @Test
     func addExpense_updatesLastRate() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, Comment.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let alex = Member(name: "Alex")
@@ -20,7 +20,7 @@ struct FxRateMemoryTests {
 
     @Test
     func updateExpense_updatesLastRate() throws {
-        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self)
+        let container = try ModelContainer(for: Group.self, Member.self, Expense.self, Settlement.self, Comment.self)
         let context = ModelContext(container)
         let repo = DataRepository(context: context)
         let alex = Member(name: "Alex")
