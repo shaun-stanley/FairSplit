@@ -62,270 +62,287 @@ struct GroupDetailView: View {
     }
 
     var body: some View {
+        // Compose the view in layers to aid the type-checker
+        attachSheetsAndAlerts(to: searchableWithToolbar)
+    }
+
+    // Break down the main content
+    private var mainScrollContent: some View {
         ScrollViewReader { proxy in
-            List {
-                Section {
-                    archivedBannerRow()
-                    balancesRows().id(Anchor.balances)
-                    settleUpRows().id(Anchor.settle)
-                    expensesRows().id(Anchor.expenses)
-                    recurringRows().id(Anchor.recurring)
-                    totalsRows().id(Anchor.totals)
-                    activityRows().id(Anchor.activity)
-                    membersRows().id(Anchor.members)
-                } header: {
-                    pillBar(proxy: proxy)
-                }
-            }
-            .onAppear {
-                // Restore last selected section
-                if let saved = UserDefaults.standard.string(forKey: lastSectionKey()), let a = Anchor(rawValue: saved) {
-                    selectedAnchor = a
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(.easeInOut) { proxy.scrollTo(a, anchor: .top) }
+            makeList(proxy: proxy)
+                // Sticky pill bar under title/search area
+                .safeAreaInset(edge: .top, spacing: 0) { pillBar(proxy: proxy) }
+                .onAppear {
+                    if let saved = UserDefaults.standard.string(forKey: lastSectionKey()), let a = Anchor(rawValue: saved) {
+                        selectedAnchor = a
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation(.easeInOut) { proxy.scrollTo(a, anchor: .top) }
+                        }
                     }
                 }
-            }
         }
         .navigationTitle(group.name)
         .navigationBarTitleDisplayMode(.large)
         .listStyle(.insetGrouped)
-        // Floating Add button like Journal
-        .overlay(alignment: .bottomTrailing) {
-            if !group.isArchived {
-                addExpenseFAB()
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 20)
-            }
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button { showingAddExpense = true } label: { Image(systemName: "plus") }
-                    .accessibilityLabel("Add Expense")
-                    .disabled(group.isArchived)
-                    #if canImport(TipKit)
-                    .popoverTip(AppTips.addExpense)
-                    #endif
-                Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
-                    .accessibilityLabel("Add Itemized Expense")
-                    .disabled(group.isArchived)
-                    #if canImport(TipKit)
-                    .popoverTip(AppTips.addItemized)
-                    #endif
-                Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
-                    .accessibilityLabel("Add Recurring Expense")
-                    .disabled(group.isArchived)
-                    #if canImport(TipKit)
-                    .popoverTip(AppTips.addRecurring)
-                    #endif
-                Menu {
-                    Section("Members") {
-                        ForEach(group.members, id: \.persistentModelID) { m in
-                            Button {
-                                toggleMember(m)
-                            } label: {
-                                HStack {
-                                    Text(m.name)
-                                    if selectedMemberIDs.contains(m.persistentModelID) { Image(systemName: "checkmark") }
-                                }
+    }
+
+    private var searchableWithToolbar: some View {
+        mainScrollContent
+            .toolbar { toolbarContent }
+            .searchable(text: $searchText, prompt: "Search expenses")
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .primaryAction) {
+            Button { showingAddExpense = true } label: { Image(systemName: "plus") }
+                .accessibilityLabel("Add Expense")
+                .disabled(group.isArchived)
+                #if canImport(TipKit)
+                .popoverTip(AppTips.addExpense)
+                #endif
+            Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
+                .accessibilityLabel("Add Itemized Expense")
+                .disabled(group.isArchived)
+                #if canImport(TipKit)
+                .popoverTip(AppTips.addItemized)
+                #endif
+            Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
+                .accessibilityLabel("Add Recurring Expense")
+                .disabled(group.isArchived)
+                #if canImport(TipKit)
+                .popoverTip(AppTips.addRecurring)
+                #endif
+            Menu {
+                Section("Members") {
+                    ForEach(group.members, id: \.persistentModelID) { m in
+                        Button {
+                            toggleMember(m)
+                        } label: {
+                            HStack {
+                                Text(m.name)
+                                if selectedMemberIDs.contains(m.persistentModelID) { Image(systemName: "checkmark") }
                             }
                         }
                     }
-                    Section("Amount") {
-                        Button("Amount Range…") { showingAmountFilter = true }
-                        if minAmount != nil || maxAmount != nil || !selectedMemberIDs.isEmpty || !searchText.isEmpty {
-                            Button("Clear Filters", role: .destructive) { clearFilters() }
-                        }
+                }
+                Section("Amount") {
+                    Button("Amount Range…") { showingAmountFilter = true }
+                    if minAmount != nil || maxAmount != nil || !selectedMemberIDs.isEmpty || !searchText.isEmpty {
+                        Button("Clear Filters", role: .destructive) { clearFilters() }
                     }
-                    Section("CSV") {
-                        Button("Import CSV…") { showingImporter = true }
-                        Button("Export CSV…") {
-                            let csv = DataRepository(context: modelContext, undoManager: undoManager).exportCSV(for: group)
-                            exportDocument = CSVDocument(text: csv)
-                            showingExporter = true
-                        }
+                }
+                Section("CSV") {
+                    Button("Import CSV…") { showingImporter = true }
+                    Button("Export CSV…") {
+                        let csv = DataRepository(context: modelContext, undoManager: undoManager).exportCSV(for: group)
+                        exportDocument = CSVDocument(text: csv)
+                        showingExporter = true
                     }
-                    Section("Currency") {
-                        Button("Change Group Currency…") {
-                            newCurrencyCode = group.defaultCurrency
-                            showingCurrencyPicker = true
-                        }
+                }
+                Section("Currency") {
+                    Button("Change Group Currency…") {
+                        newCurrencyCode = group.defaultCurrency
+                        showingCurrencyPicker = true
                     }
-                    Section("Share") {
-                        Button("Share Summary…") {
-                            shareText = GroupSummaryExporter.markdown(for: group)
+                }
+                Section("Share") {
+                    Button("Share Summary…") {
+                        shareText = GroupSummaryExporter.markdown(for: group)
+                        showingShare = true
+                    }
+                    Button("Share Summary PDF…") {
+                        let pdf = PDFExporter.summaryPDF(for: group)
+                        if let url = try? TempFileWriter.writeTemporary(data: pdf, fileName: group.name.replacingOccurrences(of: " ", with: "-"), fileExtension: "pdf") {
+                            shareURL = url
                             showingShare = true
                         }
-                        Button("Share Summary PDF…") {
-                            let pdf = PDFExporter.summaryPDF(for: group)
-                            if let url = try? TempFileWriter.writeTemporary(data: pdf, fileName: group.name.replacingOccurrences(of: " ", with: "-"), fileExtension: "pdf") {
-                                shareURL = url
-                                showingShare = true
-                            }
-                        }
                     }
-                    #if canImport(ActivityKit)
-                    Section("Live Activity") {
-                        Button("Start Live Activity") {
-                            LiveActivityManager.start(group: group)
-                        }
-                        Button("End Live Activity") {
-                            LiveActivityManager.endAll()
-                        }
-                    }
-                    #endif
-                    Section("Group") {
-                        if group.isArchived {
-                            Button("Unarchive Group") {
-                                DataRepository(context: modelContext, undoManager: undoManager).setArchived(false, for: group)
-                            }
-                        } else {
-                            Button("Archive Group") {
-                                DataRepository(context: modelContext, undoManager: undoManager).setArchived(true, for: group)
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                        .accessibilityLabel("Filters and actions")
                 }
-                #if canImport(TipKit)
-                .popoverTip(AppTips.filters)
+                #if canImport(ActivityKit)
+                Section("Live Activity") {
+                    Button("Start Live Activity") {
+                        LiveActivityManager.start(group: group)
+                    }
+                    Button("End Live Activity") {
+                        LiveActivityManager.endAll()
+                    }
+                }
                 #endif
+                Section("Group") {
+                    if group.isArchived {
+                        Button("Unarchive Group") {
+                            DataRepository(context: modelContext, undoManager: undoManager).setArchived(false, for: group)
+                        }
+                    } else {
+                        Button("Archive Group") {
+                            DataRepository(context: modelContext, undoManager: undoManager).setArchived(true, for: group)
+                        }
+                    }
+                }
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+                    .accessibilityLabel("Filters and actions")
             }
+            #if canImport(TipKit)
+            .popoverTip(AppTips.filters)
+            #endif
+        }
+    }
 
-        }
-        .searchable(text: $searchText, prompt: "Search expenses")
-        .sheet(isPresented: $showingCurrencyPicker) {
-            NavigationStack {
-                Form {
-                    Picker("Currency", selection: $newCurrencyCode) {
-                        ForEach(AppSettings.currencyPresets, id: \.self) { code in
+    // Attach all sheets/alerts/exporters in a separate function to reduce body complexity
+    @ViewBuilder
+    private func attachSheetsAndAlerts<V: View>(to view: V) -> some View {
+        view
+            .sheet(isPresented: $showingCurrencyPicker) {
+                NavigationStack {
+                    Form {
+                        Picker("Currency", selection: $newCurrencyCode) {
+                            ForEach(AppSettings.currencyPresets, id: \.self) { code in
+                                HStack {
+                                    Text(Locale.current.localizedString(forCurrencyCode: code) ?? code)
+                                    Spacer()
+                                    Text(code).foregroundStyle(.secondary)
+                                }.tag(code)
+                            }
+                        }
+                        .pickerStyle(.navigationLink)
+                        Section("About") {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Changing the group currency updates how totals and balances are displayed.")
+                                Text("Existing expenses are not converted automatically.")
+                                Text("Expenses logged in other currencies continue to use their set conversion rates (you can edit an expense to adjust its rate).")
+                            }
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        }
+                    }
+                    .navigationTitle("Group Currency")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingCurrencyPicker = false } }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save") { confirmCurrencyChange = true }
+                                .disabled(newCurrencyCode.isEmpty || newCurrencyCode == group.defaultCurrency)
+                        }
+                        ToolbarItem(placement: .bottomBar) {
                             HStack {
-                                Text(Locale.current.localizedString(forCurrencyCode: code) ?? code)
                                 Spacer()
-                                Text(code).foregroundStyle(.secondary)
-                            }.tag(code)
+                                if !group.isArchived {
+                                    Button {
+                                        Haptics.impact(.light)
+                                        showingAddExpense = true
+                                    } label: {
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 18, weight: .bold))
+                                            .padding(12)
+                                            .background(.ultraThinMaterial, in: Circle())
+                                    }
+                                    .accessibilityLabel("Add Expense")
+                                }
+                                Spacer()
+                            }
                         }
                     }
-                    .pickerStyle(.navigationLink)
-                    Section("About") {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Changing the group currency updates how totals and balances are displayed.")
-                            Text("Existing expenses are not converted automatically.")
-                            Text("Expenses logged in other currencies continue to use their set conversion rates (you can edit an expense to adjust its rate).")
+                    .alert("Change Group Currency?", isPresented: $confirmCurrencyChange) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Change", role: .destructive) {
+                            group.defaultCurrency = newCurrencyCode
+                            try? modelContext.save()
+                            Diagnostics.event("Group currency changed to \(newCurrencyCode)")
+                            showingCurrencyPicker = false
                         }
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    } message: {
+                        Text("This updates display currency for this group to \(newCurrencyCode). Existing expenses are not converted automatically. Expenses in other currencies keep their set conversion rates.")
                     }
                 }
-                .navigationTitle("Group Currency")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingCurrencyPicker = false } }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") { confirmCurrencyChange = true }
-                        .disabled(newCurrencyCode.isEmpty || newCurrencyCode == group.defaultCurrency)
+                // Bottom bar add button attached via .toolbar above
+            }
+            .sheet(isPresented: $showingAddExpense) {
+                NavigationStack {
+                    AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
+                        DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
                     }
                 }
-                .alert("Change Group Currency?", isPresented: $confirmCurrencyChange) {
-                    Button("Cancel", role: .cancel) {}
-                    Button("Change", role: .destructive) {
-                        group.defaultCurrency = newCurrencyCode
-                        try? modelContext.save()
-                        Diagnostics.event("Group currency changed to \(newCurrencyCode)")
-                        showingCurrencyPicker = false
-                    }
-                } message: {
-                    Text("This updates display currency for this group to \(newCurrencyCode). Existing expenses are not converted automatically. Expenses in other currencies keep their set conversion rates.")
-                }
             }
-        }
-        .sheet(isPresented: $showingAddExpense) {
-            NavigationStack {
-                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
-                }
-            }
-        }
-        .sheet(isPresented: $showingAddItemized) {
-            NavigationStack {
-                ItemizedExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, items, tax, tip, allocation, payer, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
-                        to: group,
-                        title: title,
-                        items: items.map { ($0.0, $0.1, $0.2) },
-                        tax: tax,
-                        tip: tip,
-                        allocation: allocation,
-                        payer: payer,
-                        category: category,
-                        note: note,
-                        receiptImageData: receipt,
-                        currencyCode: group.defaultCurrency
-                    )
-                }
-            }
-        }
-        .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.commaSeparatedText], allowsMultipleSelection: false) { result in
-            do {
-                guard let url = try result.get().first else { return }
-                let data = try Data(contentsOf: url)
-                guard let text = String(data: data, encoding: .utf8) else { throw CocoaError(.fileReadCorruptFile) }
-                DataRepository(context: modelContext, undoManager: undoManager).importExpenses(fromCSV: text, into: group)
-            } catch {
-                importError = "Failed to import CSV."
-            }
-        }
-        .fileExporter(isPresented: $showingExporter, document: exportDocument, contentType: .commaSeparatedText, defaultFilename: "\(group.name)-expenses") { _ in }
-        .sheet(isPresented: $showingShare) {
-            if let url = shareURL {
-                ShareSheet(activityItems: [url])
-            } else {
-                ShareSheet(activityItems: [shareText])
-            }
-        }
-        .sheet(item: $commentingExpense) { expense in
-            NavigationStack {
-                ExpenseCommentsView(expense: expense, isArchived: group.isArchived)
-            }
-        }
-        .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
-            Button("OK", role: .cancel) {}
-        } message: { Text(importError ?? "") }
-        .sheet(isPresented: $showingAddRecurring) {
-            AddRecurringView(members: group.members) { title, amount, freq, start, payer, participants, category, note in
-                DataRepository(context: modelContext).addRecurring(to: group, title: title, amount: amount, frequency: freq, nextDate: start, payer: payer, participants: participants, category: category, note: note)
-            }
-        }
-        .sheet(item: $editingExpense) { expense in
-            NavigationStack {
-                AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
-                }
-            }
-        }
-        .sheet(isPresented: $showingAmountFilter) {
-            NavigationStack {
-                Form {
-                    Section("Amount Range") {
-                        TextField("Min", value: $minAmount, format: .number)
-                            .keyboardType(.decimalPad)
-                        TextField("Max", value: $maxAmount, format: .number)
-                            .keyboardType(.decimalPad)
+            .sheet(isPresented: $showingAddItemized) {
+                NavigationStack {
+                    ItemizedExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, items, tax, tip, allocation, payer, category, note, receipt in
+                        DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
+                            to: group,
+                            title: title,
+                            items: items.map { ($0.0, $0.1, $0.2) },
+                            tax: tax,
+                            tip: tip,
+                            allocation: allocation,
+                            payer: payer,
+                            category: category,
+                            note: note,
+                            receiptImageData: receipt,
+                            currencyCode: group.defaultCurrency
+                        )
                     }
                 }
-                .navigationTitle("Amount Filter")
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }
-                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { showingAmountFilter = false } }
+            }
+            .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.commaSeparatedText], allowsMultipleSelection: false) { result in
+                do {
+                    guard let url = try result.get().first else { return }
+                    let data = try Data(contentsOf: url)
+                    guard let text = String(data: data, encoding: .utf8) else { throw CocoaError(.fileReadCorruptFile) }
+                    DataRepository(context: modelContext, undoManager: undoManager).importExpenses(fromCSV: text, into: group)
+                } catch {
+                    importError = "Failed to import CSV."
                 }
             }
-        }
-        .sheet(isPresented: $showComposer) {
-            MessageComposerView(bodyText: composeBody) {
-                showComposer = false
+            .fileExporter(isPresented: $showingExporter, document: exportDocument, contentType: .commaSeparatedText, defaultFilename: "\(group.name)-expenses") { _ in }
+            .sheet(isPresented: $showingShare) {
+                if let url = shareURL {
+                    ShareSheet(activityItems: [url])
+                } else {
+                    ShareSheet(activityItems: [shareText])
+                }
             }
-        }
+            .sheet(item: $commentingExpense) { expense in
+                NavigationStack {
+                    ExpenseCommentsView(expense: expense, isArchived: group.isArchived)
+                }
+            }
+            .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
+                Button("OK", role: .cancel) {}
+            } message: { Text(importError ?? "") }
+            .sheet(isPresented: $showingAddRecurring) {
+                AddRecurringView(members: group.members) { title, amount, freq, start, payer, participants, category, note in
+                    DataRepository(context: modelContext).addRecurring(to: group, title: title, amount: amount, frequency: freq, nextDate: start, payer: payer, participants: participants, category: category, note: note)
+                }
+            }
+            .sheet(item: $editingExpense) { expense in
+                NavigationStack {
+                    AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
+                        DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAmountFilter) {
+                NavigationStack {
+                    Form {
+                        Section("Amount Range") {
+                            TextField("Min", value: $minAmount, format: .number)
+                                .keyboardType(.decimalPad)
+                            TextField("Max", value: $maxAmount, format: .number)
+                                .keyboardType(.decimalPad)
+                        }
+                    }
+                    .navigationTitle("Amount Filter")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }
+                        ToolbarItem(placement: .confirmationAction) { Button("Apply") { showingAmountFilter = false } }
+                    }
+                }
+            }
+            .sheet(isPresented: $showComposer) {
+                MessageComposerView(bodyText: composeBody) {
+                    showComposer = false
+                }
+            }
     }
 
     // MARK: - Section Builders
@@ -520,12 +537,14 @@ struct GroupDetailView: View {
     }
 
     @ViewBuilder private func balancesRows() -> some View {
-        headerRow("Balances")
-        let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
-        ForEach(group.members, id: \.persistentModelID) { member in
-            let amount = net[member.persistentModelID] ?? 0
-            balanceRow(member: member, amount: amount)
+        Section("Balances") {
+            let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
+            ForEach(group.members, id: \.persistentModelID) { member in
+                let amount = net[member.persistentModelID] ?? 0
+                balanceRow(member: member, amount: amount)
+            }
         }
+        .headerProminence(.increased)
     }
 
     @ViewBuilder private func balanceRow(member: Member, amount: Decimal) -> some View {
@@ -560,62 +579,66 @@ struct GroupDetailView: View {
     }
 
     @ViewBuilder private func settleUpRows() -> some View {
-        HStack {
-            Text("Settle Up").font(.headline)
-            Spacer()
-            if !group.isArchived {
-                NavigationLink {
-                    SettleUpView(group: group)
-                } label: {
-                    HStack(spacing: 4) {
-                        Text("Settle Up")
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Open Settle Up")
-                #if canImport(TipKit)
-                .popoverTip(AppTips.settleUp)
-                #endif
-            } else {
-                Text("Unavailable in archived groups")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        if settlementProposals.isEmpty {
-            ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
-        } else {
-            ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
-                HStack {
-                    Text(item.from.name)
-                    Image(systemName: "arrow.right.circle")
+        Section("Settle Up") {
+            HStack {
+                if !group.isArchived {
+                    NavigationLink {
+                        SettleUpView(group: group)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Open Settle Up")
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Text(item.to.name)
-                    Spacer()
-                    Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
-                        .fontWeight(.semibold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Open Settle Up")
+                    #if canImport(TipKit)
+                    .popoverTip(AppTips.settleUp)
+                    #endif
+                } else {
+                    Text("Unavailable in archived groups")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
+                Spacer()
+            }
+            if settlementProposals.isEmpty {
+                ContentUnavailableView("You're all settled!", systemImage: "checkmark.seal")
+            } else {
+                ForEach(Array(settlementProposals.enumerated()), id: \.offset) { _, item in
+                    HStack {
+                        Text(item.from.name)
+                        Image(systemName: "arrow.right.circle")
+                            .foregroundStyle(.secondary)
+                        Text(item.to.name)
+                        Spacer()
+                        Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
+                }
             }
         }
+        .headerProminence(.increased)
     }
 
     @ViewBuilder private func membersRows() -> some View {
-        headerRow("Members")
-        NavigationLink(destination: MembersView(group: group)) {
-            HStack {
-                Text("Open Members")
-                Spacer()
-                Text("\(group.members.count)").foregroundStyle(.secondary)
+        Section("Members") {
+            NavigationLink(destination: MembersView(group: group)) {
+                HStack {
+                    Text("Open Members")
+                    Spacer()
+                    Text("\(group.members.count)").foregroundStyle(.secondary)
+                }
             }
         }
+        .headerProminence(.increased)
     }
 
     private var filteredExpenses: [Expense] {
@@ -656,6 +679,25 @@ struct GroupDetailView: View {
 
 // MARK: - Pill Bar
 extension GroupDetailView {
+    @ViewBuilder
+    private func makeList(proxy: ScrollViewProxy) -> some View {
+        List {
+            // Spacer to avoid overlay overlap with content
+            Color.clear
+                .frame(height: 48)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(Color.clear)
+
+            archivedBanner()
+            balancesRows().id(Anchor.balances)
+            settleUpRows().id(Anchor.settle)
+            expensesSection().id(Anchor.expenses)
+            recurringSection().id(Anchor.recurring)
+            totalsSections().id(Anchor.totals)
+            activitySection().id(Anchor.activity)
+            membersRows().id(Anchor.members)
+        }
+    }
     // Simple inline header row for rows-only sections
     @ViewBuilder private func headerRow(_ title: String) -> some View {
         HStack {
@@ -828,7 +870,9 @@ extension GroupDetailView {
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
-        .background(Color.clear)
+        .background(.bar)
+        .overlay(alignment: .bottom) { Divider() }
+        .zIndex(1)
     }
 
     private func lastSectionKey() -> String {
