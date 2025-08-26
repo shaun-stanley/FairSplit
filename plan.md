@@ -19,7 +19,7 @@
 3. [L10N-1] Localize strings; support RTL
 
 ## In Progress
-[PRIV-1] App privacy lock (Face ID)
+(none)
 
 ## Done
 [PRIV-1] App privacy lock: toggle in Settings; Face ID/Touch ID overlay on launch/background
