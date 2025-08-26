@@ -40,7 +40,7 @@ struct FairSplitWidgetEntryView : View {
             .foregroundStyle(.tint)
         }
         .padding()
-        .widgetURL(URL(string: "fairsplit://open"))
+        .widgetURL(URL(string: "fairsplit://add-expense"))
     }
 }
 
@@ -63,4 +63,3 @@ struct FairSplitWidget: Widget {
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
-

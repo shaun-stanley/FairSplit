@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PAY-3] Placeholder Apple Pay button: share amount & memo
-2. [SYS-1] Widgets — show top group totals + quick Add
-3. [SYS-3] App Intents: quick “Log expense” and “Show balances”
+1. [SYS-3] App Intents: quick “Log expense” and “Show balances”
+2. [SHARE-3] Deep links: open group/expense via URL scheme
+3. [PRIV-1] App privacy lock (Face ID)
 
 ## In Progress
 [SYS-1] Widgets — show top group totals + quick Add
