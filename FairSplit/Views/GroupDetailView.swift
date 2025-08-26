@@ -90,6 +90,14 @@ struct GroupDetailView: View {
         .navigationTitle(group.name)
         .navigationBarTitleDisplayMode(.large)
         .listStyle(.insetGrouped)
+        // Floating Add button like Journal
+        .overlay(alignment: .bottomTrailing) {
+            if !group.isArchived {
+                addExpenseFAB()
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 20)
+            }
+        }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
@@ -648,6 +656,149 @@ struct GroupDetailView: View {
 
 // MARK: - Pill Bar
 extension GroupDetailView {
+    // Simple inline header row for rows-only sections
+    @ViewBuilder private func headerRow(_ title: String) -> some View {
+        HStack {
+            Text(title).font(.headline)
+            Spacer()
+        }
+        .padding(.top, 8)
+    }
+
+    // Archived banner as a row
+    @ViewBuilder private func archivedBannerRow() -> some View {
+        if group.isArchived {
+            HStack(spacing: 8) {
+                Image(systemName: "archivebox")
+                    .foregroundStyle(.secondary)
+                Text("This group is archived. Data is read-only.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    // Expenses list rows
+    @ViewBuilder private func expensesRows() -> some View {
+        headerRow("Expenses")
+        ForEach(filteredExpenses, id: \.persistentModelID) { expense in
+            expenseRow(expense)
+        }
+    }
+
+    // Recurring rows
+    @ViewBuilder private func recurringRows() -> some View {
+        headerRow("Recurring")
+        if group.recurring.isEmpty {
+            ContentUnavailableView("No recurring expenses", systemImage: "arrow.triangle.2.circlepath")
+        } else {
+            ForEach(group.recurring, id: \.persistentModelID) { r in
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(r.title).font(.headline)
+                        Text("Next: \(r.nextDate, style: .date)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Menu {
+                        Button(r.isPaused ? "Resume" : "Pause") { DataRepository(context: modelContext).togglePause(r) }
+                        Button("Run Now") { DataRepository(context: modelContext).generateOnce(r, in: group) }
+                        Button("Delete", role: .destructive) { DataRepository(context: modelContext).deleteRecurring(r, from: group) }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("Recurring actions")
+                }
+            }
+        }
+    }
+
+    // Totals rows
+    @ViewBuilder private func totalsRows() -> some View {
+        if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
+            headerRow("Totals by Member")
+            ForEach(0..<totalsByMember.count, id: \.self) { i in
+                let (member, amount) = totalsByMember[i]
+                HStack {
+                    Text(member.name)
+                    Spacer()
+                    Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                }
+            }
+            if !totalsByCategory.isEmpty {
+                headerRow("Totals by Category")
+                ForEach(0..<totalsByCategory.count, id: \.self) { i in
+                    let (category, amount) = totalsByCategory[i]
+                    HStack {
+                        Text(category.displayName)
+                        Spacer()
+                        Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                    }
+                }
+            }
+        }
+    }
+
+    // Activity rows
+    @ViewBuilder private func activityRows() -> some View {
+        let expenseEvents = group.expenses.map { e in
+            (
+                date: e.date,
+                icon: "list.bullet",
+                text: {
+                    let who = e.payer?.name ?? "Someone"
+                    let amt = CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency)
+                    return "Expense: \(who) paid \(amt) — \(e.title)"
+                }()
+            )
+        }
+        let settlementEvents = group.settlements.map { s in
+            (
+                date: s.date,
+                icon: "arrow.right.circle",
+                text: {
+                    let amt = CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)
+                    return "Settlement: \(s.from.name) → \(s.to.name) \(amt)"
+                }()
+            )
+        }
+        let events = (expenseEvents + settlementEvents).sorted { $0.date > $1.date }.prefix(10)
+        if !events.isEmpty {
+            headerRow("Recent Activity")
+            ForEach(Array(events.enumerated()), id: \.offset) { _, item in
+                HStack(spacing: 8) {
+                    Image(systemName: item.icon)
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.text)
+                        Text(item.date.formatted(date: .abbreviated, time: .omitted))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // Floating Add button, Journal-like
+    @ViewBuilder private func addExpenseFAB() -> some View {
+        Button {
+            Haptics.impact(.light)
+            showingAddExpense = true
+        } label: {
+            ZStack {
+                Circle().fill(.ultraThinMaterial)
+                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 6)
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.primary)
+            }
+            .frame(width: 56, height: 56)
+        }
+        .accessibilityLabel("Add Expense")
+    }
     @ViewBuilder
     private func pillBar(proxy: ScrollViewProxy) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
