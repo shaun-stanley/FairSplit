@@ -1,0 +1,35 @@
+/* Core Tabs */
+"Groups" = "Groups";
+"Direct" = "Direct";
+"Reports" = "Reports";
+"Settings" = "Settings";
+
+/* Common Actions */
+"Add Expense" = "Add Expense";
+"Add Itemized Expense" = "Add Itemized Expense";
+"Add Recurring Expense" = "Add Recurring Expense";
+"Add Group" = "Add Group";
+"Edit" = "Edit";
+"Delete" = "Delete";
+"Comments" = "Comments";
+"Copy Amount" = "Copy Amount";
+"Message Payer" = "Message Payer";
+
+/* Sections */
+"Expenses" = "Expenses";
+"Balances" = "Balances";
+"Members" = "Members";
+"Recent Activity" = "Recent Activity";
+"Recurring" = "Recurring";
+
+/* States */
+"No Groups" = "No Groups";
+"Add a group to get started." = "Add a group to get started.";
+"No recurring expenses" = "No recurring expenses";
+"You're all settled!" = "You're all settled!";
+
+/* Settle Up */
+"Settle Up" = "Settle Up";
+"Record Settlement" = "Record Settlement";
+"Settlement recorded" = "Settlement recorded";
+

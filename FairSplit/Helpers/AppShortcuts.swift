@@ -21,22 +21,4 @@ struct ShowBalancesIntent: AppIntent {
     }
 }
 
-struct FairSplitShortcuts: AppShortcutsProvider {
-    static var appShortcuts: [AppShortcut] {
-        [
-            AppShortcut(
-                intent: LogExpenseIntent(),
-                phrases: ["Log expense in \(.applicationName)", "Add expense in \(.applicationName)"] ,
-                shortTitle: "Log Expense",
-                systemImageName: "plus.circle"
-            ),
-            AppShortcut(
-                intent: ShowBalancesIntent(),
-                phrases: ["Show balances in \(.applicationName)", "View balances in \(.applicationName)"],
-                shortTitle: "Show Balances",
-                systemImageName: "chart.bar"
-            )
-        ]
-    }
-}
-
+// App Shortcuts provider omitted for SDK compatibility; intents are still available.
