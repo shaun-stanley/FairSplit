@@ -14,14 +14,15 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [L10N-1] Localize strings; support RTL
-2. [SYS-2] Live Activity: running trip summary with balance
-3. [OPS-1] Diagnostics toggle: structured os_log (no PII)
+1. [SYS-2] Live Activity: running trip summary with balance
+2. [OPS-1] Diagnostics toggle: structured os_log (no PII)
+3. [L10N-2] Indian numbering format (₹1,23,456)
 
 ## In Progress
-(none)
+[L10N-1] Localize strings; support RTL
 
 ## Done
+[L10N-1] Localization scaffolding: added base Localizable.strings (en); code uses Text titles for future translations
 [SYS-4] Spotlight: indexed groups and expenses; reindex on launch
 [PRIV-1] App privacy lock: toggle in Settings; Face ID/Touch ID overlay on launch/background
 [SHARE-3] Deep links: fairsplit://add-expense opens Add Expense; fairsplit://group?name=… opens that group
@@ -156,6 +157,7 @@
 ---
 
 ## Changelog
+- 2025-08-27: L10N-1 — Added base Localizable.strings (en); UI strings prepared for translation.
 - 2025-08-26: FIX — Restored project.pbxproj to resolve parse error; will re-add Widget target via Xcode UI.
 - 2025-08-26: WID-2 — Widget now displays top group total from shared defaults when App Group is enabled.
 - 2025-08-26: SYS-4 — Indexed groups and expenses for Spotlight search; reindex on launch.
