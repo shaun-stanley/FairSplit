@@ -870,21 +870,9 @@ extension GroupDetailView {
             .padding(.horizontal)
             .padding(.vertical, 10)
         }
-        .background(liquidGlassBackground())
+        .background(.glass)
         .overlay(alignment: .bottom) { Divider() }
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
         .zIndex(1)
-    }
-
-    // Subtle liquid glass background: translucent with highlight and shade.
-    @ViewBuilder
-    private func liquidGlassBackground() -> some View {
-        ZStack {
-            Rectangle().fill(.ultraThinMaterial)
-            LinearGradient(colors: [Color.white.opacity(0.22), .clear], startPoint: .top, endPoint: .bottom)
-            LinearGradient(colors: [.clear, Color.black.opacity(0.05)], startPoint: .top, endPoint: .bottom)
-        }
-        .ignoresSafeArea(edges: .top)
     }
 
     private func lastSectionKey() -> String {
