@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [SYS-4] Spotlight: index groups/expenses for system search
-2. [WID-2] Widgets: show real totals via App Group (opt-in)
-3. [L10N-1] Localize strings; support RTL
+1. [L10N-1] Localize strings; support RTL
+2. [SYS-2] Live Activity: running trip summary with balance
+3. [OPS-1] Diagnostics toggle: structured os_log (no PII)
 
 ## In Progress
 (none)
