@@ -6,6 +6,8 @@ struct SettleUpView: View {
     @Environment(\.undoManager) private var undoManager
     var group: Group
     @State private var saved = false
+    @State private var showScanner = false
+    @State private var pendingTransfer: (from: Member, to: Member, amount: Decimal)?
 
     private var proposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -29,6 +31,19 @@ struct SettleUpView: View {
                                     .fontWeight(.semibold)
                             }
                             .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
+                            .swipeActions(edge: .trailing) {
+                                Button("Mark Paid") {
+                                    let repo = DataRepository(context: modelContext, undoManager: undoManager)
+                                    repo.recordSettlement(for: group, from: item.from, to: item.to, amount: item.amount)
+                                    Haptics.success()
+                                    saved = true
+                                }.tint(.green)
+
+                                Button("Scan Receipt") {
+                                    pendingTransfer = item
+                                    showScanner = true
+                                }.tint(.blue)
+                            }
                         }
                     }
 
@@ -36,11 +51,21 @@ struct SettleUpView: View {
                         Section("History") {
                             ForEach(group.settlements, id: \.persistentModelID) { s in
                                 HStack {
-                                    Text("\(s.from.name) → \(s.to.name)")
+                                    VStack(alignment: .leading) {
+                                        Text("\(s.from.name) → \(s.to.name)")
+                                        Text(s.date.formatted(date: .abbreviated, time: .omitted))
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                     Spacer()
+                                    if s.receiptImageData != nil {
+                                        Image(systemName: "doc.viewfinder")
+                                            .foregroundStyle(.secondary)
+                                    }
                                     Text(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency))
                                         .foregroundStyle(.secondary)
                                 }
+                                .accessibilityLabel("Settlement: \(s.from.name) paid \(s.to.name) \(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)) on \(s.date.formatted(date: .abbreviated, time: .omitted))")
                             }
                         }
                     }
@@ -57,6 +82,21 @@ struct SettleUpView: View {
         }
         .alert("Settlement recorded", isPresented: $saved) {
             Button("OK", role: .cancel) {}
+        }
+        .sheet(isPresented: $showScanner) {
+            if let item = pendingTransfer {
+                DocumentScannerView { data in
+                    let repo = DataRepository(context: modelContext, undoManager: undoManager)
+                    repo.recordSettlement(for: group, from: item.from, to: item.to, amount: item.amount, receiptImageData: data)
+                    Haptics.success()
+                    saved = true
+                    pendingTransfer = nil
+                    showScanner = false
+                } onCancel: {
+                    pendingTransfer = nil
+                    showScanner = false
+                }
+            }
         }
     }
 

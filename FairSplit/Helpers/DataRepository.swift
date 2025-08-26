@@ -106,24 +106,25 @@ final class DataRepository {
         }
     }
 
-    func recordSettlements(for group: Group, transfers: [(from: Member, to: Member, amount: Decimal)]) {
-        // Append new settlements
-        for t in transfers {
-            let s = Settlement(from: t.from, to: t.to, amount: t.amount)
-            group.settlements.append(s)
-        }
-        let addedCount = transfers.count
+    func recordSettlement(for group: Group, from: Member, to: Member, amount: Decimal, receiptImageData: Data? = nil, isPaid: Bool = true) {
+        let settlement = Settlement(from: from, to: to, amount: amount, date: .now, isPaid: isPaid, receiptImageData: receiptImageData)
+        group.settlements.append(settlement)
         try? context.save()
         if let undo = undoManager {
             undo.registerUndo(withTarget: self) { repo in
-                // Remove the last N settlements we just added (avoids capturing non-Sendable model instances)
-                let count = group.settlements.count
-                if addedCount > 0 && count >= addedCount {
-                    group.settlements.removeSubrange((count - addedCount)..<count)
+                if let idx = group.settlements.firstIndex(where: { $0.persistentModelID == settlement.persistentModelID }) {
+                    group.settlements.remove(at: idx)
+                    try? repo.context.save()
                 }
-                try? repo.context.save()
             }
             undo.setActionName("Record Settlement")
+        }
+    }
+
+    func recordSettlements(for group: Group, transfers: [(from: Member, to: Member, amount: Decimal)]) {
+        // Append new settlements (marked paid by default)
+        for t in transfers {
+            recordSettlement(for: group, from: t.from, to: t.to, amount: t.amount)
         }
     }
     func addMember(to group: Group, name: String) {
