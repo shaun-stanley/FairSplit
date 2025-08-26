@@ -19,11 +19,12 @@
 3. [SYS-1] Widgets — show top group totals + quick Add
 
 ## In Progress
-[SYS-5] Notifications — reminders to settle or log recurring
+(none)
 
 ## Done
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
 [DATA-2] iCloud sync toggle added in Settings; keeps local-only for now until entitlements/CI enable CloudKit
+[SYS-5] Notifications: daily reminder toggle with time picker; scheduled at launch
 [BUG-5] Guarded charts so CI doesn't break; archive unchanged
 [UX-9] Balance row quick actions in Group Detail: copy amount, message owing member
 [PAY-2] Quick actions: copy amount and compose message from Settle Up proposals/history
@@ -150,6 +151,7 @@
 ## Changelog
 - 2025-08-26: CORE-12 — Added per-expense comments and a Recent Activity section in Group Detail.
 - 2025-08-26: DATA-2 — Added iCloud Sync toggle in Settings with local fallback; CloudKit wiring to follow once entitlements available.
+- 2025-08-26: SYS-5 — Added local notifications: daily reminder toggle and time picker, schedules at launch.
 - 2025-08-26: PAY-2 — Added "Message Payer" to settlement history; proposals already supported copy/message.
 - 2025-08-26: BUG-5 — Guard charts with compile-time checks so CI doesn't fail; archive unchanged.
 - 2025-08-26: UX-9 — Balance row quick actions to copy amount or compose message for members who owe.
