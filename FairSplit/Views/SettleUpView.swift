@@ -8,6 +8,8 @@ struct SettleUpView: View {
     @State private var saved = false
     @State private var showScanner = false
     @State private var pendingTransfer: (from: Member, to: Member, amount: Decimal)?
+    @State private var showComposer = false
+    @State private var composeBody: String = ""
 
     private var proposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -44,6 +46,17 @@ struct SettleUpView: View {
                                     showScanner = true
                                 }.tint(.blue)
                             }
+                            .contextMenu {
+                                Button("Copy Amount") {
+                                    let text = CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency)
+                                    UIPasteboard.general.string = text
+                                    Haptics.success()
+                                }
+                                Button("Message Payer") {
+                                    composeBody = "Hi \(item.from.name), please pay \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency)) for \(group.name)."
+                                    showComposer = true
+                                }
+                            }
                         }
                     }
 
@@ -66,6 +79,13 @@ struct SettleUpView: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 .accessibilityLabel("Settlement: \(s.from.name) paid \(s.to.name) \(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)) on \(s.date.formatted(date: .abbreviated, time: .omitted))")
+                                .contextMenu {
+                                    Button("Copy Amount") {
+                                        let text = CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)
+                                        UIPasteboard.general.string = text
+                                        Haptics.success()
+                                    }
+                                }
                             }
                         }
                     }
@@ -96,6 +116,11 @@ struct SettleUpView: View {
                     pendingTransfer = nil
                     showScanner = false
                 }
+            }
+        }
+        .sheet(isPresented: $showComposer) {
+            MessageComposerView(bodyText: composeBody) {
+                showComposer = false
             }
         }
     }
