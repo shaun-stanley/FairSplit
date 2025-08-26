@@ -23,6 +23,7 @@
 ## Done
 [BUG-6] Group Detail: converted row headers to Section headers; pill bar now uses material blur with bottom divider and avoids overlap
 [BUG-7] Group Detail: switched pill bar to system glass background (no custom UI); kept divider; adjusted spacing to avoid title/search overlap
+[BUG-8] Group Detail: removed pill bar and any glass/material backgrounds; restored standard layout
 [OPS-1] Diagnostics: toggle in Settings; logs via os.Logger + in-app exportable log
 [SYS-2] Live Activity: start/stop a simple running summary from Group actions (guarded by ActivityKit)
 [L10N-1] Localization scaffolding: added base Localizable.strings (en); code uses Text titles for future translations
@@ -161,6 +162,7 @@
 
 ## Changelog
 - 2025-08-27: BUG-7 — Pill bar now uses system glass background (no custom UI). Keeps a thin divider and respects large title/search during scroll.
+- 2025-08-27: BUG-8 — Removed pill navigation and all glass/material backgrounds from Group Detail to simplify and restore native behavior.
 - 2025-08-27: BUG-6 — Polished Group Detail: real Section headers (Balances/Settle Up/Members); pill bar now uses .bar blur + divider and avoids overlap with title/search.
 - 2025-08-27: OPS-1 — Added Diagnostics toggle and exportable in-app log; uses os.Logger with no PII.
 - 2025-08-27: SYS-2 — Added Live Activity scaffold with start/stop controls in Group actions; safely guarded with ActivityKit checks.

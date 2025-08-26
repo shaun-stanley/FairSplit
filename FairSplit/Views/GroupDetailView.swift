@@ -28,23 +28,12 @@ struct GroupDetailView: View {
     @State private var showingCurrencyPicker = false
     @State private var newCurrencyCode: String = AppSettings.defaultCurrencyCode()
     @State private var confirmCurrencyChange = false
-    @State private var selectedAnchor: Anchor? = nil
 
     private enum Anchor: String, Hashable {
         case balances, settle, expenses, recurring, totals, activity, members
     }
 
-    private var anchorItems: [(title: String, anchor: Anchor)] {
-        [
-            ("Balances", .balances),
-            ("Settle Up", .settle),
-            ("Expenses", .expenses),
-            ("Recurring", .recurring),
-            ("Totals", .totals),
-            ("Activity", .activity),
-            ("Members", .members)
-        ]
-    }
+    // Removed pill navigation items
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -70,16 +59,6 @@ struct GroupDetailView: View {
     private var mainScrollContent: some View {
         ScrollViewReader { proxy in
             makeList(proxy: proxy)
-                // Sticky pill bar under title/search area
-                .safeAreaInset(edge: .top, spacing: 0) { pillBar(proxy: proxy) }
-                .onAppear {
-                    if let saved = UserDefaults.standard.string(forKey: lastSectionKey()), let a = Anchor(rawValue: saved) {
-                        selectedAnchor = a
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            withAnimation(.easeInOut) { proxy.scrollTo(a, anchor: .top) }
-                        }
-                    }
-                }
         }
         .navigationTitle(group.name)
         .navigationBarTitleDisplayMode(.large)
@@ -682,12 +661,6 @@ extension GroupDetailView {
     @ViewBuilder
     private func makeList(proxy: ScrollViewProxy) -> some View {
         List {
-            // Spacer to avoid overlay overlap with content
-            Color.clear
-                .frame(height: 60)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-
             archivedBanner()
             balancesRows().id(Anchor.balances)
             settleUpRows().id(Anchor.settle)
@@ -841,44 +814,10 @@ extension GroupDetailView {
         }
         .accessibilityLabel("Add Expense")
     }
-    @ViewBuilder
-    private func pillBar(proxy: ScrollViewProxy) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(anchorItems, id: \.anchor) { item in
-                    Button {
-                        withAnimation(.easeInOut) {
-                            proxy.scrollTo(item.anchor, anchor: .top)
-                            selectedAnchor = item.anchor
-                        }
-                        Haptics.impact(.light)
-                        // Persist selection
-                        if let sel = selectedAnchor { UserDefaults.standard.set(sel.rawValue, forKey: lastSectionKey()) }
-                    } label: {
-                        Text(item.title)
-                            .font(.callout)
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 12)
-                            .background(selectedAnchor == item.anchor ? Color.accentColor : Color.secondary.opacity(0.15))
-                            .foregroundStyle(selectedAnchor == item.anchor ? .white : .primary)
-                            .clipShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Jump to \(item.title)")
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 10)
-        }
-        .background(.glass)
-        .overlay(alignment: .bottom) { Divider() }
-        .zIndex(1)
-    }
 
-    private func lastSectionKey() -> String {
-        "last_section_\(String(describing: group.persistentModelID))"
-    }
 }
+
+
 
 #Preview {
     if let container = try? ModelContainer(
