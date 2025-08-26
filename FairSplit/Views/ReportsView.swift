@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(Charts)
 import Charts
+#endif
 import SwiftData
 
 struct ReportsView: View {
@@ -72,7 +74,8 @@ struct ReportsView: View {
 
                 if !categoryTotals.isEmpty {
                     Section("Totals by Category") {
-                        // Chart
+                        // Chart (when available)
+                        #if canImport(Charts)
                         Chart(categoryTotals, id: \.0) { (cat, amount) in
                             BarMark(
                                 x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
@@ -81,6 +84,7 @@ struct ReportsView: View {
                         }
                         .frame(height: 220)
                         .accessibilityLabel("Category totals chart")
+                        #endif
                         // List (readable values)
                         ForEach(Array(categoryTotals.enumerated()), id: \.offset) { _, item in
                             let (cat, amount) = item
@@ -104,6 +108,7 @@ struct ReportsView: View {
 
                 if !monthlyTotals.isEmpty {
                     Section("Monthly Trend") {
+                        #if canImport(Charts)
                         Chart(monthlyTotals, id: \.0) { (ym, amount) in
                             LineMark(
                                 x: .value("Month", ym.label),
@@ -116,6 +121,7 @@ struct ReportsView: View {
                         }
                         .frame(height: 220)
                         .accessibilityLabel("Monthly totals chart")
+                        #endif
                     }
                 }
             }
