@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [DATA-2] iCloud sync (CloudKit) — basic on/off with local fallback
-2. [SYS-5] Notifications — reminders to settle or log recurring
-3. [SHARE-2] Invite from Contacts: add members via picker (no server)
+1. [SYS-5] Notifications — reminders to settle or log recurring
+2. [SHARE-2] Invite from Contacts: add members via picker (no server)
+3. [SYS-1] Widgets — show top group totals + quick Add
 
 ## In Progress
 (none)
