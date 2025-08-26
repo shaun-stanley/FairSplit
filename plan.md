@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [BUG-4] Groups not showing in simulator after creation (fix list identity + test)
-2. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
-3. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
+1. [DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
+2. [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
+3. [MATH-5] Per-member totals and per-category totals in group
 
 ## In Progress
-[BUG-4] Groups not showing in simulator after creation (fix list identity + test)
+[DATA-3] Import/Export: CSV export for a group; CSV import for expenses (document picker)
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -47,6 +47,7 @@
 [BUG-1] Fixed new groups not appearing by including Settlement in model container
 [BUG-2] Seeded sample group with locale currency to ensure new groups appear
 [BUG-3] Ensure groups list refreshes when adding a new group
+[BUG-4] Groups not showing in simulator after creation — stabilized list identity, added empty state, defaulted to INR, added UI test
 
 
 ## Blocked
@@ -143,6 +144,7 @@
 - 2025-08-28: BUG-1 — Fixed missing Settlement model so new groups appear after creation.
 - 2025-08-29: BUG-2 — Seeded sample group using locale currency to ensure INR groups show.
 - 2025-08-30: BUG-3 — Fixed groups list not updating after adding a group.
+- 2025-08-26: BUG-4 — Fixed groups not showing on simulator; stable List identity, default INR, and UI test added.
 
 
 ## Vision

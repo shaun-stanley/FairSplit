@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct GroupDetailView: View {
     @Environment(\.modelContext) private var modelContext
@@ -12,6 +13,10 @@ struct GroupDetailView: View {
     @State private var maxAmount: Double?
     @State private var selectedMemberIDs: Set<PersistentIdentifier> = []
     @State private var showingAmountFilter = false
+    @State private var showingImporter = false
+    @State private var showingExporter = false
+    @State private var exportDocument: CSVDocument?
+    @State private var importError: String?
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -151,6 +156,14 @@ struct GroupDetailView: View {
                             Button("Clear Filters", role: .destructive) { clearFilters() }
                         }
                     }
+                    Section("CSV") {
+                        Button("Import CSV…") { showingImporter = true }
+                        Button("Export CSV…") {
+                            let csv = DataRepository(context: modelContext, undoManager: undoManager).exportCSV(for: group)
+                            exportDocument = CSVDocument(text: csv)
+                            showingExporter = true
+                        }
+                    }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
@@ -165,6 +178,20 @@ struct GroupDetailView: View {
                 }
             }
         }
+        .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.commaSeparatedText], allowsMultipleSelection: false) { result in
+            do {
+                guard let url = try result.get().first else { return }
+                let data = try Data(contentsOf: url)
+                guard let text = String(data: data, encoding: .utf8) else { throw CocoaError(.fileReadCorruptFile) }
+                DataRepository(context: modelContext, undoManager: undoManager).importExpenses(fromCSV: text, into: group)
+            } catch {
+                importError = "Failed to import CSV."
+            }
+        }
+        .fileExporter(isPresented: $showingExporter, document: exportDocument, contentType: .commaSeparatedText, defaultFilename: "\(group.name)-expenses") { _ in }
+        .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: { Text(importError ?? "") }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
