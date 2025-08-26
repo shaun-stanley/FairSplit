@@ -14,6 +14,7 @@ struct SettleUpView: View {
     @State private var applePayTarget: (from: Member, to: Member, amount: Decimal)?
     @State private var showShare = false
     @State private var shareText: String = ""
+    @State private var memoText: String = ""
 
     private var proposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -146,7 +147,8 @@ struct SettleUpView: View {
                 ApplePaySheet(
                     payer: target.from.name,
                     payee: target.to.name,
-                    amountText: CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)
+                    amountText: CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency),
+                    memo: $memoText
                 ) {
                     prepareShare()
                     showShare = true
@@ -169,7 +171,11 @@ struct SettleUpView: View {
 
     private func prepareShare() {
         guard let target = applePayTarget else { return }
-        shareText = "Pay \(CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)) to \(target.to.name) for \(group.name)."
+        var parts: [String] = []
+        parts.append("Pay \(CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)) to \(target.to.name) for \(group.name).")
+        let memo = memoText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !memo.isEmpty { parts.append("Memo: \(memo)") }
+        shareText = parts.joined(separator: "\n")
     }
 }
 
@@ -178,6 +184,7 @@ private struct ApplePaySheet: View {
     let payer: String
     let payee: String
     let amountText: String
+    @Binding var memo: String
     var onConfirm: () -> Void
     var onCancel: () -> Void
 
@@ -189,6 +196,13 @@ private struct ApplePaySheet: View {
                     .foregroundStyle(.secondary)
                 Text("\(payer) pays \(payee) \(amountText)")
                     .font(.headline)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Memo (optional)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField("What is this payment for?", text: $memo)
+                        .textFieldStyle(.roundedBorder)
+                }
                 #if canImport(PassKit)
                 ApplePayButton(type: .plain, style: .black) {
                     onConfirm()
