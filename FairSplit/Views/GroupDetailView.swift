@@ -866,7 +866,7 @@ extension GroupDetailView {
     private func segmentedBar(proxy: ScrollViewProxy) -> some View {
         VStack {
             Picker("Tab", selection: $selectedDetailTab) {
-                ForEach(DetailTab.allCases, id: \\ .self) { t in
+                ForEach(DetailTab.allCases, id: \.self) { t in
                     Text(t.title).tag(t)
                 }
             }
