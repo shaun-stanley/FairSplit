@@ -114,12 +114,14 @@ struct GroupDetailView: View {
                         Button("Edit") { editingExpense = expense }.tint(.blue)
                         Button("Delete", role: .destructive) {
                             DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                            Haptics.success()
                         }
                     }
                     .contextMenu {
                         Button("Edit") { editingExpense = expense }
                         Button("Delete", role: .destructive) {
                             DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                            Haptics.success()
                         }
                     }
                 }

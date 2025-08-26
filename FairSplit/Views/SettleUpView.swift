@@ -62,6 +62,7 @@ struct SettleUpView: View {
 
     private func record() {
         DataRepository(context: modelContext, undoManager: undoManager).recordSettlements(for: group, transfers: proposals)
+        Haptics.success()
         saved = true
     }
 }

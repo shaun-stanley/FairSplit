@@ -130,6 +130,7 @@ struct AddExpenseView: View {
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
         let rateDecimal: Decimal? = nil
         onSave(title, amount, groupCurrencyCode, rateDecimal, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
+        Haptics.success()
         dismiss()
     }
 }
