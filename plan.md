@@ -14,14 +14,15 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [SYS-3] App Intents: quick “Log expense” and “Show balances”
-2. [SHARE-3] Deep links: open group/expense via URL scheme
-3. [PRIV-1] App privacy lock (Face ID)
+1. [SYS-4] Spotlight: index groups/expenses for system search
+2. [WID-2] Widgets: show real totals via App Group (opt-in)
+3. [L10N-1] Localize strings; support RTL
 
 ## In Progress
-(none)
+[PRIV-1] App privacy lock (Face ID)
 
 ## Done
+[PRIV-1] App privacy lock: toggle in Settings; Face ID/Touch ID overlay on launch/background
 [SHARE-3] Deep links: fairsplit://add-expense opens Add Expense; fairsplit://group?name=… opens that group
 [SYS-3] App Intents: basic shortcuts for “Log Expense” and “Show Balances”; opens app
 [SYS-1] Widgets: placeholder widget with quick Add deep link; opens Add Expense in most recent group
@@ -154,6 +155,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: PRIV-1 — Added Privacy Lock with biometric unlock and a Settings toggle.
 - 2025-08-26: SHARE-3 — Added deep links for quick add (add-expense) and open group by name.
 - 2025-08-26: SYS-3 — Added basic App Intents (Log Expense, Show Balances) with App Shortcuts that open the app.
 - 2025-08-26: SYS-1 — Added Widget extension with static summary and a quick Add deep link that opens Add Expense in the most recent group.
