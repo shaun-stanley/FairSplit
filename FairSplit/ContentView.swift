@@ -12,7 +12,8 @@ import LocalAuthentication
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: [SortDescriptor(\Group.lastActivity, order: .reverse)]) private var groups: [Group]
+    // Sort by a persisted field; compute lastActivity in-memory when needed
+    @Query(sort: [SortDescriptor(\Group.createdAt, order: .reverse)]) private var groups: [Group]
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage("privacy_lock_enabled") private var privacyLockEnabled: Bool = false
@@ -50,8 +51,9 @@ struct ContentView: View {
             guard url.scheme?.lowercased() == "fairsplit" else { return }
             switch url.host?.lowercased() {
             case "add-expense":
-                // Choose the most recent active group
-                if let group = groups.first(where: { !$0.isArchived }) ?? groups.first {
+                // Choose the most recent active group (computed in-memory)
+                let sorted = groups.sorted { $0.lastActivity > $1.lastActivity }
+                if let group = sorted.first(where: { !$0.isArchived }) ?? sorted.first {
                     quickAddGroup = group
                     showQuickAdd = true
                 }

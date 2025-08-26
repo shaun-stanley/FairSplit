@@ -105,6 +105,16 @@ struct GroupDetailView: View {
                             }
                         }
                     }
+                    #if canImport(ActivityKit)
+                    Section("Live Activity") {
+                        Button("Start Live Activity") {
+                            LiveActivityManager.start(group: group)
+                        }
+                        Button("End Live Activity") {
+                            LiveActivityManager.endAll()
+                        }
+                    }
+                    #endif
                     Section("Group") {
                         if group.isArchived {
                             Button("Unarchive Group") {

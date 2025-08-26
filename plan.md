@@ -19,7 +19,7 @@
 3. [L10N-2] Indian numbering format (₹1,23,456)
 
 ## In Progress
-(none)
+[SYS-2] Live Activity: running trip summary with balance
 
 ## Done
 [L10N-1] Localization scaffolding: added base Localizable.strings (en); code uses Text titles for future translations
