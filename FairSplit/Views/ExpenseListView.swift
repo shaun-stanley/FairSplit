@@ -47,8 +47,8 @@ struct ExpenseListView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .layoutPriority(1)
+                    Spacer(minLength: 8)
                     Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                         .fontWeight(.semibold)
                         .lineLimit(1)

@@ -95,8 +95,8 @@ struct GroupDetailView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                         .layoutPriority(1)
+                        Spacer(minLength: 8)
                         Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                             .fontWeight(.semibold)
                             .lineLimit(1)
@@ -118,6 +118,7 @@ struct GroupDetailView: View {
                     }
                 }
             }
+            .headerProminence(.increased)
 
             Section("Balances") {
                 let net = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
@@ -135,6 +136,7 @@ struct GroupDetailView: View {
                     .accessibilityLabel("\(member.name), balance \(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))")
                 }
             }
+            .headerProminence(.increased)
 
             Section {
                 if settlementProposals.isEmpty {
@@ -175,6 +177,7 @@ struct GroupDetailView: View {
                     .accessibilityLabel("Open Settle Up")
                 }
             }
+            .headerProminence(.increased)
 
             Section("Members") {
                 NavigationLink(destination: MembersView(group: group)) {
@@ -185,8 +188,10 @@ struct GroupDetailView: View {
                     }
                 }
             }
+            .headerProminence(.increased)
         }
         .navigationTitle(group.name)
+        .listStyle(.plain)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
