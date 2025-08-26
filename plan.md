@@ -19,9 +19,10 @@
 3. [L10N-1] Localize strings; support RTL
 
 ## In Progress
-[WID-2] Widgets: show real totals via App Group (opt-in)
+(none)
 
 ## Done
+[WID-2] Widgets: app writes top group summary to App Group; widget reads and displays it (opt-in)
 [SYS-4] Spotlight: indexed groups and expenses; reindex on launch
 [PRIV-1] App privacy lock: toggle in Settings; Face ID/Touch ID overlay on launch/background
 [SHARE-3] Deep links: fairsplit://add-expense opens Add Expense; fairsplit://group?name=… opens that group
@@ -156,6 +157,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: WID-2 — Widget now displays top group total from shared defaults when App Group is enabled.
 - 2025-08-26: SYS-4 — Indexed groups and expenses for Spotlight search; reindex on launch.
 - 2025-08-26: PRIV-1 — Added Privacy Lock with biometric unlock and a Settings toggle.
 - 2025-08-26: SHARE-3 — Added deep links for quick add (add-expense) and open group by name.
