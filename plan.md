@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PAY-2] Quick actions: copy amount / compose iMessage to payer
-2. [UX-9] Balance row quick actions in Group Detail
-3. [BUG-5] Fix any CI regressions on Charts or Archive
+1. [PAY-3] Placeholder Apple Pay button: share sheet with amount & memo
+2. [UX-10] Quick add from Groups list: choose regular or itemized
+3. [A11Y-2] Clearer balance signals: add icon/text beyond color
 
 ## In Progress
-(none)
+[PAY-2] Quick actions: copy amount / compose iMessage to payer
 
 ## Done
 [BUG-5] Guarded charts so CI doesn't break; archive unchanged
@@ -146,6 +146,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: PAY-2 — Added "Message Payer" to settlement history; proposals already supported copy/message.
 - 2025-08-26: BUG-5 — Guard charts with compile-time checks so CI doesn't fail; archive unchanged.
 - 2025-08-26: UX-9 — Balance row quick actions to copy amount or compose message for members who owe.
 - 2025-08-26: PAY-2 — Quick actions to copy amount and compose an iMessage from Settle Up rows.

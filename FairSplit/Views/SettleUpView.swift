@@ -85,6 +85,10 @@ struct SettleUpView: View {
                                         UIPasteboard.general.string = text
                                         Haptics.success()
                                     }
+                                    Button("Message Payer") {
+                                        composeBody = "Hi \(s.from.name), please pay \(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)) for \(group.name)."
+                                        showComposer = true
+                                    }
                                 }
                             }
                         }
