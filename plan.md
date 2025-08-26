@@ -19,9 +19,10 @@
 3. [PAY-3] Placeholder Apple Pay button: share amount & memo
 
 ## In Progress
-[SHARE-2] Invite from Contacts: add members via picker (no server)
+(none)
 
 ## Done
+[SHARE-2] Invite from Contacts: add members from the Contacts picker in Members; no server needed
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
 [DATA-2] iCloud sync toggle added in Settings; keeps local-only for now until entitlements/CI enable CloudKit
 [SYS-5] Notifications: daily reminder toggle with time picker; scheduled at launch
@@ -149,6 +150,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: SHARE-2 — Added Contacts picker to import members from the device address book.
 - 2025-08-26: CORE-12 — Added per-expense comments and a Recent Activity section in Group Detail.
 - 2025-08-26: DATA-2 — Added iCloud Sync toggle in Settings with local fallback; CloudKit wiring to follow once entitlements available.
 - 2025-08-26: SYS-5 — Added local notifications: daily reminder toggle and time picker, schedules at launch.
