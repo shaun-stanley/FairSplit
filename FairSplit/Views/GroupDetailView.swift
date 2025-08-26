@@ -28,9 +28,30 @@ struct GroupDetailView: View {
     @State private var showingCurrencyPicker = false
     @State private var newCurrencyCode: String = AppSettings.defaultCurrencyCode()
     @State private var confirmCurrencyChange = false
+    @State private var selectedDetailTab: DetailTab = .expenses
 
     private enum Anchor: String, Hashable {
         case balances, settle, expenses, recurring, totals, activity, members
+    }
+
+    private enum DetailTab: String, CaseIterable, Hashable {
+        case expenses, recurring, categories, activity
+        var title: String {
+            switch self {
+            case .expenses: return "Expenses"
+            case .recurring: return "Recurring"
+            case .categories: return "Categories"
+            case .activity: return "Activity"
+            }
+        }
+        var systemImage: String {
+            switch self {
+            case .expenses: return "list.bullet"
+            case .recurring: return "arrow.triangle.2.circlepath"
+            case .categories: return "chart.pie"
+            case .activity: return "clock.arrow.circlepath"
+            }
+        }
     }
 
     // Removed pill navigation items
@@ -427,6 +448,25 @@ struct GroupDetailView: View {
         }
     }
 
+    // Categories-only section for the Categories tab
+    @ViewBuilder private func categoriesOnlySection() -> some View {
+        if !totalsByCategory.isEmpty {
+            Section("Totals by Category") {
+                ForEach(0..<totalsByCategory.count, id: \.self) { i in
+                    let (category, amount) = totalsByCategory[i]
+                    HStack {
+                        Text(category.displayName)
+                        Spacer()
+                        Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+                    }
+                }
+            }
+            .headerProminence(.increased)
+        } else {
+            ContentUnavailableView("No category totals yet", systemImage: "chart.pie")
+        }
+    }
+
     @ViewBuilder private func expensesSection() -> some View {
         Section("Expenses") {
             ForEach(filteredExpenses, id: \.persistentModelID) { expense in
@@ -661,14 +701,31 @@ extension GroupDetailView {
     @ViewBuilder
     private func makeList(proxy: ScrollViewProxy) -> some View {
         List {
+            // Local tabs just for this view
+            Section {
+                Picker("Tab", selection: $selectedDetailTab) {
+                    ForEach(DetailTab.allCases, id: \.self) { t in
+                        Text(t.title).tag(t)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+
             archivedBanner()
-            balancesRows().id(Anchor.balances)
-            settleUpRows().id(Anchor.settle)
-            expensesSection().id(Anchor.expenses)
-            recurringSection().id(Anchor.recurring)
-            totalsSections().id(Anchor.totals)
-            activitySection().id(Anchor.activity)
-            membersRows().id(Anchor.members)
+
+            switch selectedDetailTab {
+            case .expenses:
+                expensesSection()
+            case .recurring:
+                recurringSection()
+            case .categories:
+                categoriesOnlySection()
+            case .activity:
+                activitySection()
+            }
+
+            // Keep members quick link at bottom for convenience
+            membersRows()
         }
     }
     // Simple inline header row for rows-only sections
