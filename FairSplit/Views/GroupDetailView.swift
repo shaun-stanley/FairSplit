@@ -333,7 +333,7 @@ struct GroupDetailView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(expenseAccessibilityLabel(expense))
-        .swipeActions(allowFullSwipe: false) {
+        .swipeActions(allowsFullSwipe: false) {
             if !group.isArchived {
                 Button("Edit") { editingExpense = expense }.tint(.blue)
                 Button("Delete", role: .destructive) {
