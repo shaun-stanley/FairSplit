@@ -43,14 +43,14 @@ struct ReportsView: View {
                     HStack {
                         Text("Groups")
                         Spacer()
-                        Text("\\(groups.count)")
+                        Text("\(groups.count)")
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 if !groups.isEmpty {
                     Section("Per Group Totals") {
-                        ForEach(groups.sorted { $0.lastActivity > $1.lastActivity }, id: \\.persistentModelID) { g in
+                        ForEach(groups.sorted { $0.lastActivity > $1.lastActivity }, id: \.persistentModelID) { g in
                             HStack {
                                 Text(g.name)
                                 Spacer()
@@ -62,8 +62,8 @@ struct ReportsView: View {
 
                 if !categoryTotals.isEmpty {
                     Section("Totals by Category") {
-                        ForEach(0..<categoryTotals.count, id: \\.self) { i in
-                            let (cat, amount) = categoryTotals[i]
+                        ForEach(Array(categoryTotals.enumerated()), id: \.offset) { _, item in
+                            let (cat, amount) = item
                             HStack {
                                 Text(cat.displayName)
                                 Spacer()
@@ -82,4 +82,3 @@ struct ReportsView: View {
     ReportsView()
         .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self], inMemory: true)
 }
-
