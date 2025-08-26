@@ -34,6 +34,11 @@ struct ContentView: View {
             if privacyLockEnabled { lockAndAuthenticate() }
             // Index content for Spotlight
             SpotlightIndexer.reindexAll(context: modelContext)
+            // Seed widget data (if App Group is enabled)
+            WidgetDataWriter.updateTopGroupSummary(groups: groups)
+        }
+        .onChange(of: groups) { _, newValue in
+            WidgetDataWriter.updateTopGroupSummary(groups: newValue)
         }
         .onChange(of: privacyLockEnabled) { _, newValue in
             if newValue { lockAndAuthenticate() } else { isLocked = false }

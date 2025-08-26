@@ -7,12 +7,26 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        completion(SimpleEntry(date: .now, summary: "FairSplit"))
+        completion(SimpleEntry(date: .now, summary: readSummary()))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let entries = [SimpleEntry(date: .now, summary: "Top group: Tap to open")]
+        let summary = readSummary()
+        let entries = [SimpleEntry(date: .now, summary: summary)]
         completion(Timeline(entries: entries, policy: .after(.now.addingTimeInterval(60 * 30))))
+    }
+
+    private func readSummary() -> String {
+        let defaults = UserDefaults(suiteName: "group.com.sviftstudios.FairSplit")
+        let name = defaults?.string(forKey: "widget.topGroup.name")
+        if let totalString = defaults?.string(forKey: "widget.topGroup.total"),
+           let currency = defaults?.string(forKey: "widget.topGroup.currency"),
+           let total = Double(totalString) {
+            let formatted = CurrencyFormatter.string(from: Decimal(total), currencyCode: currency)
+            if let name { return "\(name): \(formatted) total" }
+            return formatted
+        }
+        return name ?? "Top group: Tap to open"
     }
 }
 
