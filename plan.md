@@ -19,9 +19,10 @@
 3. [UX-8] Itemized editor polish: delete item row, better defaults
 
 ## In Progress
-[CORE-15] Merge members (dedupe and reassign expenses)
+[CORE-16] Archive/close group (read-only with summary)
 
 ## Done
+[CORE-16] Archive/close group: archived flag, read-only UI, list sections, un/archive toggle
 [CORE-15] Merge members: reassign expenses/shares/recurring/settlements; remove self-settlements; UI to merge
 [REPORTS-2] Charts and monthly summaries: category bar chart, monthly trend line
 [PAY-1] Marked settlements as paid with optional receipt image; swipe actions in Settle Up
@@ -141,6 +142,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: CORE-16 — Archive groups with read-only detail, list sections, and un/archive actions.
 - 2025-08-26: CORE-15 — Merge members with reassignment across expenses/shares/recurring/settlements and remove invalid self-settlements; UI from Members screen.
 - 2025-08-26: REPORTS-2 — Added category bar chart and monthly trend line in Reports; monthly totals in StatsCalculator.
 - 2025-08-26: PAY-1 — Mark settlements as paid with optional receipt; swipe actions and scanner from Settle Up.

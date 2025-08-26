@@ -40,11 +40,12 @@ struct ItemizedExpenseView: View {
             }
 
             Section("Items") {
-                ForEach($items) { $row in
+                ForEach(items.indices, id: \.self) { idx in
+                    let binding = $items[idx]
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            TextField("Item name", text: $row.name)
-                            TextField("Amount", value: $row.amount, format: .currency(code: groupCurrencyCode))
+                            TextField("Item name", text: binding.name)
+                            TextField("Amount", value: binding.amount, format: .currency(code: groupCurrencyCode))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
                                 .frame(maxWidth: 160)
@@ -52,9 +53,9 @@ struct ItemizedExpenseView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 ForEach(members) { m in
-                                    let isOn = row.participantIDs.contains(m.persistentModelID)
+                                    let isOn = binding.wrappedValue.participantIDs.contains(m.persistentModelID)
                                     Button {
-                                        if isOn { row.participantIDs.remove(m.persistentModelID) } else { row.participantIDs.insert(m.persistentModelID) }
+                                        if isOn { binding.wrappedValue.participantIDs.remove(m.persistentModelID) } else { binding.wrappedValue.participantIDs.insert(m.persistentModelID) }
                                     } label: {
                                         HStack(spacing: 6) {
                                             Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
@@ -67,7 +68,10 @@ struct ItemizedExpenseView: View {
                         }
                     }
                 }
-                Button { items.append(ItemRow()) } label: { Label("Add Item", systemImage: "plus") }
+                .onDelete { offsets in
+                    items.remove(atOffsets: offsets)
+                }
+                Button { addItemRow() } label: { Label("Add Item", systemImage: "plus") }
             }
 
             Section("Tax & Tip") {
@@ -139,6 +143,17 @@ struct ItemizedExpenseView: View {
         Haptics.success()
         dismiss()
     }
+
+    private func addItemRow() {
+        var row = ItemRow()
+        // Default participants: copy from last item if present; otherwise all members
+        if let last = items.last, !last.participantIDs.isEmpty {
+            row.participantIDs = last.participantIDs
+        } else {
+            row.participantIDs = Set(members.map { $0.persistentModelID })
+        }
+        items.append(row)
+    }
 }
 
 #Preview {
@@ -147,4 +162,3 @@ struct ItemizedExpenseView: View {
         ItemizedExpenseView(members: m, groupCurrencyCode: "USD") { _, _, _, _, _, _, _, _, _ in }
     }
 }
-
