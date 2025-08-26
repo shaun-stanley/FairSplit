@@ -19,6 +19,7 @@ struct ContentView: View {
             let repo = DataRepository(context: modelContext)
             repo.seedIfNeeded()
             repo.generateDueRecurring()
+            NotificationsManager.refreshFromSettings()
         }
         .preferredColorScheme(AppSettings.scheme(for: appearance))
         .tint(AppSettings.color(for: accentID))

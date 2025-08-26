@@ -19,7 +19,7 @@
 3. [SYS-1] Widgets — show top group totals + quick Add
 
 ## In Progress
-(none)
+[SYS-5] Notifications — reminders to settle or log recurring
 
 ## Done
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
