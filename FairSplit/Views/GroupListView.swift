@@ -40,6 +40,9 @@ struct GroupListView: View {
                         }
                     }
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(groupAccessibilityLabel(group))
+                .accessibilityHint("Opens group details")
             }
         }
         .overlay {
@@ -76,6 +79,23 @@ struct GroupListView: View {
                 searchText = ""
             }
         }
+    }
+}
+
+private extension GroupListView {
+    func groupAccessibilityLabel(_ group: Group) -> String {
+        var parts: [String] = [group.name]
+        if let first = group.members.first {
+            let bal = group.balance(for: first)
+            if bal > 0 {
+                parts.append("You're owed \(CurrencyFormatter.string(from: bal, currencyCode: group.defaultCurrency))")
+            } else if bal < 0 {
+                parts.append("You owe \(CurrencyFormatter.string(from: -bal, currencyCode: group.defaultCurrency))")
+            } else {
+                parts.append("All settled")
+            }
+        }
+        return parts.joined(separator: ", ")
     }
 }
 

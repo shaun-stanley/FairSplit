@@ -58,6 +58,8 @@ struct ReportsView: View {
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.75)
                             }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("Group \(g.name), total \(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))")
                         }
                     }
                 }
@@ -73,6 +75,8 @@ struct ReportsView: View {
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.75)
                             }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("\(cat.displayName), total \(CurrencyFormatter.string(from: amount))")
                         }
                     }
                 }

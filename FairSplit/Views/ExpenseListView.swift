@@ -54,6 +54,8 @@ struct ExpenseListView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(expenseAccessibilityLabel(expense))
                 .swipeActions {
                     Button("Edit") { editingExpense = expense }.tint(.blue)
                     Button("Delete", role: .destructive) {
@@ -90,7 +92,10 @@ struct ExpenseListView: View {
                             Button("Clear Filters", role: .destructive) { clearFilters() }
                         }
                     }
-                } label: { Image(systemName: "line.3.horizontal.decrease.circle") }
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .accessibilityLabel("Filters and actions")
+                }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button { showingAdd = true } label: { Image(systemName: "plus") }
@@ -159,6 +164,18 @@ struct ExpenseListView: View {
         minAmount = nil
         maxAmount = nil
         selectedMemberIDs.removeAll()
+    }
+}
+
+private extension ExpenseListView {
+    func expenseAccessibilityLabel(_ expense: Expense) -> String {
+        var parts: [String] = [expense.title]
+        let amount = SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency)
+        parts.append(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+        if let category = expense.category { parts.append(category.displayName) }
+        if let payer = expense.payer { parts.append("Paid by \(payer.name)") }
+        if let note = expense.note, !note.isEmpty { parts.append(note) }
+        return parts.joined(separator: ", ")
     }
 }
 

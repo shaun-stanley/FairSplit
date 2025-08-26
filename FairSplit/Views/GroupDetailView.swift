@@ -102,6 +102,8 @@ struct GroupDetailView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(expenseAccessibilityLabel(expense))
                     .swipeActions {
                         Button("Edit") { editingExpense = expense }.tint(.blue)
                         Button("Delete", role: .destructive) {
@@ -129,6 +131,8 @@ struct GroupDetailView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(member.name), balance \(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))")
                 }
             }
 
@@ -186,6 +190,7 @@ struct GroupDetailView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
+                    .accessibilityLabel("Add Expense")
                 Menu {
                     Section("Members") {
                         ForEach(group.members, id: \.persistentModelID) { m in
@@ -228,6 +233,7 @@ struct GroupDetailView: View {
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease.circle")
+                        .accessibilityLabel("Filters and actions")
                 }
             }
 
@@ -310,6 +316,16 @@ struct GroupDetailView: View {
         minAmount = nil
         maxAmount = nil
         selectedMemberIDs.removeAll()
+    }
+
+    private func expenseAccessibilityLabel(_ expense: Expense) -> String {
+        var parts: [String] = [expense.title]
+        let amount = SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency)
+        parts.append(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
+        if let category = expense.category { parts.append(category.displayName) }
+        if let payer = expense.payer { parts.append("Paid by \(payer.name)") }
+        if let note = expense.note, !note.isEmpty { parts.append(note) }
+        return parts.joined(separator: ", ")
     }
 }
 
