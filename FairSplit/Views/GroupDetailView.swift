@@ -18,6 +18,7 @@ struct GroupDetailView: View {
     @State private var exportDocument: CSVDocument?
     @State private var showingShare = false
     @State private var shareText: String = ""
+    @State private var shareURL: URL?
     @State private var importError: String?
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
@@ -171,6 +172,13 @@ struct GroupDetailView: View {
                             shareText = GroupSummaryExporter.markdown(for: group)
                             showingShare = true
                         }
+                        Button("Share Summary PDF…") {
+                            let pdf = PDFExporter.summaryPDF(for: group)
+                            if let url = try? TempFileWriter.writeTemporary(data: pdf, fileName: group.name.replacingOccurrences(of: " ", with: "-"), fileExtension: "pdf") {
+                                shareURL = url
+                                showingShare = true
+                            }
+                        }
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease.circle")
@@ -198,7 +206,11 @@ struct GroupDetailView: View {
         }
         .fileExporter(isPresented: $showingExporter, document: exportDocument, contentType: .commaSeparatedText, defaultFilename: "\(group.name)-expenses") { _ in }
         .sheet(isPresented: $showingShare) {
-            ShareSheet(activityItems: [shareText])
+            if let url = shareURL {
+                ShareSheet(activityItems: [url])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
         }
         .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
             Button("OK", role: .cancel) {}
