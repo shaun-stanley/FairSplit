@@ -8,16 +8,20 @@
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+import LocalAuthentication
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: [SortDescriptor(\Group.lastActivity, order: .reverse)]) private var groups: [Group]
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
+    @AppStorage("privacy_lock_enabled") private var privacyLockEnabled: Bool = false
     @State private var showQuickAdd = false
     @State private var quickAddGroup: Group?
     @State private var showGroup = false
     @State private var openGroup: Group?
+    @State private var isLocked: Bool = false
+    @State private var isAuthenticating: Bool = false
 
     var body: some View {
         MainTabView()
@@ -26,6 +30,14 @@ struct ContentView: View {
             repo.seedIfNeeded()
             repo.generateDueRecurring()
             NotificationsManager.refreshFromSettings()
+            // Apply privacy lock on launch if enabled
+            if privacyLockEnabled { lockAndAuthenticate() }
+        }
+        .onChange(of: privacyLockEnabled) { _, newValue in
+            if newValue { lockAndAuthenticate() } else { isLocked = false }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            if privacyLockEnabled { isLocked = true }
         }
         .onOpenURL { url in
             guard url.scheme?.lowercased() == "fairsplit" else { return }
@@ -53,6 +65,7 @@ struct ContentView: View {
         }
         .preferredColorScheme(AppSettings.scheme(for: appearance))
         .tint(AppSettings.color(for: accentID))
+        .overlay(privacyOverlay())
         .sheet(isPresented: $showQuickAdd) {
             if let group = quickAddGroup {
                 NavigationStack {
@@ -67,6 +80,48 @@ struct ContentView: View {
         .sheet(isPresented: $showGroup) {
             if let group = openGroup {
                 NavigationStack { GroupDetailView(group: group) }
+            }
+        }
+    }
+}
+
+private extension ContentView {
+    func lockAndAuthenticate() {
+        isLocked = true
+        authenticate()
+    }
+
+    func authenticate() {
+        guard !isAuthenticating else { return }
+        let ctx = LAContext()
+        var error: NSError?
+        if ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) || ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+            isAuthenticating = true
+            ctx.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Unlock FairSplit") { success, _ in
+                DispatchQueue.main.async {
+                    self.isAuthenticating = false
+                    self.isLocked = !success
+                }
+            }
+        }
+    }
+
+    @ViewBuilder func privacyOverlay() -> some View {
+        if isLocked {
+            ZStack {
+                Color(.systemBackground)
+                    .ignoresSafeArea()
+                VStack(spacing: 16) {
+                    Image(systemName: "lock.fill").font(.largeTitle)
+                    Text("Locked")
+                        .font(.headline)
+                    Button(action: authenticate) {
+                        HStack { Image(systemName: "faceid"); Text("Unlock") }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isAuthenticating)
+                }
+                .padding()
             }
         }
     }

@@ -4,6 +4,7 @@ struct SettingsView: View {
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage(AppSettings.cloudSyncKey) private var cloudSync: Bool = false
+    @AppStorage("privacy_lock_enabled") private var privacyLock: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var reminderTime: Date = {
         var comps = DateComponents()
@@ -17,6 +18,16 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Privacy") {
+                    Toggle(isOn: $privacyLock) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Privacy Lock")
+                            Text("Require Face ID/Touch ID to view the app.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
                 Section("Sync") {
                     Toggle(isOn: $cloudSync) {
                         VStack(alignment: .leading, spacing: 2) {
