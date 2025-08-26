@@ -3,11 +3,22 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
+    @AppStorage(AppSettings.cloudSyncKey) private var cloudSync: Bool = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             Form {
+                Section("Sync") {
+                    Toggle(isOn: $cloudSync) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Sync with iCloud")
+                            Text("Keeps data updated across devices. Requires iCloud & may need a restart.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
                 Section("Appearance") {
                     Picker("Mode", selection: $appearance) {
                         Text("System").tag("system")
@@ -48,4 +59,3 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
 }
-

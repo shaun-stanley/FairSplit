@@ -3,6 +3,7 @@ import SwiftUI
 enum AppSettings {
     static let accentKey = "app_accent"
     static let appearanceKey = "app_appearance"
+    static let cloudSyncKey = "cloud_sync_enabled"
 
     static let accentPresets: [(id: String, color: Color)] = [
         ("blue", .blue), ("green", .green), ("teal", .teal), ("indigo", .indigo),
@@ -22,4 +23,3 @@ enum AppSettings {
         }
     }
 }
-
