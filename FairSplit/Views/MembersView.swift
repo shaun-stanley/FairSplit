@@ -11,6 +11,8 @@ struct MembersView: View {
     @State private var renaming: Member?
     @State private var renameText = ""
     @State private var alertMessage: String?
+    @State private var mergingSource: Member?
+    @State private var mergingTarget: Member?
 
     var body: some View {
         List {
@@ -21,6 +23,10 @@ struct MembersView: View {
                             renaming = member
                             renameText = member.name
                         }.tint(.blue)
+                        Button("Merge Into…") {
+                            mergingSource = member
+                            mergingTarget = group.members.first { $0.persistentModelID != member.persistentModelID }
+                        }.tint(.purple)
                         Button("Delete", role: .destructive) {
                             let ok = DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
                             if !ok { alertMessage = "This member is used in expenses and cannot be deleted." }
@@ -63,6 +69,34 @@ struct MembersView: View {
                             DataRepository(context: modelContext, undoManager: undoManager).rename(member: member, to: trimmed)
                             renaming = nil
                         }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+            }
+        }
+        .sheet(item: $mergingSource) { source in
+            NavigationStack {
+                Form {
+                    Picker("Merge \(source.name) into", selection: Binding(
+                        get: { mergingTarget },
+                        set: { mergingTarget = $0 }
+                    )) {
+                        ForEach(group.members.filter { $0.persistentModelID != source.persistentModelID }, id: \.persistentModelID) { m in
+                            Text(m.name).tag(m as Member?)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
+                }
+                .navigationTitle("Merge Members")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { mergingSource = nil; mergingTarget = nil } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Merge") {
+                            if let target = mergingTarget {
+                                DataRepository(context: modelContext, undoManager: undoManager).merge(member: source, into: target, in: group)
+                            }
+                            mergingSource = nil
+                            mergingTarget = nil
+                        }.disabled(mergingTarget == nil)
                     }
                 }
             }

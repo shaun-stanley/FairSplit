@@ -241,3 +241,100 @@ final class DataRepository {
         }
     }
 }
+
+// MARK: - Member Merge
+extension DataRepository {
+    /// Merges `from` member into `into` within the given group.
+    /// - Reassigns payers/participants/shares/recurring/settlements to `into`.
+    /// - Removes duplicate participant entries and combines share weights.
+    /// - Removes settlements that would become self-payments.
+    /// - Finally removes `from` from the group's members and deletes the model.
+    func merge(member from: Member, into target: Member, in group: Group) {
+        guard from.persistentModelID != target.persistentModelID else { return }
+
+        // Expenses
+        for e in group.expenses {
+            if e.payer?.persistentModelID == from.persistentModelID {
+                e.payer = target
+            }
+            if e.participants.contains(where: { $0.persistentModelID == from.persistentModelID }) {
+                // Replace from with target, ensuring uniqueness
+                var ids = Set(e.participants.map { $0.persistentModelID })
+                ids.remove(from.persistentModelID)
+                ids.insert(target.persistentModelID)
+                // Rebuild participants preserving existing order where possible
+                var newParticipants: [Member] = []
+                for m in e.participants where m.persistentModelID != from.persistentModelID {
+                    if !newParticipants.contains(where: { $0.persistentModelID == m.persistentModelID }) {
+                        newParticipants.append(m)
+                    }
+                }
+                if !newParticipants.contains(where: { $0.persistentModelID == target.persistentModelID }) {
+                    newParticipants.append(target)
+                }
+                e.participants = newParticipants
+            }
+            // Shares: retarget and combine weights
+            if !e.shares.isEmpty {
+                var byID: [PersistentIdentifier: Int] = [:]
+                for s in e.shares {
+                    let id = (s.member.persistentModelID == from.persistentModelID) ? target.persistentModelID : s.member.persistentModelID
+                    byID[id, default: 0] += s.weight
+                }
+                // Rebuild shares list using any available member instances
+                var newShares: [ExpenseShare] = []
+                for (id, weight) in byID {
+                    // Find corresponding member instance
+                    let m: Member?
+                    if id == target.persistentModelID { m = target } else { m = e.participants.first { $0.persistentModelID == id } ?? group.members.first { $0.persistentModelID == id } }
+                    if let m, weight > 0 { newShares.append(ExpenseShare(member: m, weight: weight)) }
+                }
+                e.shares = newShares
+            }
+            // Itemized items participants
+            if !e.items.isEmpty {
+                for item in e.items {
+                    if item.participants.contains(where: { $0.persistentModelID == from.persistentModelID }) {
+                        var newParts: [Member] = []
+                        for m in item.participants where m.persistentModelID != from.persistentModelID {
+                            if !newParts.contains(where: { $0.persistentModelID == m.persistentModelID }) { newParts.append(m) }
+                        }
+                        if !newParts.contains(where: { $0.persistentModelID == target.persistentModelID }) { newParts.append(target) }
+                        item.participants = newParts
+                    }
+                }
+            }
+        }
+
+        // Recurring
+        for r in group.recurring {
+            if r.payer?.persistentModelID == from.persistentModelID { r.payer = target }
+            if r.participants.contains(where: { $0.persistentModelID == from.persistentModelID }) {
+                var newParts: [Member] = []
+                for m in r.participants where m.persistentModelID != from.persistentModelID {
+                    if !newParts.contains(where: { $0.persistentModelID == m.persistentModelID }) { newParts.append(m) }
+                }
+                if !newParts.contains(where: { $0.persistentModelID == target.persistentModelID }) { newParts.append(target) }
+                r.participants = newParts
+            }
+        }
+
+        // Settlements
+        group.settlements.removeAll { s in
+            if s.from.persistentModelID == from.persistentModelID { s.from = target }
+            if s.to.persistentModelID == from.persistentModelID { s.to = target }
+            // Remove if self-payment
+            return s.from.persistentModelID == s.to.persistentModelID
+        }
+
+        // Remove the old member
+        if let idx = group.members.firstIndex(where: { $0.persistentModelID == from.persistentModelID }) {
+            group.members.remove(at: idx)
+        }
+        context.delete(from)
+        try? context.save()
+        if let undo = undoManager {
+            undo.setActionName("Merge Members")
+        }
+    }
+}
