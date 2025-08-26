@@ -19,7 +19,7 @@
 3. [SHARE-2] Invite from Contacts: add members via picker (no server)
 
 ## In Progress
-(none)
+[DATA-2] iCloud sync (CloudKit) — basic on/off with local fallback
 
 ## Done
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
