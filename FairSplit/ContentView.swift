@@ -14,9 +14,7 @@ struct ContentView: View {
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
 
     var body: some View {
-        NavigationStack {
-            GroupListView()
-        }
+        RootView()
         .task {
             DataRepository(context: modelContext).seedIfNeeded()
         }
