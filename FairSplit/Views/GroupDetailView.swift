@@ -16,6 +16,8 @@ struct GroupDetailView: View {
     @State private var showingImporter = false
     @State private var showingExporter = false
     @State private var exportDocument: CSVDocument?
+    @State private var showingShare = false
+    @State private var shareText: String = ""
     @State private var importError: String?
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
@@ -164,6 +166,12 @@ struct GroupDetailView: View {
                             showingExporter = true
                         }
                     }
+                    Section("Share") {
+                        Button("Share Summary…") {
+                            shareText = GroupSummaryExporter.markdown(for: group)
+                            showingShare = true
+                        }
+                    }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
@@ -189,6 +197,9 @@ struct GroupDetailView: View {
             }
         }
         .fileExporter(isPresented: $showingExporter, document: exportDocument, contentType: .commaSeparatedText, defaultFilename: "\(group.name)-expenses") { _ in }
+        .sheet(isPresented: $showingShare) {
+            ShareSheet(activityItems: [shareText])
+        }
         .alert("Import Failed", isPresented: Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: { Text(importError ?? "") }
