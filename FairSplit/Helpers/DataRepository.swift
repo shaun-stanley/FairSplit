@@ -167,9 +167,15 @@ final class DataRepository {
         group.settlements.append(settlement)
         try? context.save()
         if let undo = undoManager {
+            // Capture stable identifiers only to satisfy Swift 6 Sendable rules
+            let groupID = group.persistentModelID
+            let settlementID = settlement.persistentModelID
             undo.registerUndo(withTarget: self) { repo in
-                if let idx = group.settlements.firstIndex(where: { $0.persistentModelID == settlement.persistentModelID }) {
-                    group.settlements.remove(at: idx)
+                // Refetch the group in this context using its persistent ID
+                let fetch = FetchDescriptor<Group>(predicate: #Predicate { $0.persistentModelID == groupID })
+                if let targetGroup = try? repo.context.fetch(fetch).first,
+                   let idx = targetGroup.settlements.firstIndex(where: { $0.persistentModelID == settlementID }) {
+                    targetGroup.settlements.remove(at: idx)
                     try? repo.context.save()
                 }
             }
