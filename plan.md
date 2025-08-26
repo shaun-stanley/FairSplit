@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [SHARE-2] Invite from Contacts: add members via picker (no server)
+1. [PAY-3] Placeholder Apple Pay button: share amount & memo
 2. [SYS-1] Widgets — show top group totals + quick Add
-3. [PAY-3] Placeholder Apple Pay button: share amount & memo
+3. [SYS-3] App Intents: quick “Log expense” and “Show balances”
 
 ## In Progress
-(none)
+[PAY-3] Placeholder Apple Pay button: add a non-transactional Apple Pay-style button in Settle Up that opens the share sheet with amount and memo.
 
 ## Done
 [SHARE-2] Invite from Contacts: add members from the Contacts picker in Members; no server needed

@@ -10,6 +10,10 @@ struct SettleUpView: View {
     @State private var pendingTransfer: (from: Member, to: Member, amount: Decimal)?
     @State private var showComposer = false
     @State private var composeBody: String = ""
+    @State private var showApplePay = false
+    @State private var applePayTarget: (from: Member, to: Member, amount: Decimal)?
+    @State private var showShare = false
+    @State private var shareText: String = ""
 
     private var proposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -45,6 +49,11 @@ struct SettleUpView: View {
                                     pendingTransfer = item
                                     showScanner = true
                                 }.tint(.blue)
+
+                                Button("Apple Pay") {
+                                    applePayTarget = item
+                                    showApplePay = true
+                                }.tint(.black)
                             }
                             .contextMenu {
                                 Button("Copy Amount") {
@@ -55,6 +64,11 @@ struct SettleUpView: View {
                                 Button("Message Payer") {
                                     composeBody = "Hi \(item.from.name), please pay \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency)) for \(group.name)."
                                     showComposer = true
+                                }
+                                Button("Apple Pay (Share)") {
+                                    applePayTarget = item
+                                    prepareShare()
+                                    showShare = true
                                 }
                             }
                         }
@@ -127,12 +141,71 @@ struct SettleUpView: View {
                 showComposer = false
             }
         }
+        .sheet(isPresented: $showApplePay) {
+            if let target = applePayTarget {
+                ApplePaySheet(
+                    payer: target.from.name,
+                    payee: target.to.name,
+                    amountText: CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)
+                ) {
+                    prepareShare()
+                    showShare = true
+                    showApplePay = false
+                } onCancel: {
+                    showApplePay = false
+                }
+            }
+        }
+        .sheet(isPresented: $showShare) {
+            ShareSheet(activityItems: [shareText])
+        }
     }
 
     private func record() {
         DataRepository(context: modelContext, undoManager: undoManager).recordSettlements(for: group, transfers: proposals)
         Haptics.success()
         saved = true
+    }
+
+    private func prepareShare() {
+        guard let target = applePayTarget else { return }
+        shareText = "Pay \(CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)) to \(target.to.name) for \(group.name)."
+    }
+}
+
+// MARK: - Apple Pay Placeholder Sheet
+private struct ApplePaySheet: View {
+    let payer: String
+    let payee: String
+    let amountText: String
+    var onConfirm: () -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                Text("This is a placeholder Apple Pay flow.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text("\(payer) pays \(payee) \(amountText)")
+                    .font(.headline)
+                #if canImport(PassKit)
+                ApplePayButton(type: .plain, style: .black) {
+                    onConfirm()
+                }
+                .frame(height: 44)
+                #else
+                Button("Apple Pay") { onConfirm() }
+                    .buttonStyle(.borderedProminent)
+                #endif
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Apple Pay")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: onCancel) }
+            }
+        }
     }
 }
 
