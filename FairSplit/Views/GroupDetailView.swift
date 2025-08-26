@@ -707,6 +707,12 @@ extension GroupDetailView {
     @ViewBuilder
     private func makeList(proxy: ScrollViewProxy) -> some View {
         List {
+            // Spacer so content doesn't slide under the pinned segmented tabs
+            Color.clear
+                .frame(height: 52)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(Color.clear)
+
             archivedBanner()
             balancesRows().id(Anchor.balances)
             settleUpRows().id(Anchor.settle)
