@@ -40,7 +40,8 @@ struct GroupDetailView: View {
         List {
             if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
                 Section("Totals by Member") {
-                    ForEach(totalsByMember, id: \.(0).persistentModelID) { (member, amount) in
+                    ForEach(0..<totalsByMember.count, id: \.self) { i in
+                        let (member, amount) = totalsByMember[i]
                         HStack {
                             Text(member.name)
                             Spacer()
@@ -50,7 +51,8 @@ struct GroupDetailView: View {
                 }
                 if !totalsByCategory.isEmpty {
                     Section("Totals by Category") {
-                        ForEach(totalsByCategory, id: \.0.id) { (category, amount) in
+                        ForEach(0..<totalsByCategory.count, id: \.self) { i in
+                            let (category, amount) = totalsByCategory[i]
                             HStack {
                                 Text(category.displayName)
                                 Spacer()
