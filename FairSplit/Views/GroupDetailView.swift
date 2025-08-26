@@ -80,6 +80,12 @@ struct GroupDetailView: View {
     private var mainScrollContent: some View {
         ScrollViewReader { proxy in
             makeList(proxy: proxy)
+                .safeAreaInset(edge: .top, spacing: 0) { segmentedBar(proxy: proxy) }
+                .onChange(of: selectedDetailTab) { newVal in
+                    withAnimation(.easeInOut) {
+                        proxy.scrollTo(anchor(for: newVal), anchor: .top)
+                    }
+                }
         }
         .navigationTitle(group.name)
         .navigationBarTitleDisplayMode(.large)
@@ -701,31 +707,14 @@ extension GroupDetailView {
     @ViewBuilder
     private func makeList(proxy: ScrollViewProxy) -> some View {
         List {
-            // Local tabs just for this view
-            Section {
-                Picker("Tab", selection: $selectedDetailTab) {
-                    ForEach(DetailTab.allCases, id: \.self) { t in
-                        Text(t.title).tag(t)
-                    }
-                }
-                .pickerStyle(.segmented)
-            }
-
             archivedBanner()
-
-            switch selectedDetailTab {
-            case .expenses:
-                expensesSection()
-            case .recurring:
-                recurringSection()
-            case .categories:
-                categoriesOnlySection()
-            case .activity:
-                activitySection()
-            }
-
-            // Keep members quick link at bottom for convenience
-            membersRows()
+            balancesRows().id(Anchor.balances)
+            settleUpRows().id(Anchor.settle)
+            expensesSection().id(Anchor.expenses)
+            recurringSection().id(Anchor.recurring)
+            totalsSections().id(Anchor.totals)
+            activitySection().id(Anchor.activity)
+            membersRows().id(Anchor.members)
         }
     }
     // Simple inline header row for rows-only sections
@@ -870,6 +859,32 @@ extension GroupDetailView {
             .frame(width: 56, height: 56)
         }
         .accessibilityLabel("Add Expense")
+    }
+
+    // MARK: - Segmented Bar (pinned)
+    @ViewBuilder
+    private func segmentedBar(proxy: ScrollViewProxy) -> some View {
+        VStack {
+            Picker("Tab", selection: $selectedDetailTab) {
+                ForEach(DetailTab.allCases, id: \\ .self) { t in
+                    Text(t.title).tag(t)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .background(Color(.systemBackground))
+        .overlay(alignment: .bottom) { Divider() }
+    }
+
+    private func anchor(for tab: DetailTab) -> Anchor {
+        switch tab {
+        case .expenses: return .expenses
+        case .recurring: return .recurring
+        case .categories: return .totals
+        case .activity: return .activity
+        }
     }
 
 }
