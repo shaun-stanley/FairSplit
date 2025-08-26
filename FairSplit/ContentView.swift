@@ -16,6 +16,8 @@ struct ContentView: View {
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @State private var showQuickAdd = false
     @State private var quickAddGroup: Group?
+    @State private var showGroup = false
+    @State private var openGroup: Group?
 
     var body: some View {
         MainTabView()
@@ -34,6 +36,17 @@ struct ContentView: View {
                     quickAddGroup = group
                     showQuickAdd = true
                 }
+            case "group":
+                if let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                   let name = comps.queryItems?.first(where: { $0.name == "name" })?.value {
+                    if let group = groups.first(where: { $0.name.localizedCaseInsensitiveContains(name) }) {
+                        openGroup = group
+                        showGroup = true
+                    }
+                } else if let group = groups.first {
+                    openGroup = group
+                    showGroup = true
+                }
             default:
                 break
             }
@@ -49,6 +62,11 @@ struct ContentView: View {
                         quickAddGroup = nil
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showGroup) {
+            if let group = openGroup {
+                NavigationStack { GroupDetailView(group: group) }
             }
         }
     }
