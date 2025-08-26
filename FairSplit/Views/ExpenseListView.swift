@@ -26,7 +26,13 @@ struct ExpenseListView: View {
                             .cornerRadius(6)
                     }
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(expense.title)
+                        HStack(spacing: 6) {
+                            if let category = expense.category {
+                                Image(systemName: category.symbolName)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Text(expense.title)
+                        }
                             .font(.headline)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
