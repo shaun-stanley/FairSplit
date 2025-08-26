@@ -19,9 +19,10 @@
 3. [BUG-5] Fix any CI regressions on Charts or Archive
 
 ## In Progress
-[PAY-2] Quick actions: copy amount / compose iMessage to payer
+[UX-9] Balance row quick actions in Group Detail
 
 ## Done
+[PAY-2] Quick actions: copy amount and compose message from Settle Up proposals/history
 [UX-8] Itemized editor: delete rows and better default participants
 [CORE-16] Archive/close group: archived flag, read-only UI, list sections, un/archive toggle
 [CORE-15] Merge members: reassign expenses/shares/recurring/settlements; remove self-settlements; UI to merge
@@ -143,6 +144,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: PAY-2 — Quick actions to copy amount and compose an iMessage from Settle Up rows.
 - 2025-08-26: UX-8 — Itemized editor supports deleting rows and preselects participants for new items.
 - 2025-08-26: CORE-16 — Archive groups with read-only detail, list sections, and un/archive actions.
 - 2025-08-26: CORE-15 — Merge members with reassignment across expenses/shares/recurring/settlements and remove invalid self-settlements; UI from Members screen.

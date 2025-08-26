@@ -22,6 +22,8 @@ struct GroupDetailView: View {
     @State private var shareURL: URL?
     @State private var importError: String?
     @State private var showingAddRecurring = false
+    @State private var showComposer = false
+    @State private var composeBody: String = ""
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -192,6 +194,19 @@ struct GroupDetailView: View {
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("\(member.name), balance \(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))")
+                    .contextMenu {
+                        Button("Copy Amount") {
+                            let text = CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency)
+                            UIPasteboard.general.string = text
+                            Haptics.success()
+                        }
+                        if amount < 0 {
+                            Button("Message \(member.name)") {
+                                composeBody = "Hi \(member.name), you owe \(CurrencyFormatter.string(from: -amount, currencyCode: group.defaultCurrency)) for \(group.name)."
+                                showComposer = true
+                            }
+                        }
+                    }
                 }
             }
             .headerProminence(.increased)
@@ -400,6 +415,11 @@ struct GroupDetailView: View {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }
                     ToolbarItem(placement: .confirmationAction) { Button("Apply") { showingAmountFilter = false } }
                 }
+            }
+        }
+        .sheet(isPresented: $showComposer) {
+            MessageComposerView(bodyText: composeBody) {
+                showComposer = false
             }
         }
     }
