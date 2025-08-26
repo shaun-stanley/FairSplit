@@ -10,16 +10,16 @@
 ## Status
 - Build: ✅ runs on iOS Simulator
 - Persistence: ✅ SwiftData store with demo seed
-- Core features: Groups ☐  Expenses ☐  Balances ☐  Settle Up ✅
+- Core features: Groups ✅  Expenses ✅  Balances ✅  Settle Up ✅
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [DATA-2] iCloud sync via CloudKit (private database)
-2. [CORE-11] Direct (non-group) expenses between two people
-3. [SHARE-3] Deep links: open a specific group/expense via URL scheme
+1. [PAY-1] “Mark as paid” for settlements; optional receipt image
+2. [REPORTS-2] Charts and monthly summaries (by person/category/time)
+3. [CORE-14] Itemized bill split (per-item, tax/tip allocation)
 
 ## In Progress
-[SHARE-3] Deep links: open a specific group/expense via URL scheme
+[PAY-1] “Mark as paid” for settlements; optional receipt image
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -71,11 +71,15 @@
 ### Core Experience
  - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
+- [CORE-14] Itemized bill split (per-item, tax/tip allocation)
+- [CORE-15] Merge members (dedupe and reassign expenses)
+- [CORE-16] Archive/close group (read-only with summary)
 
 ### Money & Math
 - [MATH-3] Recurring expenses (monthly rent, subscriptions) with auto-add and pause
 - [MATH-4] Multi-currency per group with **manual FX rates** (safe, offline). Optional: remember last rate used
 - [MATH-5] Per-member totals and per-category totals in group
+- [MATH-6] Live FX rates (daily cached, offline fallback) for multi-currency
 
 ### Persistence & Sync
 - [DATA-1] SwiftData migration support (lightweight model versioning)
@@ -99,6 +103,7 @@
 - [SHARE-1] Share sheet: export a readable group summary (PDF/Markdown)
 - [SHARE-2] Invite link (local only for now): prefill members from Contacts; no server required
 - [SHARE-3] Deep links: open a specific group/expense via URL scheme
+- [CORE-12] Comments on expenses and a simple activity feed
 
 ### Payments (non-transactional first, user-controlled)
 - [PAY-1] “Mark as paid” Settlements; attach a receipt screenshot
@@ -111,6 +116,9 @@
 - [SYS-3] App Intents / Shortcuts: “Log expense”, “Show balances”, “Add member”
 - [SYS-4] Spotlight (Core Spotlight): index groups/expenses for system search
 - [SYS-5] Notifications: local reminders to settle or log recurring expense
+
+### Reports
+- [REPORTS-2] Charts and monthly summaries using Swift Charts (spend by person/category/time)
 
 ### Platforms
 - [PLAT-1] iPad split view & keyboard shortcuts
@@ -170,8 +178,5 @@
 - 2025-08-26: MATH-3 — Recurring expenses with add/pause/delete/run-now and auto-generate on launch.
 - 2025-08-26: CORE-11 — Direct expenses: contacts, balances per pair, recent list, add/edit/delete flows.
 
-
-[MATH-3] Recurring expenses (daily/weekly/monthly) with auto-add and pause
-[CORE-11] Direct (non-group) expenses between two people
 ## Vision
 A tiny, beautiful, Apple-grade Splitwise-style app for tracking shared expenses with clarity and grace.
