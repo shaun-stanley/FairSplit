@@ -37,6 +37,21 @@ struct GroupListView: View {
                 }
             }
         }
+        .overlay {
+            if filteredGroups.isEmpty {
+                ContentUnavailableView {
+                    Label("No Groups", systemImage: "person.3")
+                } description: {
+                    Text("Add a group to get started.")
+                } actions: {
+                    Button {
+                        showingAdd = true
+                    } label: {
+                        Label("Add Group", systemImage: "plus")
+                    }
+                }
+            }
+        }
         .searchable(text: $searchText)
         .navigationTitle("Groups")
         .toolbar {
