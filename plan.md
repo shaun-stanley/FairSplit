@@ -19,9 +19,10 @@
 3. [PRIV-1] App privacy lock (Face ID)
 
 ## In Progress
-[SYS-1] Widgets — show top group totals + quick Add
+(none)
 
 ## Done
+[SYS-1] Widgets: placeholder widget with quick Add deep link; opens Add Expense in most recent group
 [PAY-3] Placeholder Apple Pay: Apple Pay-style button in Settle Up opens share sheet with amount and optional memo
 [SHARE-2] Invite from Contacts: add members from the Contacts picker in Members; no server needed
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
@@ -151,6 +152,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: SYS-1 — Added Widget extension with static summary and a quick Add deep link that opens Add Expense in the most recent group.
 - 2025-08-26: PAY-3 — Added placeholder Apple Pay button in Settle Up that opens the share sheet with amount and optional memo.
 - 2025-08-26: SHARE-2 — Added Contacts picker to import members from the device address book.
 - 2025-08-26: CORE-12 — Added per-expense comments and a Recent Activity section in Group Detail.
