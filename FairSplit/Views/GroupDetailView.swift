@@ -25,6 +25,8 @@ struct GroupDetailView: View {
     @State private var showComposer = false
     @State private var composeBody: String = ""
     @State private var commentingExpense: Expense?
+    @State private var showingCurrencyPicker = false
+    @State private var newCurrencyCode: String = AppSettings.defaultCurrencyCode()
 
     private var settlementProposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -92,6 +94,12 @@ struct GroupDetailView: View {
                             showingExporter = true
                         }
                     }
+                    Section("Currency") {
+                        Button("Change Group Currency…") {
+                            newCurrencyCode = group.defaultCurrency
+                            showingCurrencyPicker = true
+                        }
+                    }
                     Section("Share") {
                         Button("Share Summary…") {
                             shareText = GroupSummaryExporter.markdown(for: group)
@@ -134,6 +142,34 @@ struct GroupDetailView: View {
 
         }
         .searchable(text: $searchText, prompt: "Search expenses")
+        .sheet(isPresented: $showingCurrencyPicker) {
+            NavigationStack {
+                Form {
+                    Picker("Currency", selection: $newCurrencyCode) {
+                        ForEach(AppSettings.currencyPresets, id: \.self) { code in
+                            HStack {
+                                Text(Locale.current.localizedString(forCurrencyCode: code) ?? code)
+                                Spacer()
+                                Text(code).foregroundStyle(.secondary)
+                            }.tag(code)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
+                }
+                .navigationTitle("Group Currency")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingCurrencyPicker = false } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            group.defaultCurrency = newCurrencyCode
+                            try? modelContext.save()
+                            showingCurrencyPicker = false
+                        }
+                        .disabled(newCurrencyCode.isEmpty || newCurrencyCode == group.defaultCurrency)
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $showingAddExpense) {
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in

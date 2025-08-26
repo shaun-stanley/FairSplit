@@ -7,6 +7,7 @@ import SwiftData
 struct ReportsView: View {
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @State private var selectedGroupID: PersistentIdentifier?
+    @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
 
     private var scopedGroups: [Group] {
         if let id = selectedGroupID, let g = groups.first(where: { $0.persistentModelID == id }) { return [g] }
@@ -39,6 +40,18 @@ struct ReportsView: View {
         }
     }
 
+    private var memberTotals: [(String, Decimal)] {
+        var map: [String: Decimal] = [:]
+        for g in scopedGroups {
+            let perMember = StatsCalculator.totalsByMember(for: g)
+            for m in g.members {
+                let name = m.name
+                map[name, default: 0] += perMember[m.persistentModelID] ?? 0
+            }
+        }
+        return map.sorted { $0.value > $1.value }
+    }
+
     private var monthlyTotals: [(StatsCalculator.YearMonth, Decimal)] {
         let totals = StatsCalculator.totalsByMonth(groups: scopedGroups)
         return totals.keys.sorted().map { ($0, totals[$0] ?? 0) }
@@ -64,7 +77,7 @@ struct ReportsView: View {
                     HStack {
                         Text("Total across groups")
                         Spacer()
-                        Text(CurrencyFormatter.string(from: overallTotal))
+                        Text(CurrencyFormatter.string(from: overallTotal, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
                             .fontWeight(.semibold)
                     }
                     HStack {
@@ -135,12 +148,27 @@ struct ReportsView: View {
                                     Text(cat.displayName)
                                 }
                                 Spacer(minLength: 8)
-                                Text(CurrencyFormatter.string(from: amount))
+                                Text(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.75)
                             }
                             .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("\(cat.displayName), total \(CurrencyFormatter.string(from: amount))")
+                            .accessibilityLabel("\(cat.displayName), total \(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))")
+                        }
+                    }
+                }
+
+                if !memberTotals.isEmpty {
+                    Section("Totals by Member") {
+                        ForEach(Array(memberTotals.enumerated()), id: \.offset) { _, item in
+                            let (name, amount) = item
+                            HStack {
+                                Text(name)
+                                Spacer()
+                                Text(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
+                            }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("\(name), total \(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))")
                         }
                     }
                 }
