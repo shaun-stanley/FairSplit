@@ -19,7 +19,7 @@
 3. [CORE-9] App theming: light/dark with accent color
 
 ## In Progress
-[MATH-5] Per-member totals and per-category totals in group
+[CORE-9] App theming: light/dark with accent color; respect system appearance
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -50,6 +50,7 @@
 [BUG-4] Groups not showing in simulator after creation — stabilized list identity, added empty state, defaulted to INR, added UI test
 [DATA-3] CSV export/import added in Group Detail (menu); unit tests exist
 [SHARE-1] Share sheet: export a readable group summary (Markdown and PDF)
+[MATH-5] Per-member totals and per-category totals in group
 
 
 ## Blocked
@@ -149,6 +150,7 @@
 - 2025-08-26: BUG-4 — Fixed groups not showing on simulator; stable List identity, default INR, and UI test added.
 - 2025-08-26: DATA-3 — CSV import/export added to Group detail menu.
 - 2025-08-26: SHARE-1 — Added group summary sharing (Markdown + PDF) from Group detail.
+- 2025-08-26: MATH-5 — Added totals by member and totals by category in Group detail.
 
 
 ## Vision
