@@ -7,7 +7,6 @@ struct GroupListView: View {
     @Environment(\.undoManager) private var undoManager
     @State private var searchText = ""
     @State private var showingAdd = false
-    @State private var showingSettings = false
 
     private var filteredGroups: [Group] {
         let filtered = groups.filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
@@ -57,10 +56,6 @@ struct GroupListView: View {
         .navigationTitle("Groups")
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                Button(action: { showingSettings = true }) {
-                    Image(systemName: "gearshape")
-                }
-                .accessibilityLabel("Settings")
                 Button(action: { showingAdd = true }) {
                     Image(systemName: "plus")
                 }
@@ -75,9 +70,6 @@ struct GroupListView: View {
                 }
                 searchText = ""
             }
-        }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
         }
     }
 }
