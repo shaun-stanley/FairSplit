@@ -19,7 +19,7 @@
 3. [UX-5] Pull-to-refresh (placeholder)
 
 ## In Progress
-[UX-3] SF Symbols for categories and actions
+[UX-2] Haptics on key actions (add expense, settle)
 
 ## Done
 [MVP-1] Added SwiftData and a demo group
@@ -57,6 +57,7 @@
 [UX-1] Dynamic Type audit; layouts for large sizes
 [A11Y-1] VoiceOver labels/traits for interactive elements
 [CORE-2] Group detail: sticky section headers (Expenses, Balances, Settle Up, Members)
+[UX-3] SF Symbols for categories and actions
 
 
 ## Blocked
@@ -163,6 +164,7 @@
 - 2025-08-26: UX-1 — Improved Dynamic Type: multiline titles/notes, content-first layouts, and readable trailing amounts.
 - 2025-08-26: A11Y-1 — Added VoiceOver labels and traits for rows and toolbar actions across Groups, Group Detail, Expense List, and Reports.
 - 2025-08-26: CORE-2 — Sticky section headers and grouped look in Group Detail.
+- 2025-08-26: UX-3 — Added SF Symbols for expense categories, balances (up/down arrows), and settle-up/report rows.
 
 
 ## Vision
