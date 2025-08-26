@@ -17,8 +17,7 @@ struct AddExpenseView: View {
     @State private var selected: Set<PersistentIdentifier>
     @State private var category: ExpenseCategory?
     @State private var note: String
-    @State private var expenseCurrency: String
-    @State private var fxRate: Double?
+    // Currency selection temporarily removed; we default to group currency (INR)
     @State private var receiptImageData: Data?
     @State private var showingScanner = false
 
@@ -28,16 +27,12 @@ struct AddExpenseView: View {
         self.expense = expense
         self.lastRates = lastRates
         self.onSave = onSave
-        let initialCurrency = expense?.currencyCode ?? groupCurrencyCode
-        let initialFX = expense?.fxRateToGroupCurrency ?? (initialCurrency != groupCurrencyCode ? lastRates[initialCurrency] : nil)
         _title = State(initialValue: expense?.title ?? "")
         _amount = State(initialValue: expense.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
         _payer = State(initialValue: expense?.payer)
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
         _category = State(initialValue: expense?.category)
         _note = State(initialValue: expense?.note ?? "")
-        _expenseCurrency = State(initialValue: initialCurrency)
-        _fxRate = State(initialValue: initialFX.map { Double(truncating: NSDecimalNumber(decimal: $0)) })
         _receiptImageData = State(initialValue: expense?.receiptImageData)
     }
 
@@ -45,7 +40,7 @@ struct AddExpenseView: View {
         Form {
             Section("Details") {
                 TextField("Title", text: $title)
-                TextField("Amount", value: $amount, format: .currency(code: expenseCurrency))
+                TextField("Amount", value: $amount, format: .currency(code: groupCurrencyCode))
                     .keyboardType(.decimalPad)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
@@ -59,17 +54,7 @@ struct AddExpenseView: View {
                 }
                 TextField("Note", text: $note)
             }
-            Section("Currency") {
-                Picker("Currency", selection: $expenseCurrency) {
-                    ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
-                        Text(code).tag(code)
-                    }
-                }
-                if expenseCurrency != groupCurrencyCode {
-                    TextField("Rate to \(groupCurrencyCode)", value: $fxRate, format: .number)
-                        .keyboardType(.decimalPad)
-                }
-            }
+            // Currency selection removed for now; defaulting to group currency
             Section("Receipt") {
                 if let data = receiptImageData, let uiImage = UIImage(data: data) {
                     HStack(alignment: .center) {
@@ -122,15 +107,7 @@ struct AddExpenseView: View {
                 self.showingScanner = false
             }
         }
-        .onChange(of: expenseCurrency) { new in
-            if new == groupCurrencyCode {
-                fxRate = nil
-            } else if let rate = lastRates[new] {
-                fxRate = Double(truncating: NSDecimalNumber(decimal: rate))
-            } else {
-                fxRate = nil
-            }
-        }
+        // Currency change handler removed
         .onAppear {
             if expense == nil {
                 if payer == nil { payer = members.first }
@@ -151,15 +128,8 @@ struct AddExpenseView: View {
         let amount = Decimal(amt)
         let included = members.filter { selected.contains($0.persistentModelID) }
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        let rateDecimal: Decimal?
-        if expenseCurrency == groupCurrencyCode {
-            rateDecimal = nil
-        } else if let fxRate {
-            rateDecimal = Decimal(fxRate)
-        } else {
-            rateDecimal = nil
-        }
-        onSave(title, amount, expenseCurrency, rateDecimal, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
+        let rateDecimal: Decimal? = nil
+        onSave(title, amount, groupCurrencyCode, rateDecimal, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
         dismiss()
     }
 }

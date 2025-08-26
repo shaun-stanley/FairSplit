@@ -16,7 +16,7 @@ final class DataRepository {
             let alex = Member(name: "Alex")
             let sam = Member(name: "Sam")
             let kai = Member(name: "Kai")
-            let code = Locale.current.currency?.identifier ?? "USD"
+            let code = "INR"
             let group = Group(name: "Sample Trip", defaultCurrency: code, members: [alex, sam, kai])
             let e1 = Expense(title: "Groceries", amount: 36.50, currencyCode: code, payer: alex, participants: [alex, sam, kai], category: .food, note: "Milk & eggs")
             group.expenses.append(e1)

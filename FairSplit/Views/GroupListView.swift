@@ -48,10 +48,10 @@ struct GroupListView: View {
             }
         }
         .sheet(isPresented: $showingAdd) {
-            AddGroupView { name, currency in
+            AddGroupView { name in
                 withAnimation {
                     DataRepository(context: modelContext, undoManager: undoManager)
-                        .addGroup(name: name, defaultCurrency: currency)
+                        .addGroup(name: name, defaultCurrency: "INR")
                 }
                 searchText = ""
             }

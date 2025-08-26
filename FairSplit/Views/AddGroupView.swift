@@ -2,15 +2,13 @@ import SwiftUI
 
 struct AddGroupView: View {
     @State private var name = ""
-    @State private var currencyCode = Locale.current.currency?.identifier ?? "USD"
-    var onSave: (_ name: String, _ currencyCode: String) -> Void
+    var onSave: (_ name: String) -> Void
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             Form {
                 TextField("Name", text: $name)
-                TextField("Currency", text: $currencyCode)
             }
             .navigationTitle("New Group")
             .toolbar {
@@ -19,7 +17,7 @@ struct AddGroupView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(name, currencyCode)
+                        onSave(name)
                         dismiss()
                     }
                     .disabled(name.isEmpty)
@@ -30,5 +28,5 @@ struct AddGroupView: View {
 }
 
 #Preview {
-    AddGroupView { _, _ in }
+    AddGroupView { _ in }
 }
