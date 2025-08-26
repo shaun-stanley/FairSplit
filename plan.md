@@ -19,9 +19,10 @@
 3. [SYS-3] App Intents: quick “Log expense” and “Show balances”
 
 ## In Progress
-[PAY-3] Placeholder Apple Pay button: add a non-transactional Apple Pay-style button in Settle Up that opens the share sheet with amount and memo.
+[SYS-1] Widgets — show top group totals + quick Add
 
 ## Done
+[PAY-3] Placeholder Apple Pay: Apple Pay-style button in Settle Up opens share sheet with amount and optional memo
 [SHARE-2] Invite from Contacts: add members from the Contacts picker in Members; no server needed
 [CORE-12] Comments on expenses + simple activity feed: per-expense threads and recent activity section
 [DATA-2] iCloud sync toggle added in Settings; keeps local-only for now until entitlements/CI enable CloudKit
@@ -150,6 +151,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: PAY-3 — Added placeholder Apple Pay button in Settle Up that opens the share sheet with amount and optional memo.
 - 2025-08-26: SHARE-2 — Added Contacts picker to import members from the device address book.
 - 2025-08-26: CORE-12 — Added per-expense comments and a Recent Activity section in Group Detail.
 - 2025-08-26: DATA-2 — Added iCloud Sync toggle in Settings with local fallback; CloudKit wiring to follow once entitlements available.
