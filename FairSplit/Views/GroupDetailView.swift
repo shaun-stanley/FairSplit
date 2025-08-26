@@ -74,8 +74,18 @@ struct GroupDetailView: View {
                 membersSection().id(Anchor.members)
             }
             .safeAreaInset(edge: .top) { pillBar(proxy: proxy) }
+            .onAppear {
+                // Restore last selected section
+                if let saved = UserDefaults.standard.string(forKey: lastSectionKey()), let a = Anchor(rawValue: saved) {
+                    selectedAnchor = a
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.easeInOut) { proxy.scrollTo(a, anchor: .top) }
+                    }
+                }
+            }
         }
         .navigationTitle(group.name)
+        .navigationBarTitleDisplayMode(.large)
         .listStyle(.insetGrouped)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
@@ -83,19 +93,19 @@ struct GroupDetailView: View {
                     .accessibilityLabel("Add Expense")
                     .disabled(group.isArchived)
                     #if canImport(TipKit)
-                    .popoverTip(Tips.addExpense)
+                    .popoverTip(AppTips.addExpense)
                     #endif
                 Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
                     .accessibilityLabel("Add Itemized Expense")
                     .disabled(group.isArchived)
                     #if canImport(TipKit)
-                    .popoverTip(Tips.addItemized)
+                    .popoverTip(AppTips.addItemized)
                     #endif
                 Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
                     .accessibilityLabel("Add Recurring Expense")
                     .disabled(group.isArchived)
                     #if canImport(TipKit)
-                    .popoverTip(Tips.addRecurring)
+                    .popoverTip(AppTips.addRecurring)
                     #endif
                 Menu {
                     Section("Members") {
@@ -169,7 +179,7 @@ struct GroupDetailView: View {
                         .accessibilityLabel("Filters and actions")
                 }
                 #if canImport(TipKit)
-                .popoverTip(Tips.filters)
+                .popoverTip(AppTips.filters)
                 #endif
             }
 
@@ -591,7 +601,7 @@ struct GroupDetailView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("Open Settle Up")
                     #if canImport(TipKit)
-                    .popoverTip(Tips.settleUp)
+                    .popoverTip(AppTips.settleUp)
                     #endif
                 } else {
                     Text("Unavailable in archived groups")
@@ -664,6 +674,9 @@ extension GroupDetailView {
                             proxy.scrollTo(item.anchor, anchor: .top)
                             selectedAnchor = item.anchor
                         }
+                        Haptics.impact(.light)
+                        // Persist selection
+                        if let sel = selectedAnchor { UserDefaults.standard.set(sel.rawValue, forKey: lastSectionKey()) }
                     } label: {
                         Text(item.title)
                             .font(.subheadline)
@@ -680,8 +693,12 @@ extension GroupDetailView {
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
-        .background(.ultraThinMaterial)
+        .background(.bar)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+    }
+
+    private func lastSectionKey() -> String {
+        "last_section_\(String(describing: group.persistentModelID))"
     }
 }
 

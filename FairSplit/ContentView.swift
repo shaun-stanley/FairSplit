@@ -38,7 +38,7 @@ struct ContentView: View {
             // Seed widget data (if App Group is enabled)
             WidgetDataWriter.updateTopGroupSummary(groups: groups)
             // Configure coach marks
-            Tips.configure()
+            AppTips.configure()
         }
         .onChange(of: groups) { _, newValue in
             WidgetDataWriter.updateTopGroupSummary(groups: newValue)

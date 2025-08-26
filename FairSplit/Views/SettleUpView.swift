@@ -117,7 +117,7 @@ struct SettleUpView: View {
                 Button("Record Settlement", action: record)
                     .disabled(proposals.isEmpty)
                     #if canImport(TipKit)
-                    .popoverTip(Tips.recordSettlement)
+                    .popoverTip(AppTips.recordSettlement)
                     #endif
             }
 

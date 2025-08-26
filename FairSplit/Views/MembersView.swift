@@ -50,7 +50,7 @@ struct MembersView: View {
                 }
                 .accessibilityLabel("Add Member")
                 #if canImport(TipKit)
-                .popoverTip(Tips.addMember)
+                .popoverTip(AppTips.addMember)
                 #endif
             }
         }

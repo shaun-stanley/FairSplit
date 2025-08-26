@@ -72,7 +72,7 @@ struct ReportsView: View {
                         }
                         .pickerStyle(.navigationLink)
                         #if canImport(TipKit)
-                        .popoverTip(Tips.filters)
+                        .popoverTip(AppTips.filters)
                         #endif
                     }
                 }

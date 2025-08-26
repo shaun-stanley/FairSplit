@@ -63,7 +63,7 @@ struct GroupListView: View {
                 }
                 .accessibilityLabel("Add Group")
                 #if canImport(TipKit)
-                .popoverTip(Tips.addGroup)
+                .popoverTip(AppTips.addGroup)
                 #endif
             }
         }

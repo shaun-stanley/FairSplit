@@ -11,7 +11,7 @@ struct AddExpenseTip: Tip {
     var image: Image? { Image(systemName: "plus.circle") }
 }
 
-enum Tips {
+enum AppTips {
     @available(iOS 17.0, *)
     static let addExpense = AddExpenseTip()
     @available(iOS 17.0, *)
