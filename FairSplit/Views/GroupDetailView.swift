@@ -191,7 +191,7 @@ struct GroupDetailView: View {
             .headerProminence(.increased)
         }
         .navigationTitle(group.name)
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
