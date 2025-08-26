@@ -14,14 +14,15 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PAY-1] “Mark as paid” for settlements; optional receipt image
-2. [REPORTS-2] Charts and monthly summaries (by person/category/time)
-3. [CORE-14] Itemized bill split (per-item, tax/tip allocation)
+1. [CORE-16] Archive/close group (read-only with summary)
+2. [PAY-2] Quick actions: copy amount / compose iMessage to payer
+3. [UX-8] Itemized editor polish: delete item row, better defaults
 
 ## In Progress
-[CORE-14] Itemized bill split (per-item, tax/tip allocation)
+[CORE-15] Merge members (dedupe and reassign expenses)
 
 ## Done
+[CORE-15] Merge members: reassign expenses/shares/recurring/settlements; remove self-settlements; UI to merge
 [REPORTS-2] Charts and monthly summaries: category bar chart, monthly trend line
 [PAY-1] Marked settlements as paid with optional receipt image; swipe actions in Settle Up
 [MVP-1] Added SwiftData and a demo group
@@ -140,6 +141,7 @@
 ---
 
 ## Changelog
+- 2025-08-26: CORE-15 — Merge members with reassignment across expenses/shares/recurring/settlements and remove invalid self-settlements; UI from Members screen.
 - 2025-08-26: REPORTS-2 — Added category bar chart and monthly trend line in Reports; monthly totals in StatsCalculator.
 - 2025-08-26: PAY-1 — Mark settlements as paid with optional receipt; swipe actions and scanner from Settle Up.
 - 2025-08-24: MVP-1 — Added SwiftData persistence and seeded a demo group (Alex, Sam, Kai) on first launch.

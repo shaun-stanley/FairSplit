@@ -40,6 +40,16 @@ struct GroupDetailView: View {
 
     var body: some View {
         List {
+            if group.isArchived {
+                Section {
+                    HStack(spacing: 8) {
+                        Image(systemName: "archivebox")
+                            .foregroundStyle(.secondary)
+                        Text("This group is archived. Data is read-only.")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
             if !totalsByMember.isEmpty || !totalsByCategory.isEmpty {
                 Section("Totals by Member") {
                     ForEach(0..<totalsByMember.count, id: \.self) { i in
@@ -141,18 +151,22 @@ struct GroupDetailView: View {
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(expenseAccessibilityLabel(expense))
-                    .swipeActions {
-                        Button("Edit") { editingExpense = expense }.tint(.blue)
-                        Button("Delete", role: .destructive) {
-                            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                            Haptics.success()
+                    .swipeActions(allowFullSwipe: false) {
+                        if !group.isArchived {
+                            Button("Edit") { editingExpense = expense }.tint(.blue)
+                            Button("Delete", role: .destructive) {
+                                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                                Haptics.success()
+                            }
                         }
                     }
                     .contextMenu {
-                        Button("Edit") { editingExpense = expense }
-                        Button("Delete", role: .destructive) {
-                            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                            Haptics.success()
+                        if !group.isArchived {
+                            Button("Edit") { editingExpense = expense }
+                            Button("Delete", role: .destructive) {
+                                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                                Haptics.success()
+                            }
                         }
                     }
                 }
@@ -205,20 +219,26 @@ struct GroupDetailView: View {
                 HStack {
                     Text("Settle Up")
                     Spacer()
-                    NavigationLink {
-                        SettleUpView(group: group)
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text("Settle Up")
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                    if !group.isArchived {
+                        NavigationLink {
+                            SettleUpView(group: group)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("Settle Up")
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         }
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Open Settle Up")
+                    } else {
+                        Text("Unavailable in archived groups")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Open Settle Up")
                 }
             }
             .headerProminence(.increased)
@@ -240,10 +260,13 @@ struct GroupDetailView: View {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     .accessibilityLabel("Add Expense")
+                    .disabled(group.isArchived)
                 Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
                     .accessibilityLabel("Add Itemized Expense")
+                    .disabled(group.isArchived)
                 Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
                     .accessibilityLabel("Add Recurring Expense")
+                    .disabled(group.isArchived)
                 Menu {
                     Section("Members") {
                         ForEach(group.members, id: \.persistentModelID) { m in
@@ -281,6 +304,17 @@ struct GroupDetailView: View {
                             if let url = try? TempFileWriter.writeTemporary(data: pdf, fileName: group.name.replacingOccurrences(of: " ", with: "-"), fileExtension: "pdf") {
                                 shareURL = url
                                 showingShare = true
+                            }
+                        }
+                    }
+                    Section("Group") {
+                        if group.isArchived {
+                            Button("Unarchive Group") {
+                                DataRepository(context: modelContext, undoManager: undoManager).setArchived(false, for: group)
+                            }
+                        } else {
+                            Button("Archive Group") {
+                                DataRepository(context: modelContext, undoManager: undoManager).setArchived(true, for: group)
                             }
                         }
                     }

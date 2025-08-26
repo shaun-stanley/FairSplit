@@ -37,6 +37,18 @@ final class DataRepository {
         }
     }
 
+    func setArchived(_ archived: Bool, for group: Group) {
+        group.isArchived = archived
+        group.archivedAt = archived ? .now : nil
+        try? context.save()
+        if let undo = undoManager {
+            undo.registerUndo(withTarget: self) { repo in
+                repo.setArchived(!archived, for: group)
+            }
+            undo.setActionName(archived ? "Archive Group" : "Unarchive Group")
+        }
+    }
+
     func delete(groups: [Group]) {
         let removed = groups
         for g in groups { context.delete(g) }

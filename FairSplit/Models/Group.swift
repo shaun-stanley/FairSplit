@@ -11,6 +11,8 @@ final class Group {
     @Relationship(deleteRule: .cascade) var settlements: [Settlement]
     @Relationship(deleteRule: .cascade) var recurring: [RecurringExpense] = []
     var createdAt: Date
+    var isArchived: Bool = false
+    var archivedAt: Date?
 
     init(name: String, defaultCurrency: String, members: [Member] = [], expenses: [Expense] = [], settlements: [Settlement] = [], createdAt: Date = .now) {
         self.name = name
@@ -27,7 +29,8 @@ extension Group {
     var lastActivity: Date {
         let expenseDate = expenses.map(\.date).max() ?? .distantPast
         let settlementDate = settlements.map(\.date).max() ?? .distantPast
-        return max(createdAt, max(expenseDate, settlementDate))
+        let archived = archivedAt ?? .distantPast
+        return max(createdAt, max(expenseDate, max(settlementDate, archived)))
     }
 
     /// Net balance for a member: positive means they are owed money.
