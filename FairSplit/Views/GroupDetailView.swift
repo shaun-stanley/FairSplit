@@ -94,39 +94,24 @@ struct GroupDetailView: View {
     private var searchableWithToolbar: some View {
         mainScrollContent
             .toolbar { toolbarContent }
+            .toolbarTitleMenu { titleMenuContent }
             .searchable(text: $searchText, prompt: "Search expenses")
     }
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            Picker("Tab", selection: $selectedDetailTab) {
-                ForEach(DetailTab.allCases, id: \.self) { t in
-                    Text(t.title).tag(t)
-                }
-            }
-            .pickerStyle(.segmented)
-            .frame(maxWidth: 360)
-        }
         ToolbarItemGroup(placement: .primaryAction) {
-            Button { showingAddExpense = true } label: { Image(systemName: "plus") }
-                .accessibilityLabel("Add Expense")
-                .disabled(group.isArchived)
-                #if canImport(TipKit)
-                .popoverTip(AppTips.addExpense)
-                #endif
-            Button { showingAddItemized = true } label: { Image(systemName: "list.bullet.rectangle.portrait") }
-                .accessibilityLabel("Add Itemized Expense")
-                .disabled(group.isArchived)
-                #if canImport(TipKit)
-                .popoverTip(AppTips.addItemized)
-                #endif
-            Button { showingAddRecurring = true } label: { Image(systemName: "arrow.triangle.2.circlepath") }
-                .accessibilityLabel("Add Recurring Expense")
-                .disabled(group.isArchived)
-                #if canImport(TipKit)
-                .popoverTip(AppTips.addRecurring)
-                #endif
+            Menu {
+                Button("Expense", systemImage: "plus") { showingAddExpense = true }
+                Button("Itemized", systemImage: "list.bullet.rectangle.portrait") { showingAddItemized = true }
+                Button("Recurring", systemImage: "arrow.triangle.2.circlepath") { showingAddRecurring = true }
+            } label: {
+                Image(systemName: "plus")
+            }
+            .disabled(group.isArchived)
+            #if canImport(TipKit)
+            .popoverTip(AppTips.addExpense)
+            #endif
             Menu {
                 Section("Members") {
                     ForEach(group.members, id: \.persistentModelID) { m in
@@ -195,13 +180,24 @@ struct GroupDetailView: View {
                     }
                 }
             } label: {
-                Image(systemName: "line.3.horizontal.decrease.circle")
-                    .accessibilityLabel("Filters and actions")
+                Image(systemName: "ellipsis.circle")
+                    .accessibilityLabel("More actions")
             }
             #if canImport(TipKit)
             .popoverTip(AppTips.filters)
             #endif
         }
+    }
+
+    // Title menu for section navigation (compact-friendly)
+    @ViewBuilder
+    private var titleMenuContent: some View {
+        Label("Sections", systemImage: "rectangle.3.group")
+        Divider()
+        Button("Expenses", systemImage: "list.bullet") { selectedDetailTab = .expenses }
+        Button("Recurring", systemImage: "arrow.triangle.2.circlepath") { selectedDetailTab = .recurring }
+        Button("Categories", systemImage: "chart.pie") { selectedDetailTab = .categories }
+        Button("Activity", systemImage: "clock.arrow.circlepath") { selectedDetailTab = .activity }
     }
 
     // Attach all sheets/alerts/exporters in a separate function to reduce body complexity

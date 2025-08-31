@@ -22,6 +22,7 @@
 [L10N-2] Indian numbering format (₹1,23,456)
 
 ## Done
+[UX-32] Group Detail navigation: replaced cramped nav-bar segmented control with a title menu for section jumps; consolidated trailing items into an Add menu and a single More menu to prevent overflow on compact widths. Note: follows Apple’s HIG for Navigation Bars and uses SwiftUI toolbarTitleMenu.
 [UX-29] Spacing and hierarchy: consistent secondary text and truncation across lists; Dynamic Type friendly
 [UX-28] Expense row: comment count inline; removed bordered button
 [UX-27] Group Detail: moved segmented tabs into nav bar control; scroll-to-section preserved
