@@ -14,11 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [L10N-2] Indian numbering format (₹1,23,456)
-2. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
+1. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
+2. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
+3. [UX-31] Reduce Motion polish: smooth/disabled animations respecting accessibility settings
 
 ## In Progress
-
+[L10N-2] Indian numbering format (₹1,23,456)
 
 ## Done
 [UX-29] Spacing and hierarchy: consistent secondary text and truncation across lists; Dynamic Type friendly

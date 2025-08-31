@@ -104,12 +104,12 @@ private extension GroupListView {
             if let me = group.members.first {
                 let balance = group.balance(for: me)
                 if balance > 0 {
-                    Text("You're owed \(balance.formatted(.currency(code: group.defaultCurrency)))")
+                    Text("You're owed \(CurrencyFormatter.string(from: balance, currencyCode: group.defaultCurrency))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 } else if balance < 0 {
-                    Text("You owe \((-balance).formatted(.currency(code: group.defaultCurrency)))")
+                    Text("You owe \(CurrencyFormatter.string(from: -balance, currencyCode: group.defaultCurrency))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
