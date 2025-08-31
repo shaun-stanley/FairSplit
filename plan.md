@@ -19,9 +19,10 @@
 3. [UX-31] Reduce Motion polish: smooth/disabled animations respecting accessibility settings
 
 ## In Progress
-[UX-33] Groups: inline Add button in top bar (reduce top padding to match iOS 26)
+
 
 ## Done
+[UX-33] Groups: large title with inline trailing Add button; matches Apple’s large-title pattern in iOS 26
 [UX-32] Group Detail navigation: replaced cramped nav-bar segmented control with a title menu for section jumps; consolidated trailing items into an Add menu and a single More menu to prevent overflow on compact widths. Note: follows Apple’s HIG for Navigation Bars and uses SwiftUI toolbarTitleMenu.
 [UX-29] Spacing and hierarchy: consistent secondary text and truncation across lists; Dynamic Type friendly
 [UX-28] Expense row: comment count inline; removed bordered button
