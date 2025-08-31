@@ -71,8 +71,9 @@ struct GroupListView: View {
         }
         .searchable(text: $searchText)
         .navigationTitle("Groups")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button(action: { showingAdd = true }) {
                     Image(systemName: "plus")
                 }

@@ -19,7 +19,7 @@
 3. [UX-31] Reduce Motion polish: smooth/disabled animations respecting accessibility settings
 
 ## In Progress
-[L10N-2] Indian numbering format (₹1,23,456)
+[UX-33] Groups: inline Add button in top bar (reduce top padding to match iOS 26)
 
 ## Done
 [UX-32] Group Detail navigation: replaced cramped nav-bar segmented control with a title menu for section jumps; consolidated trailing items into an Add menu and a single More menu to prevent overflow on compact widths. Note: follows Apple’s HIG for Navigation Bars and uses SwiftUI toolbarTitleMenu.
