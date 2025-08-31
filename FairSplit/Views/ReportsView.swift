@@ -8,6 +8,12 @@ struct ReportsView: View {
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @State private var selectedGroupID: PersistentIdentifier?
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
+    private var groupSelection: Binding<PersistentIdentifier?> {
+        Binding<PersistentIdentifier?>(
+            get: { selectedGroupID },
+            set: { selectedGroupID = $0 }
+        )
+    }
 
     private var scopedGroups: [Group] {
         if let id = selectedGroupID, let g = groups.first(where: { $0.persistentModelID == id }) { return [g] }
@@ -70,9 +76,7 @@ struct ReportsView: View {
             List {
                 if !groups.isEmpty {
                     Section("Scope") {
-                        Picker("Group", selection: Binding(get: {
-                            selectedGroupID
-                        }, set: { selectedGroupID = $0 })) {
+                        Picker("Group", selection: groupSelection) {
                             Text("All Groups").tag(nil as PersistentIdentifier?)
                             ForEach(groups, id: \.persistentModelID) { g in
                                 Text(g.name).tag(g.persistentModelID as PersistentIdentifier?)
