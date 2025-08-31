@@ -26,6 +26,13 @@ struct GroupListView: View {
                         NavigationLink(destination: GroupDetailView(group: group)) {
                             groupRow(group)
                         }
+                        .swipeActions(allowsFullSwipe: true) {
+                            Button("Archive") {
+                                DataRepository(context: modelContext, undoManager: undoManager)
+                                    .setArchived(true, for: group)
+                                Haptics.success()
+                            }.tint(.orange)
+                        }
                     }
                 }
             }
@@ -34,6 +41,14 @@ struct GroupListView: View {
                     ForEach(archivedGroups, id: \.persistentModelID) { group in
                         NavigationLink(destination: GroupDetailView(group: group)) {
                             groupRow(group)
+                        }
+                        .badge("Archived")
+                        .swipeActions(allowsFullSwipe: true) {
+                            Button("Unarchive") {
+                                DataRepository(context: modelContext, undoManager: undoManager)
+                                    .setArchived(false, for: group)
+                                Haptics.success()
+                            }.tint(.green)
                         }
                     }
                 }
@@ -83,19 +98,9 @@ private extension GroupListView {
     @ViewBuilder
     func groupRow(_ group: Group) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
-                Text(group.name)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                if group.isArchived {
-                    Text("ARCHIVED")
-                        .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.secondary.opacity(0.15))
-                        .clipShape(Capsule())
-                }
-            }
+            Text(group.name)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
             if let me = group.members.first {
                 let balance = group.balance(for: me)
                 if balance > 0 {

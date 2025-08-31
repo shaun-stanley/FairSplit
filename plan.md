@@ -14,11 +14,11 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
-2. [L10N-2] Indian numbering format (₹1,23,456)
+1. [L10N-2] Indian numbering format (₹1,23,456)
+2. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
 
 ## In Progress
-[OPS-1] Diagnostics toggle: structured os_log (no PII)
+[UX-26] iOS 26 UI polish: use system badge for Archived, add swipe to archive/unarchive, remove non-standard bottom bar button
 
 ## Done
 [BUG-6] Group Detail: converted row headers to Section headers; pill bar now uses material blur with bottom divider and avoids overlap

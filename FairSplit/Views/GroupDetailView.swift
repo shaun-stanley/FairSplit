@@ -230,24 +230,6 @@ struct GroupDetailView: View {
                             Button("Save") { confirmCurrencyChange = true }
                                 .disabled(newCurrencyCode.isEmpty || newCurrencyCode == group.defaultCurrency)
                         }
-                        ToolbarItem(placement: .bottomBar) {
-                            HStack {
-                                Spacer()
-                                if !group.isArchived {
-                                    Button {
-                                        Haptics.impact(.light)
-                                        showingAddExpense = true
-                                    } label: {
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 18, weight: .bold))
-                                            .padding(12)
-                                            .background(.ultraThinMaterial, in: Circle())
-                                    }
-                                    .accessibilityLabel("Add Expense")
-                                }
-                                Spacer()
-                            }
-                        }
                     }
                     .alert("Change Group Currency?", isPresented: $confirmCurrencyChange) {
                         Button("Cancel", role: .cancel) {}
