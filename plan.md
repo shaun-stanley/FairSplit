@@ -14,14 +14,16 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-37] Reports: Apple-like chart polish (rounded bars, scrubbing, haptics, animations)
-2. [UX-34] Large title inline with trailing buttons; tighten header spacing on Groups
-3. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
+1. [UX-34] Large title inline with trailing buttons; tighten header spacing on Groups
+2. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
+3. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
 
 ## In Progress
+[DATA-5] Seed: change sample group currency to INR
 
 
 ## Done
+[DATA-5] Seed: sample group default currency set to INR for all seeded expenses; maintains FX mapping for USD/EUR examples
 [UX-37] Reports: Apple-like chart polish with rounded bars, interactive scrubbing + callouts + haptics, smoother animations, and softer gridlines
 [BUG-11] Reports: simplified Monthly Trend chart to avoid type-check timeout; precomputed values and extracted gradient with smoothed area+line and average rule
 [UX-36] Reports: elevated charts with material plot backgrounds, sorted category bars with currency annotations, and smoothed area+line monthly trend with average rule line
@@ -176,6 +178,7 @@
 ---
 
 ## Changelog
+- 2025-08-31: DATA-5 — Sample group seed now uses INR as the default currency; seeded local expenses use INR, with USD examples converted via static demo FX to INR.
 - 2025-08-31: UX-37 — Polished Reports charts: rounded category bars with spacing, material plot backgrounds, interactive scrubbing with callouts and haptics, smoothed area+line trend, and softened grids/labels.
 - 2025-08-31: BUG-11 — Simplified Monthly Trend chart to fix type-check timeout; precomputed values, extracted gradient, added smoothed area+line and kept average rule.
 - 2025-08-31: DATA-4 — Seeded a large demo dataset: 18 months of expenses across categories, occasional foreign-currency items with manual FX, comments, a settlement, and a weekly recurring expense.

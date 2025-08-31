@@ -16,7 +16,8 @@ final class DataRepository {
             let alex = Member(name: "Alex")
             let sam = Member(name: "Sam")
             let kai = Member(name: "Kai")
-            let code = AppSettings.defaultCurrencyCode()
+            // Use INR for the sample group currency regardless of app default
+            let code = "INR"
             let group = Group(name: "Sample Trip", defaultCurrency: code, members: [alex, sam, kai])
 
             // Helper to pick FX rate into the group's currency for a few common codes (static demo values)
