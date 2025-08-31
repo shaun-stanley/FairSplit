@@ -19,9 +19,10 @@
 3. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
 
 ## In Progress
-[UX-34] Large title inline with trailing buttons; tighten header spacing on Groups
+[UX-35] Title display: add inline-large title compatibility shim and adopt in Groups
 
 ## Done
+[UX-34] Groups: large title inline with trailing actions; tighter header spacing
 [UX-33] Groups: large title with inline trailing Add button; matches Apple’s large-title pattern in iOS 26
 [UX-32] Group Detail navigation: replaced cramped nav-bar segmented control with a title menu for section jumps; consolidated trailing items into an Add menu and a single More menu to prevent overflow on compact widths. Note: follows Apple’s HIG for Navigation Bars and uses SwiftUI toolbarTitleMenu.
 [UX-29] Spacing and hierarchy: consistent secondary text and truncation across lists; Dynamic Type friendly
