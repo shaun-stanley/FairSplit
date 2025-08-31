@@ -56,6 +56,14 @@ struct ReportsView: View {
         let totals = StatsCalculator.totalsByMonth(groups: scopedGroups)
         return totals.keys.sorted().map { ($0, totals[$0] ?? 0) }
     }
+    private var sortedCategoryTotals: [(ExpenseCategory, Decimal)] {
+        categoryTotals.sorted { $0.1 > $1.1 }
+    }
+    private var chartCurrencyCode: String { scopedGroups.first?.defaultCurrency ?? defaultCurrency }
+    private var averagePerMonth: Decimal {
+        let months = max(1, Set(monthlyTotals.map { $0.0 }).count)
+        return overallTotal / Decimal(months)
+    }
 
     var body: some View {
         NavigationStack {
@@ -131,17 +139,35 @@ struct ReportsView: View {
                     Section("Totals by Category") {
                         // Chart (when available)
                         #if canImport(Charts)
-                        Chart(categoryTotals, id: \.0) { (cat, amount) in
+                        Chart(sortedCategoryTotals, id: \.0) { (cat, amount) in
                             BarMark(
                                 x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
-                                y: .value("Category", cat.displayName)
+                                y: .value("Category", cat.displayName),
+                                width: .automatic
                             )
+                            .annotation(position: .trailing, alignment: .center) {
+                                Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .foregroundStyle(by: .value("Category", cat.displayName))
                         }
-                        .frame(height: 220)
+                        .chartForegroundStyleScale([
+                            "Food": .green,
+                            "Travel": .blue,
+                            "Lodging": .purple,
+                            "Other": .gray
+                        ])
+                        .chartLegend(.hidden)
+                        .chartYAxis(.hidden)
+                        .chartPlotStyle { plot in
+                            plot.background(.ultraThinMaterial).cornerRadius(8)
+                        }
+                        .frame(height: max(160, CGFloat(sortedCategoryTotals.count) * 32 + 40))
                         .accessibilityLabel("Category totals chart")
                         #endif
                         // List (readable values)
-                        ForEach(Array(categoryTotals.enumerated()), id: \.offset) { _, item in
+                        ForEach(Array(sortedCategoryTotals.enumerated()), id: \.offset) { _, item in
                             let (cat, amount) = item
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
                                 HStack(spacing: 6) {
@@ -179,17 +205,44 @@ struct ReportsView: View {
                 if !monthlyTotals.isEmpty {
                     Section("Monthly Trend") {
                         #if canImport(Charts)
-                        Chart(monthlyTotals, id: \.0) { (ym, amount) in
-                            LineMark(
-                                x: .value("Month", ym.label),
-                                y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
-                            )
-                            PointMark(
-                                x: .value("Month", ym.label),
-                                y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
-                            )
+                        Chart {
+                            ForEach(monthlyTotals, id: \.0) { (ym, amount) in
+                                AreaMark(
+                                    x: .value("Month", ym.label),
+                                    yStart: .value("Min", 0),
+                                    y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
+                                )
+                                .foregroundStyle(LinearGradient(colors: [.accentColor.opacity(0.25), .accentColor.opacity(0.05)], startPoint: .top, endPoint: .bottom))
+
+                                LineMark(
+                                    x: .value("Month", ym.label),
+                                    y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
+                                )
+                                .interpolationMethod(.catmullRom)
+                                .lineStyle(.init(lineWidth: 2))
+                                .foregroundStyle(.accent)
+
+                                PointMark(
+                                    x: .value("Month", ym.label),
+                                    y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
+                                )
+                                .foregroundStyle(.accent)
+                            }
+                            // Average rule
+                            RuleMark(y: .value("Average", NSDecimalNumber(decimal: averagePerMonth).doubleValue))
+                                .lineStyle(.init(lineWidth: 1, dash: [4, 4]))
+                                .foregroundStyle(.secondary)
+                                .annotation(position: .topTrailing) {
+                                    Text("Avg: \(CurrencyFormatter.string(from: averagePerMonth, currencyCode: chartCurrencyCode))")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                         }
-                        .frame(height: 220)
+                        .chartYAxis { AxisMarks(position: .leading) }
+                        .chartPlotStyle { plot in
+                            plot.background(.ultraThinMaterial).cornerRadius(8)
+                        }
+                        .frame(height: 240)
                         .accessibilityLabel("Monthly totals chart")
                         #endif
                     }

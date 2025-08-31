@@ -22,6 +22,7 @@
 
 
 ## Done
+[UX-36] Reports: elevated charts with material plot backgrounds, sorted category bars with currency annotations, and smoothed area+line monthly trend with average rule line
 [BUG-10] Reports: Average per month uses the selected currency from Settings (or current group) instead of locale $ symbol
 [DATA-4] Seed: add rich demo dataset with many months of multi-category expenses, some FX, comments, settlements, and recurring
 [UX-35] Title display: adopted native inlineLarge title mode across Groups, Direct, Reports, Settings
