@@ -36,10 +36,10 @@ final class DataRepository {
             let cal = Calendar.current
             let categories: [(String, Decimal, ExpenseCategory)] = [
                 ("Groceries", 48.20, .food),
-                ("Dinner out", 32.40, .dining),
-                ("Taxi", 12.80, .transport),
-                ("Museum tickets", 24.00, .entertainment),
-                ("Coffee", 6.50, .dining),
+                ("Dinner out", 32.40, .food),
+                ("Taxi", 12.80, .travel),
+                ("Museum tickets", 24.00, .other),
+                ("Coffee", 6.50, .food),
                 ("Snacks", 9.75, .food),
             ]
             let members = [alex, sam, kai]
@@ -70,7 +70,7 @@ final class DataRepository {
             // Add a few larger one-offs
             if let lastYear = cal.date(byAdding: .year, value: -1, to: Date()) {
                 group.expenses.append(Expense(title: "Hotel", amount: 220.00, currencyCode: code, payer: sam, participants: members, date: lastYear, category: .lodging, note: "2 nights"))
-                group.expenses.append(Expense(title: "Train passes", amount: 75.00, currencyCode: code, payer: kai, participants: members, date: lastYear, category: .transport, note: "Week passes"))
+                group.expenses.append(Expense(title: "Train passes", amount: 75.00, currencyCode: code, payer: kai, participants: members, date: lastYear, category: .travel, note: "Week passes"))
             }
 
             // Add comments to a couple of expenses
