@@ -145,8 +145,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Settings")
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .appleMusicNavTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
             }
