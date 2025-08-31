@@ -108,8 +108,9 @@ struct DirectListView: View {
                 }
             }
             .navigationTitle("Direct")
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
                 }

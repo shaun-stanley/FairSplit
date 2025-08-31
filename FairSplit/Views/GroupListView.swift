@@ -20,39 +20,8 @@ struct GroupListView: View {
 
     var body: some View {
         List {
-            if !activeGroups.isEmpty {
-                Section("Active") {
-                    ForEach(activeGroups, id: \.persistentModelID) { group in
-                        NavigationLink(destination: GroupDetailView(group: group)) {
-                            groupRow(group)
-                        }
-                        .swipeActions(allowsFullSwipe: true) {
-                            Button("Archive") {
-                                DataRepository(context: modelContext, undoManager: undoManager)
-                                    .setArchived(true, for: group)
-                                Haptics.success()
-                            }.tint(.orange)
-                        }
-                    }
-                }
-            }
-            if !archivedGroups.isEmpty {
-                Section("Archived") {
-                    ForEach(archivedGroups, id: \.persistentModelID) { group in
-                        NavigationLink(destination: GroupDetailView(group: group)) {
-                            groupRow(group)
-                        }
-                        .badge("Archived")
-                        .swipeActions(allowsFullSwipe: true) {
-                            Button("Unarchive") {
-                                DataRepository(context: modelContext, undoManager: undoManager)
-                                    .setArchived(false, for: group)
-                                Haptics.success()
-                            }.tint(.green)
-                        }
-                    }
-                }
-            }
+            if !activeGroups.isEmpty { activeSection }
+            if !archivedGroups.isEmpty { archivedSection }
         }
         .listStyle(.insetGrouped)
         .listSectionSpacing(.compact)
@@ -99,6 +68,42 @@ struct GroupListView: View {
 }
 
 private extension GroupListView {
+    @ViewBuilder
+    var activeSection: some View {
+        Section("Active") {
+            ForEach(activeGroups, id: \.persistentModelID) { group in
+                NavigationLink(destination: GroupDetailView(group: group)) {
+                    groupRow(group)
+                }
+                .swipeActions(allowsFullSwipe: true) {
+                    Button("Archive") {
+                        DataRepository(context: modelContext, undoManager: undoManager)
+                            .setArchived(true, for: group)
+                        Haptics.success()
+                    }.tint(.orange)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var archivedSection: some View {
+        Section("Archived") {
+            ForEach(archivedGroups, id: \.persistentModelID) { group in
+                NavigationLink(destination: GroupDetailView(group: group)) {
+                    groupRow(group)
+                }
+                .badge("Archived")
+                .swipeActions(allowsFullSwipe: true) {
+                    Button("Unarchive") {
+                        DataRepository(context: modelContext, undoManager: undoManager)
+                            .setArchived(false, for: group)
+                        Haptics.success()
+                    }.tint(.green)
+                }
+            }
+        }
+    }
     @ViewBuilder
     func groupRow(_ group: Group) -> some View {
         VStack(alignment: .leading, spacing: 3) {

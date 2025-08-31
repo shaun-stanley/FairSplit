@@ -146,6 +146,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
             }
