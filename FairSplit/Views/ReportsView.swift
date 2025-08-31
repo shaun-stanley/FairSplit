@@ -115,7 +115,7 @@ struct ReportsView: View {
                         HStack {
                             Text("Average per month")
                             Spacer()
-                            Text(CurrencyFormatter.string(from: avg))
+                            Text(CurrencyFormatter.string(from: avg, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
                                 .foregroundStyle(.secondary)
                         }
                         HStack {

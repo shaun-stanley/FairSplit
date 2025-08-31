@@ -22,6 +22,8 @@
 
 
 ## Done
+[BUG-10] Reports: Average per month uses the selected currency from Settings (or current group) instead of locale $ symbol
+[DATA-4] Seed: add rich demo dataset with many months of multi-category expenses, some FX, comments, settlements, and recurring
 [UX-35] Title display: adopted native inlineLarge title mode across Groups, Direct, Reports, Settings
 [UX-34] Groups: large title inline with trailing actions; tighter header spacing
 [UX-33] Groups: large title with inline trailing Add button; matches Apple’s large-title pattern in iOS 26
@@ -171,6 +173,8 @@
 ---
 
 ## Changelog
+- 2025-08-31: DATA-4 — Seeded a large demo dataset: 18 months of expenses across categories, occasional foreign-currency items with manual FX, comments, a settlement, and a weekly recurring expense.
+- 2025-08-31: BUG-10 — Reports Highlights now formats Average per month in the selected app/group currency (not locale $).
 - 2025-08-31: UX-27 — Replaced in-content segmented bar with a navigation bar segmented control for sections; content scrolls to anchors.
 - 2025-08-31: UX-28 — Lightened expense rows: show comment count inline as a small plain control; removed bordered comment button.
 - 2025-08-31: UX-29 — Minor spacing and hierarchy tweaks across lists; consistent subheadline secondary text; improved single-line truncation.

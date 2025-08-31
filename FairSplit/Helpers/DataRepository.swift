@@ -18,8 +18,77 @@ final class DataRepository {
             let kai = Member(name: "Kai")
             let code = AppSettings.defaultCurrencyCode()
             let group = Group(name: "Sample Trip", defaultCurrency: code, members: [alex, sam, kai])
-            let e1 = Expense(title: "Groceries", amount: 36.50, currencyCode: code, payer: alex, participants: [alex, sam, kai], category: .food, note: "Milk & eggs")
-            group.expenses.append(e1)
+
+            // Helper to pick FX rate into the group's currency for a few common codes (static demo values)
+            func fxRate(from src: String, to dst: String) -> Decimal? {
+                if src.uppercased() == dst.uppercased() { return 1 }
+                let key = "\(src.uppercased())->\(dst.uppercased())"
+                let rates: [String: Decimal] = [
+                    "USD->INR": 83.5, "EUR->INR": 90.0, "SGD->INR": 62.0, "AED->INR": 22.7,
+                    "USD->EUR": 0.93, "EUR->USD": 1.08,
+                    "USD->GBP": 0.78, "GBP->USD": 1.28,
+                    "USD->CAD": 1.36, "CAD->USD": 0.74
+                ]
+                return rates[key]
+            }
+
+            // Seed expenses over the last 18 months across several categories
+            let cal = Calendar.current
+            let categories: [(String, Decimal, ExpenseCategory)] = [
+                ("Groceries", 48.20, .food),
+                ("Dinner out", 32.40, .dining),
+                ("Taxi", 12.80, .transport),
+                ("Museum tickets", 24.00, .entertainment),
+                ("Coffee", 6.50, .dining),
+                ("Snacks", 9.75, .food),
+            ]
+            let members = [alex, sam, kai]
+            for m in 0..<18 {
+                guard let base = cal.date(byAdding: .month, value: -m, to: Date()) else { continue }
+                for (i, tuple) in categories.enumerated() {
+                    let (title, amount, cat) = tuple
+                    let payer = members[(m + i) % members.count]
+                    var dateComps = DateComponents()
+                    dateComps.year = cal.component(.year, from: base)
+                    dateComps.month = cal.component(.month, from: base)
+                    dateComps.day = min(25, 3 + i * 3)
+                    let date = cal.date(from: dateComps) ?? base
+                    // Every third item: use a foreign currency and manual rate
+                    if i % 3 == 0 {
+                        let foreign = (code.uppercased() == "USD") ? "EUR" : "USD"
+                        let rate = fxRate(from: foreign, to: code)
+                        let e = Expense(title: title, amount: amount, currencyCode: foreign, fxRateToGroupCurrency: rate, payer: payer, participants: members, date: date, category: cat, note: nil)
+                        group.expenses.append(e)
+                        if let r = rate { group.lastFXRates[foreign] = r }
+                    } else {
+                        let e = Expense(title: title, amount: amount, currencyCode: code, payer: payer, participants: members, date: date, category: cat, note: nil)
+                        group.expenses.append(e)
+                    }
+                }
+            }
+
+            // Add a few larger one-offs
+            if let lastYear = cal.date(byAdding: .year, value: -1, to: Date()) {
+                group.expenses.append(Expense(title: "Hotel", amount: 220.00, currencyCode: code, payer: sam, participants: members, date: lastYear, category: .lodging, note: "2 nights"))
+                group.expenses.append(Expense(title: "Train passes", amount: 75.00, currencyCode: code, payer: kai, participants: members, date: lastYear, category: .transport, note: "Week passes"))
+            }
+
+            // Add comments to a couple of expenses
+            if let first = group.expenses.first { first.comments.append(Comment(text: "Remember to claim cashback", date: .now, author: alex.name)) }
+            if group.expenses.count > 3 { group.expenses[3].comments.append(Comment(text: "Split evenly", date: .now, author: sam.name)) }
+
+            // Add a couple of settlements in the past
+            if let twoMonthsAgo = cal.date(byAdding: .month, value: -2, to: Date()) {
+                let s1 = Settlement(from: kai, to: alex, amount: 50.00, date: twoMonthsAgo, isPaid: true, receiptImageData: nil)
+                group.settlements.append(s1)
+            }
+
+            // Some recurring expenses
+            if let next = cal.date(byAdding: .day, value: 7, to: Date()) {
+                let r1 = RecurringExpense(title: "Weekly Groceries", amount: 20.0, frequency: .weekly, nextDate: next, payer: alex, participants: members, category: .food, note: nil)
+                group.recurring.append(r1)
+            }
+
             context.insert(group)
             try? context.save()
         }
