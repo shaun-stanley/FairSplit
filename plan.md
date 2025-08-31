@@ -22,7 +22,7 @@
 
 
 ## Done
-[UX-35] Title display: added inline-large title compatibility shim and applied to Groups, Direct, Reports, Settings
+[UX-35] Title display: adopted native inlineLarge title mode across Groups, Direct, Reports, Settings
 [UX-34] Groups: large title inline with trailing actions; tighter header spacing
 [UX-33] Groups: large title with inline trailing Add button; matches Apple’s large-title pattern in iOS 26
 [UX-32] Group Detail navigation: replaced cramped nav-bar segmented control with a title menu for section jumps; consolidated trailing items into an Add menu and a single More menu to prevent overflow on compact widths. Note: follows Apple’s HIG for Navigation Bars and uses SwiftUI toolbarTitleMenu.
