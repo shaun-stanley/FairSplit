@@ -7,6 +7,9 @@ import SwiftData
 struct ReportsView: View {
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @State private var selectedGroupID: PersistentIdentifier?
+    // Interactive selections for charts
+    @State private var selectedMonthLabel: String?
+    @State private var selectedCategoryLabel: String?
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     private var groupSelection: Binding<PersistentIdentifier?> {
         Binding<PersistentIdentifier?>(
@@ -168,30 +171,64 @@ struct ReportsView: View {
         if !cats.isEmpty {
             Section("Totals by Category") {
                 #if canImport(Charts)
-                Chart(cats, id: \.0) { (cat, amount) in
-                    BarMark(
-                        x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
-                        y: .value("Category", cat.displayName),
-                        width: .automatic
-                    )
-                    .annotation(position: .trailing, alignment: .center) {
-                        Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .foregroundStyle(by: .value("Category", cat.displayName))
-                }
-                .chartForegroundStyleScale([
+                // Palette for consistent category colors
+                let palette: [String: Color] = [
                     "Food": .green,
                     "Travel": .blue,
                     "Lodging": .purple,
                     "Other": .gray
-                ])
+                ]
+                let rowHeight: CGFloat = 38
+
+                Chart(cats, id: \.0) { (cat, amount) in
+                    let label = cat.displayName
+                    let barColor = (selectedCategoryLabel == label ? Color.accentColor : (palette[label] ?? .gray))
+                    BarMark(
+                        x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
+                        y: .value("Category", label),
+                        width: .automatic
+                    )
+                    .cornerRadius(6)
+                    .foregroundStyle(barColor)
+                    .opacity(selectedCategoryLabel == nil || selectedCategoryLabel == label ? 1 : 0.35)
+                    .annotation(position: .trailing, alignment: .center) {
+                        if selectedCategoryLabel == nil || selectedCategoryLabel == label {
+                            Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
                 .chartLegend(.hidden)
                 .chartYAxis(.hidden)
-                // Keep styling minimal here to aid type-checking performance
-                .frame(height: max(160, CGFloat(cats.count) * 32 + 40))
+                .chartXAxis {
+                    AxisMarks(position: .bottom) { _ in
+                        AxisGridLine().foregroundStyle(.quaternary)
+                        AxisTick().foregroundStyle(.tertiary)
+                        AxisValueLabel().foregroundStyle(.secondary).font(.caption2)
+                    }
+                }
+                .chartPlotStyle { plot in
+                    plot.background(.ultraThinMaterial).cornerRadius(8)
+                }
+                .frame(height: max(160, CGFloat(cats.count) * rowHeight + 40))
                 .accessibilityLabel("Category totals chart")
+                // Interactive scrubbing over Y to focus a category
+                .chartOverlay { proxy in
+                    GeometryReader { _ in
+                        Rectangle().fill(.clear).contentShape(Rectangle())
+                            .gesture(DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    if let cat: String = proxy.value(atY: value.location.y) {
+                                        if cat != selectedCategoryLabel { selectedCategoryLabel = cat }
+                                    }
+                                }
+                                .onEnded { _ in selectedCategoryLabel = nil }
+                            )
+                    }
+                }
+                .sensoryFeedback(.selection, trigger: selectedCategoryLabel)
+                .animation(.snappy(duration: 0.25), value: selectedCategoryLabel)
                 #endif
                 ForEach(Array(cats.enumerated()), id: \.offset) { _, item in
                     let (cat, amount) = item
@@ -270,6 +307,24 @@ struct ReportsView: View {
                         .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                         .foregroundStyle(lineColor)
                     }
+                    // Highlight for selected month with callout
+                    if let sel = selectedMonthLabel, let hit = points.first(where: { $0.label == sel }) {
+                        RuleMark(x: .value("Month", hit.label))
+                            .foregroundStyle(.secondary.opacity(0.5))
+                        PointMark(
+                            x: .value("Month", hit.label),
+                            y: .value("Amount", hit.amount)
+                        )
+                        .symbolSize(50)
+                        .foregroundStyle(lineColor)
+                        .annotation(position: .top) {
+                            Text(CurrencyFormatter.string(from: Decimal(hit.amount), currencyCode: chartCurrencyCode))
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 4)
+                                .background(.ultraThinMaterial, in: Capsule())
+                        }
+                    }
                     // Average guide
                     RuleMark(y: .value("Average", avgDouble))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
@@ -280,12 +335,41 @@ struct ReportsView: View {
                                 .foregroundStyle(Color.secondary)
                         }
                 }
-                .chartYAxis { AxisMarks(position: .leading) }
+                .chartYAxis {
+                    AxisMarks(position: .leading) { _ in
+                        AxisGridLine().foregroundStyle(.quaternary)
+                        AxisTick().foregroundStyle(.tertiary)
+                        AxisValueLabel().foregroundStyle(.secondary).font(.caption2)
+                    }
+                }
+                .chartXAxis {
+                    AxisMarks(position: .bottom) { _ in
+                        AxisGridLine().foregroundStyle(.clear)
+                        AxisTick().foregroundStyle(.tertiary)
+                        AxisValueLabel().foregroundStyle(.secondary).font(.caption2)
+                    }
+                }
                 .chartPlotStyle { plot in
                     plot.background(.ultraThinMaterial).cornerRadius(8)
                 }
                 .frame(height: 240)
                 .accessibilityLabel("Monthly totals chart")
+                // Interactive scrubbing across X to focus a month
+                .chartOverlay { proxy in
+                    GeometryReader { _ in
+                        Rectangle().fill(.clear).contentShape(Rectangle())
+                            .gesture(DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    if let m: String = proxy.value(atX: value.location.x) {
+                                        if m != selectedMonthLabel { selectedMonthLabel = m }
+                                    }
+                                }
+                                .onEnded { _ in selectedMonthLabel = nil }
+                            )
+                    }
+                }
+                .sensoryFeedback(.selection, trigger: selectedMonthLabel)
+                .animation(.snappy(duration: 0.25), value: selectedMonthLabel)
                 #endif
             }
         }
