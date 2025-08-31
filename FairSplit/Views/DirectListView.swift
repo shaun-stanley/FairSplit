@@ -49,7 +49,9 @@ struct DirectListView: View {
                                 let owes = net > 0 ? b.name : a.name
                                 let color: Color = net == 0 ? .secondary : (net > 0 ? .red : .green)
                                 Text(net == 0 ? "Settled" : "\(owes) owes \(CurrencyFormatter.string(from: amount))")
+                                    .font(.subheadline)
                                     .foregroundStyle(color)
+                                    .lineLimit(1)
                             }
                         }
                     }

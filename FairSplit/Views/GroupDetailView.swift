@@ -80,7 +80,6 @@ struct GroupDetailView: View {
     private var mainScrollContent: some View {
         ScrollViewReader { proxy in
             makeList(proxy: proxy)
-                .safeAreaInset(edge: .top, spacing: 0) { segmentedBar(proxy: proxy) }
                 .onChange(of: selectedDetailTab) { newVal in
                     withAnimation(.easeInOut) {
                         proxy.scrollTo(anchor(for: newVal), anchor: .top)
@@ -88,7 +87,7 @@ struct GroupDetailView: View {
                 }
         }
         .navigationTitle(group.name)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .listStyle(.insetGrouped)
     }
 
@@ -100,6 +99,15 @@ struct GroupDetailView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Picker("Tab", selection: $selectedDetailTab) {
+                ForEach(DetailTab.allCases, id: \.self) { t in
+                    Text(t.title).tag(t)
+                }
+            }
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 360)
+        }
         ToolbarItemGroup(placement: .primaryAction) {
             Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                 .accessibilityLabel("Add Expense")
@@ -509,15 +517,18 @@ struct GroupDetailView: View {
                     .fontWeight(.semibold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
-                Button(action: { commentingExpense = expense }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "text.bubble")
-                        Text(expense.comments.isEmpty ? "Comments" : "\(expense.comments.count)")
+                if !expense.comments.isEmpty {
+                    Button(action: { commentingExpense = expense }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "text.bubble")
+                            Text("\(expense.comments.count)")
+                        }
                     }
+                    .buttonStyle(.plain)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("\(expense.comments.count) comments")
                 }
-                .buttonStyle(.bordered)
-                .font(.caption)
-                .accessibilityLabel(expense.comments.isEmpty ? "Add comment" : "\(expense.comments.count) comments")
             }
         }
         .accessibilityElement(children: .ignore)
@@ -689,12 +700,6 @@ extension GroupDetailView {
     @ViewBuilder
     private func makeList(proxy: ScrollViewProxy) -> some View {
         List {
-            // Spacer so content doesn't slide under the pinned segmented tabs
-            Color.clear
-                .frame(height: 52)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-
             archivedBanner()
             balancesRows().id(Anchor.balances)
             settleUpRows().id(Anchor.settle)
@@ -847,23 +852,6 @@ extension GroupDetailView {
             .frame(width: 56, height: 56)
         }
         .accessibilityLabel("Add Expense")
-    }
-
-    // MARK: - Segmented Bar (pinned)
-    @ViewBuilder
-    private func segmentedBar(proxy: ScrollViewProxy) -> some View {
-        VStack {
-            Picker("Tab", selection: $selectedDetailTab) {
-                ForEach(DetailTab.allCases, id: \.self) { t in
-                    Text(t.title).tag(t)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-        }
-        .background(Color(.systemBackground))
-        .overlay(alignment: .bottom) { Divider() }
     }
 
     private func anchor(for tab: DetailTab) -> Anchor {

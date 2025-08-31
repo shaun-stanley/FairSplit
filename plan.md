@@ -18,9 +18,13 @@
 2. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
 
 ## In Progress
-[UX-26] iOS 26 UI polish: use system badge for Archived, add swipe to archive/unarchive, remove non-standard bottom bar button
+
 
 ## Done
+[UX-29] Spacing and hierarchy: consistent secondary text and truncation across lists; Dynamic Type friendly
+[UX-28] Expense row: comment count inline; removed bordered button
+[UX-27] Group Detail: moved segmented tabs into nav bar control; scroll-to-section preserved
+[UX-26] iOS 26 UI polish: Archived uses system badge; added swipe archive/unarchive; removed non-standard bottom-sheet button
 [BUG-6] Group Detail: converted row headers to Section headers; pill bar now uses material blur with bottom divider and avoids overlap
 [BUG-7] Group Detail: switched pill bar to system glass background (no custom UI); kept divider; adjusted spacing to avoid title/search overlap
 [BUG-8] Group Detail: removed pill bar and any glass/material backgrounds; restored standard layout
@@ -162,6 +166,10 @@
 ---
 
 ## Changelog
+- 2025-08-31: UX-27 — Replaced in-content segmented bar with a navigation bar segmented control for sections; content scrolls to anchors.
+- 2025-08-31: UX-28 — Lightened expense rows: show comment count inline as a small plain control; removed bordered comment button.
+- 2025-08-31: UX-29 — Minor spacing and hierarchy tweaks across lists; consistent subheadline secondary text; improved single-line truncation.
+- 2025-08-31: UX-26 — UI polish: system Archived badge, swipe archive/unarchive, removed non-standard bottom action in currency sheet.
 - 2025-08-27: BUG-7 — Pill bar now uses system glass background (no custom UI). Keeps a thin divider and respects large title/search during scroll.
 - 2025-08-27: BUG-8 — Removed pill navigation and all glass/material backgrounds from Group Detail to simplify and restore native behavior.
 - 2025-08-27: UX-11 — Added pinned segmented tabs (Expenses, Recurring, Categories, Activity) in Group Detail that jump to each section while keeping all sections visible.

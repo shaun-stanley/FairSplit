@@ -97,7 +97,7 @@ struct GroupListView: View {
 private extension GroupListView {
     @ViewBuilder
     func groupRow(_ group: Group) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 3) {
             Text(group.name)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
@@ -107,12 +107,12 @@ private extension GroupListView {
                     Text("You're owed \(balance.formatted(.currency(code: group.defaultCurrency)))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                        .lineLimit(1)
                 } else if balance < 0 {
                     Text("You owe \((-balance).formatted(.currency(code: group.defaultCurrency)))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                        .lineLimit(1)
                 } else {
                     Text("All settled")
                         .font(.subheadline)
