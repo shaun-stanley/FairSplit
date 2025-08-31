@@ -22,6 +22,7 @@
 
 
 ## Done
+[BUG-11] Reports: simplified Monthly Trend chart to avoid type-check timeout; precomputed values and extracted gradient with smoothed area+line and average rule
 [UX-36] Reports: elevated charts with material plot backgrounds, sorted category bars with currency annotations, and smoothed area+line monthly trend with average rule line
 [BUG-10] Reports: Average per month uses the selected currency from Settings (or current group) instead of locale $ symbol
 [DATA-4] Seed: add rich demo dataset with many months of multi-category expenses, some FX, comments, settlements, and recurring
@@ -174,6 +175,7 @@
 ---
 
 ## Changelog
+- 2025-08-31: BUG-11 — Simplified Monthly Trend chart to fix type-check timeout; precomputed values, extracted gradient, added smoothed area+line and kept average rule.
 - 2025-08-31: DATA-4 — Seeded a large demo dataset: 18 months of expenses across categories, occasional foreign-currency items with manual FX, comments, a settlement, and a weekly recurring expense.
 - 2025-08-31: BUG-10 — Reports Highlights now formats Average per month in the selected app/group currency (not locale $).
 - 2025-08-31: UX-27 — Replaced in-content segmented bar with a navigation bar segmented control for sections; content scrolls to anchors.

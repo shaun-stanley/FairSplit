@@ -74,186 +74,220 @@ struct ReportsView: View {
     var body: some View {
         NavigationStack {
             List {
-                if !groups.isEmpty {
-                    Section("Scope") {
-                        Picker("Group", selection: groupSelection) {
-                            Text("All Groups").tag(nil as PersistentIdentifier?)
-                            ForEach(groups, id: \.persistentModelID) { g in
-                                Text(g.name).tag(g.persistentModelID as PersistentIdentifier?)
-                            }
-                        }
-                        .pickerStyle(.navigationLink)
-                        #if canImport(TipKit)
-                        .popoverTip(AppTips.filters)
-                        #endif
-                    }
-                }
-                Section("Overview") {
-                    HStack {
-                        Text("Total across groups")
-                        Spacer()
-                        Text(CurrencyFormatter.string(from: overallTotal, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
-                            .fontWeight(.semibold)
-                    }
-                    HStack {
-                        Text("Groups")
-                        Spacer()
-                        Text("\(scopedGroups.count)")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                if !scopedGroups.isEmpty {
-                    Section("Per Group Totals") {
-                        ForEach(scopedGroups.sorted { $0.lastActivity > $1.lastActivity }, id: \.persistentModelID) { g in
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(g.name)
-                                Spacer(minLength: 8)
-                                Text(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                            }
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("Group \(g.name), total \(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))")
-                        }
-                    }
-                }
-
-                // Simple KPI section
-                if !monthlyTotals.isEmpty {
-                    Section("Highlights") {
-                        let totalMonths = max(1, Set(monthlyTotals.map { $0.0 }).count)
-                        let avg = overallTotal / Decimal(totalMonths)
-                        HStack {
-                            Text("Average per month")
-                            Spacer()
-                            Text(CurrencyFormatter.string(from: avg, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
-                                .foregroundStyle(.secondary)
-                        }
-                        HStack {
-                            Text("Months covered")
-                            Spacer()
-                            Text("\(totalMonths)")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-
-                if !categoryTotals.isEmpty {
-                    Section("Totals by Category") {
-                        // Chart (when available)
-                        #if canImport(Charts)
-                        Chart(sortedCategoryTotals, id: \.0) { (cat, amount) in
-                            BarMark(
-                                x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
-                                y: .value("Category", cat.displayName),
-                                width: .automatic
-                            )
-                            .annotation(position: .trailing, alignment: .center) {
-                                Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .foregroundStyle(by: .value("Category", cat.displayName))
-                        }
-                        .chartForegroundStyleScale([
-                            "Food": .green,
-                            "Travel": .blue,
-                            "Lodging": .purple,
-                            "Other": .gray
-                        ])
-                        .chartLegend(.hidden)
-                        .chartYAxis(.hidden)
-                        .chartPlotStyle { plot in
-                            plot.background(.ultraThinMaterial).cornerRadius(8)
-                        }
-                        .frame(height: max(160, CGFloat(sortedCategoryTotals.count) * 32 + 40))
-                        .accessibilityLabel("Category totals chart")
-                        #endif
-                        // List (readable values)
-                        ForEach(Array(sortedCategoryTotals.enumerated()), id: \.offset) { _, item in
-                            let (cat, amount) = item
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: cat.symbolName)
-                                        .foregroundStyle(.secondary)
-                                        .accessibilityHidden(true)
-                                    Text(cat.displayName)
-                                }
-                                Spacer(minLength: 8)
-                                Text(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                            }
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("\(cat.displayName), total \(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))")
-                        }
-                    }
-                }
-
-                if !memberTotals.isEmpty {
-                    Section("Totals by Member") {
-                        ForEach(Array(memberTotals.enumerated()), id: \.offset) { _, item in
-                            let (name, amount) = item
-                            HStack {
-                                Text(name)
-                                Spacer()
-                                Text(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))
-                            }
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("\(name), total \(CurrencyFormatter.string(from: amount, currencyCode: scopedGroups.first?.defaultCurrency ?? defaultCurrency))")
-                        }
-                    }
-                }
-
-                if !monthlyTotals.isEmpty {
-                    Section("Monthly Trend") {
-                        #if canImport(Charts)
-                        Chart {
-                            ForEach(monthlyTotals, id: \.0) { (ym, amount) in
-                                AreaMark(
-                                    x: .value("Month", ym.label),
-                                    yStart: .value("Min", 0),
-                                    y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
-                                )
-                                .foregroundStyle(LinearGradient(colors: [.accentColor.opacity(0.25), .accentColor.opacity(0.05)], startPoint: .top, endPoint: .bottom))
-
-                                LineMark(
-                                    x: .value("Month", ym.label),
-                                    y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
-                                )
-                                .interpolationMethod(.catmullRom)
-                                .lineStyle(.init(lineWidth: 2))
-                                .foregroundStyle(.accent)
-
-                                PointMark(
-                                    x: .value("Month", ym.label),
-                                    y: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue)
-                                )
-                                .foregroundStyle(.accent)
-                            }
-                            // Average rule
-                            RuleMark(y: .value("Average", NSDecimalNumber(decimal: averagePerMonth).doubleValue))
-                                .lineStyle(.init(lineWidth: 1, dash: [4, 4]))
-                                .foregroundStyle(.secondary)
-                                .annotation(position: .topTrailing) {
-                                    Text("Avg: \(CurrencyFormatter.string(from: averagePerMonth, currencyCode: chartCurrencyCode))")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                        }
-                        .chartYAxis { AxisMarks(position: .leading) }
-                        .chartPlotStyle { plot in
-                            plot.background(.ultraThinMaterial).cornerRadius(8)
-                        }
-                        .frame(height: 240)
-                        .accessibilityLabel("Monthly totals chart")
-                        #endif
-                    }
-                }
+                scopeSection
+                overviewSection
+                perGroupTotalsSection
+                highlightsSection
+                categorySection
+                memberSection
+                monthlyTrendSection
             }
             .navigationTitle("Reports")
             .toolbarTitleDisplayMode(.inlineLarge)
+        }
+    }
+
+    // MARK: - Section Builders
+    @ViewBuilder private var scopeSection: some View {
+        if !groups.isEmpty {
+            Section("Scope") {
+                Picker("Group", selection: groupSelection) {
+                    Text("All Groups").tag(nil as PersistentIdentifier?)
+                    ForEach(groups, id: \.persistentModelID) { g in
+                        Text(g.name).tag(g.persistentModelID as PersistentIdentifier?)
+                    }
+                }
+                .pickerStyle(.navigationLink)
+                #if canImport(TipKit)
+                .popoverTip(AppTips.filters)
+                #endif
+            }
+        }
+    }
+
+    @ViewBuilder private var overviewSection: some View {
+        Section("Overview") {
+            HStack {
+                Text("Total across groups")
+                Spacer()
+                Text(CurrencyFormatter.string(from: overallTotal, currencyCode: chartCurrencyCode))
+                    .fontWeight(.semibold)
+            }
+            HStack {
+                Text("Groups")
+                Spacer()
+                Text("\(scopedGroups.count)")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder private var perGroupTotalsSection: some View {
+        let sortedGroups = scopedGroups.sorted { $0.lastActivity > $1.lastActivity }
+        if !sortedGroups.isEmpty {
+            Section("Per Group Totals") {
+                ForEach(sortedGroups, id: \.persistentModelID) { g in
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(g.name)
+                        Spacer(minLength: 8)
+                        Text(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Group \(g.name), total \(CurrencyFormatter.string(from: groupTotal(g), currencyCode: g.defaultCurrency))")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var highlightsSection: some View {
+        let months = monthlyTotals
+        if !months.isEmpty {
+            Section("Highlights") {
+                let totalMonths = max(1, Set(months.map { $0.0 }).count)
+                let avg = overallTotal / Decimal(totalMonths)
+                HStack {
+                    Text("Average per month")
+                    Spacer()
+                    Text(CurrencyFormatter.string(from: avg, currencyCode: chartCurrencyCode))
+                        .foregroundStyle(.secondary)
+                }
+                HStack {
+                    Text("Months covered")
+                    Spacer()
+                    Text("\(totalMonths)")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var categorySection: some View {
+        let cats = sortedCategoryTotals
+        if !cats.isEmpty {
+            Section("Totals by Category") {
+                #if canImport(Charts)
+                Chart(cats, id: \.0) { (cat, amount) in
+                    BarMark(
+                        x: .value("Amount", NSDecimalNumber(decimal: amount).doubleValue),
+                        y: .value("Category", cat.displayName),
+                        width: .automatic
+                    )
+                    .annotation(position: .trailing, alignment: .center) {
+                        Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .foregroundStyle(by: .value("Category", cat.displayName))
+                }
+                .chartForegroundStyleScale([
+                    "Food": .green,
+                    "Travel": .blue,
+                    "Lodging": .purple,
+                    "Other": .gray
+                ])
+                .chartLegend(.hidden)
+                .chartYAxis(.hidden)
+                // Keep styling minimal here to aid type-checking performance
+                .frame(height: max(160, CGFloat(cats.count) * 32 + 40))
+                .accessibilityLabel("Category totals chart")
+                #endif
+                ForEach(Array(cats.enumerated()), id: \.offset) { _, item in
+                    let (cat, amount) = item
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: cat.symbolName)
+                                .foregroundStyle(.secondary)
+                                .accessibilityHidden(true)
+                            Text(cat.displayName)
+                        }
+                        Spacer(minLength: 8)
+                        Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(cat.displayName), total \(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var memberSection: some View {
+        if !memberTotals.isEmpty {
+            Section("Totals by Member") {
+                ForEach(Array(memberTotals.enumerated()), id: \.offset) { _, item in
+                    let (name, amount) = item
+                    HStack {
+                        Text(name)
+                        Spacer()
+                        Text(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(name), total \(CurrencyFormatter.string(from: amount, currencyCode: chartCurrencyCode))")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var monthlyTrendSection: some View {
+        let months = monthlyTotals
+        if !months.isEmpty {
+            Section("Monthly Trend") {
+                #if canImport(Charts)
+                // Precompute values and extracted styles to keep the type-checker fast
+                let points: [(label: String, amount: Double)] = months.map { (ym, amount) in
+                    (label: ym.label, amount: NSDecimalNumber(decimal: amount).doubleValue)
+                }
+                let lineColor: Color = .accentColor
+                let trendFill: LinearGradient = LinearGradient(
+                    gradient: Gradient(colors: [lineColor.opacity(0.28), lineColor.opacity(0.06)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                let avgDouble: Double = NSDecimalNumber(decimal: averagePerMonth).doubleValue
+                let avgLabel: String = "Avg: \(CurrencyFormatter.string(from: averagePerMonth, currencyCode: chartCurrencyCode))"
+
+                Chart {
+                    // Area under the line for subtle depth
+                    ForEach(points, id: \.label) { point in
+                        AreaMark(
+                            x: .value("Month", point.label),
+                            y: .value("Amount", point.amount),
+                            stacking: .standard
+                        )
+                        .foregroundStyle(trendFill)
+                        .interpolationMethod(.catmullRom)
+                    }
+                    // Smoothed line on top
+                    ForEach(points, id: \.label) { point in
+                        LineMark(
+                            x: .value("Month", point.label),
+                            y: .value("Amount", point.amount)
+                        )
+                        .interpolationMethod(.catmullRom)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                        .foregroundStyle(lineColor)
+                    }
+                    // Average guide
+                    RuleMark(y: .value("Average", avgDouble))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        .foregroundStyle(Color.secondary)
+                        .annotation(position: .topTrailing) {
+                            Text(avgLabel)
+                                .font(.caption2)
+                                .foregroundStyle(Color.secondary)
+                        }
+                }
+                .chartYAxis { AxisMarks(position: .leading) }
+                .chartPlotStyle { plot in
+                    plot.background(.ultraThinMaterial).cornerRadius(8)
+                }
+                .frame(height: 240)
+                .accessibilityLabel("Monthly totals chart")
+                #endif
+            }
         }
     }
 }
