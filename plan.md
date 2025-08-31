@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
-2. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
-3. [UX-31] Reduce Motion polish: smooth/disabled animations respecting accessibility settings
+1. [UX-34] Large title inline with trailing buttons; tighten header spacing on Groups
+2. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
+3. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
 
 ## In Progress
-
+[UX-34] Large title inline with trailing buttons; tighten header spacing on Groups
 
 ## Done
 [UX-33] Groups: large title with inline trailing Add button; matches Apple’s large-title pattern in iOS 26

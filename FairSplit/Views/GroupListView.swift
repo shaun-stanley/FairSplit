@@ -54,6 +54,9 @@ struct GroupListView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
+        .contentMargins(.top, 4, for: .scrollContent)
         .overlay {
             if activeGroups.isEmpty && archivedGroups.isEmpty {
                 ContentUnavailableView {
