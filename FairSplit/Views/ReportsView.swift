@@ -85,7 +85,8 @@ struct ReportsView: View {
                 memberSection
                 monthlyTrendSection
             }
-            .appleMusicNavTitle("Reports")
+            .navigationTitle("Reports")
+            .toolbarTitleDisplayMode(.inlineLarge)
         }
     }
 

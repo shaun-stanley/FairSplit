@@ -42,7 +42,8 @@ struct GroupListView: View {
             }
         }
         .searchable(text: $searchText)
-        .appleMusicNavTitle("Groups")
+        .navigationTitle("Groups")
+        .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button(action: { showingAdd = true }) {

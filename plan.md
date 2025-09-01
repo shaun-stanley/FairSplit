@@ -17,10 +17,9 @@
 1. [UX-34] Large title inline with trailing buttons; tighten header spacing on Groups
 2. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
 3. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
-4. [DATA-5] Seed: change sample group currency to INR
 
 ## In Progress
-[NAV-1] iOS 26 uses native inline large title; iOS 18–25 unchanged via helper
+[DATA-5] Seed: change sample group currency to INR
 
 
 ## Done

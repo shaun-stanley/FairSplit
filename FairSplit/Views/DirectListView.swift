@@ -107,7 +107,8 @@ struct DirectListView: View {
                     }
                 }
             }
-            .appleMusicNavTitle("Direct")
+            .navigationTitle("Direct")
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
