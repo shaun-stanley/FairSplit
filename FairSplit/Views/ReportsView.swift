@@ -87,7 +87,7 @@ struct ReportsView: View {
             }
             .navigationTitle("Reports")
             .toolbarTitleDisplayMode(.inlineLarge)
-            .contentMargins(.horizontal, for: .scrollContent)
+            .contentMargins(.horizontal, 20, for: .scrollContent)
         }
     }
 

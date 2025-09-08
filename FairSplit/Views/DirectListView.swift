@@ -109,7 +109,7 @@ struct DirectListView: View {
             }
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
-            .contentMargins(.horizontal, for: .scrollContent)
+            .contentMargins(.horizontal, 20, for: .scrollContent)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
@@ -140,7 +140,7 @@ struct DirectListView: View {
                     Form {
                         TextField("Name", text: $newContactName)
                     }
-                    .contentMargins(.horizontal, for: .scrollContent)
+                    .contentMargins(.horizontal, 20, for: .scrollContent)
                     .navigationTitle("New Contact")
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAddContact = false; newContactName = "" } }
@@ -162,7 +162,7 @@ struct DirectListView: View {
             .sheet(item: $renamingContact) { contact in
                 NavigationStack {
                     Form { TextField("Name", text: $renameText) }
-                        .contentMargins(.horizontal, for: .scrollContent)
+                        .contentMargins(.horizontal, 20, for: .scrollContent)
                         .navigationTitle("Rename Contact")
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { renamingContact = nil } }
@@ -229,7 +229,7 @@ struct AddDirectExpenseView: View {
                     TextField("Note", text: $note)
                 }
             }
-            .contentMargins(.horizontal, for: .scrollContent)
+            .contentMargins(.horizontal, 20, for: .scrollContent)
             .navigationTitle("New Direct Expense")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
