@@ -109,8 +109,7 @@ struct DirectListView: View {
             }
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
-            .listStyle(.plain)
-            .systemAlignedScrollContentMargins()
+            .contentMargins(.horizontal, 20, for: .scrollContent)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
