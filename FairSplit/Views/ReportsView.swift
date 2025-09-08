@@ -11,6 +11,8 @@ struct ReportsView: View {
     @State private var selectedMonthLabel: String?
     @State private var selectedCategoryLabel: String?
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
+    // Async summary cache
+    @State private var summary: ReportsEngine.Summary?
     private var groupSelection: Binding<PersistentIdentifier?> {
         Binding<PersistentIdentifier?>(
             get: { selectedGroupID },
@@ -23,31 +25,11 @@ struct ReportsView: View {
         return groups
     }
 
-    private var overallTotal: Decimal {
-        scopedGroups.reduce(0) { $0 + groupTotal($1) }
-    }
+    private var overallTotal: Decimal { summary?.overallTotal ?? 0 }
 
-    private func groupTotal(_ group: Group) -> Decimal {
-        group.expenses.reduce(0) { partial, e in
-            partial + SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: group.defaultCurrency)
-        }
-    }
+    private func groupTotal(_ group: Group) -> Decimal { summary?.perGroupTotals[group.persistentModelID] ?? 0 }
 
-    private var categoryTotals: [(ExpenseCategory, Decimal)] {
-        var map: [ExpenseCategory: Decimal] = [:]
-        for g in scopedGroups {
-            for e in g.expenses {
-                if let cat = e.category {
-                    let amt = SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: g.defaultCurrency)
-                    map[cat, default: 0] += amt
-                }
-            }
-        }
-        return ExpenseCategory.allCases.compactMap { c in
-            if let v = map[c], v > 0 { return (c, v) }
-            return nil
-        }
-    }
+    private var categoryTotals: [(ExpenseCategory, Decimal)] { summary?.categoryTotals ?? [] }
 
     private var memberTotals: [(String, Decimal)] {
         var map: [String: Decimal] = [:]
@@ -61,10 +43,7 @@ struct ReportsView: View {
         return map.sorted { $0.value > $1.value }
     }
 
-    private var monthlyTotals: [(StatsCalculator.YearMonth, Decimal)] {
-        let totals = StatsCalculator.totalsByMonth(groups: scopedGroups)
-        return totals.keys.sorted().map { ($0, totals[$0] ?? 0) }
-    }
+    private var monthlyTotals: [(StatsCalculator.YearMonth, Decimal)] { summary?.monthlyTotals ?? [] }
     private var sortedCategoryTotals: [(ExpenseCategory, Decimal)] {
         categoryTotals.sorted { $0.1 > $1.1 }
     }
@@ -88,6 +67,8 @@ struct ReportsView: View {
             .navigationTitle("Reports")
             .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .task(id: selectedGroupID) { await refreshSummary() }
+            .onChange(of: groups) { _, _ in Task { await refreshSummary() } }
         }
     }
 
@@ -374,6 +355,26 @@ struct ReportsView: View {
                 #endif
             }
         }
+    }
+}
+
+// MARK: - Async Summary
+private extension ReportsView {
+    func refreshSummary() async {
+        // Snapshot minimal expense data on main actor, then compute off-main
+        let scoped = scopedGroups
+        let snaps: [ReportsEngine.ExpenseSnap] = scoped.flatMap { g in
+            g.expenses.map { e in
+                ReportsEngine.ExpenseSnap(
+                    groupID: g.persistentModelID,
+                    date: e.date,
+                    category: e.category,
+                    amountInGroup: SplitCalculator.amountInGroupCurrency(for: e, defaultCurrency: g.defaultCurrency)
+                )
+            }
+        }
+        let computed = await Task.detached(priority: .userInitiated) { ReportsEngine.summarize(snaps) }.value
+        await MainActor.run { summary = computed }
     }
 }
 
