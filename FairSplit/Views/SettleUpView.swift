@@ -36,6 +36,8 @@ struct SettleUpView: View {
                                 Spacer()
                                 Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
                                     .fontWeight(.semibold)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.75)
                             }
                             .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
                             .swipeActions(edge: .trailing) {
@@ -92,6 +94,8 @@ struct SettleUpView: View {
                                     }
                                     Text(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency))
                                         .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
                                 }
                                 .accessibilityLabel("Settlement: \(s.from.name) paid \(s.to.name) \(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)) on \(s.date.formatted(date: .abbreviated, time: .omitted))")
                                 .contextMenu {

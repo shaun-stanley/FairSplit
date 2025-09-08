@@ -52,6 +52,7 @@ struct DirectListView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(color)
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.75)
                             }
                         }
                     }
@@ -69,6 +70,8 @@ struct DirectListView: View {
                             Spacer()
                             Text(CurrencyFormatter.string(from: e.amount, currencyCode: e.currencyCode))
                                 .fontWeight(.semibold)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                         }
                         .swipeActions {
                             Button("Edit") { editingExpense = e }.tint(.blue)

@@ -14,15 +14,15 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
-2. [A11Y-2] Color not the only signal: add icons/text for positive/negative balances
-3. [L10N-2] Indian numbering format (₹1,23,456) when locale applies
+1. [A11Y-2] Color not the only signal: add icons/text for positive/negative balances
+2. [L10N-2] Indian numbering format (₹1,23,456) when locale applies
 
 ## In Progress
 
 
 
 ## Done
+[UX-30] Dynamic Type audit: refined trailing amount labels to avoid truncation; added line limits and scaling to Direct and Settle Up lists for clearer large text.
 [UX-4] TipKit coach marks: first-run hints for Add Expense and Settle Up; added TipKit popover tips to Add Expense Save and Group Detail actions; ensured TipKit configured on launch.
 [UX-41] Align page content with nav title margins across all screens. Applied consistent horizontal scroll content margins to any remaining screens (e.g., Expense List) and avoided double-insets.
 [UX-40] Groups: aligned large titles with content margins across tabs using system-aligned scroll content margins; kept large, horizontally scrollable tiles for Groups
@@ -181,6 +181,7 @@
 ---
 
 ## Changelog
+- 2025-09-08: UX-30 — Improved Dynamic Type handling for key rows: ensured amounts scale and truncate gracefully in Direct and Settle Up lists.
 - 2025-09-08: UX-4 — Added TipKit coach marks for Add Expense (Save and Add menu) and Settle Up; configured Tips on launch.
 - 2025-09-08: UX-41 — Aligned page content with navigation title margins across remaining screens (added horizontal content margins to Expense List, ensured no double-insets).
 - 2025-09-08: UX-40 — Aligned large navigation titles with content margins across Groups, Direct, Reports, and Settings using dynamic system-aligned scroll content margins; preserved Groups' large, horizontally scrollable tiles.
