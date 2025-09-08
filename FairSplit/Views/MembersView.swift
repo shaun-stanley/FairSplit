@@ -31,10 +31,8 @@ struct MembersView: View {
                             mergingTarget = group.members.first { $0.persistentModelID != member.persistentModelID }
                         }.tint(.purple)
                         Button("Delete", role: .destructive) {
-                            withAnimation(.snappy) {
-                                let ok = DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
-                                if !ok { alertMessage = "This member is used in expenses and cannot be deleted." }
-                            }
+                            let ok = DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
+                            if !ok { alertMessage = "This member is used in expenses and cannot be deleted." }
                         }
                     }
             }
@@ -45,7 +43,6 @@ struct MembersView: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button("New Member") { showingAdd = true }
-                        .keyboardShortcut("n", modifiers: [.command, .shift])
                     #if canImport(ContactsUI)
                     Button("From Contacts…") { showingContacts = true }
                     #endif
@@ -69,11 +66,9 @@ struct MembersView: View {
                         Button("Save") {
                             let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
-                            withAnimation(.snappy) {
-                                DataRepository(context: modelContext, undoManager: undoManager).addMember(to: group, name: trimmed)
-                                showingAdd = false
-                                newName = ""
-                            }
+                            DataRepository(context: modelContext, undoManager: undoManager).addMember(to: group, name: trimmed)
+                            showingAdd = false
+                            newName = ""
                         }.disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
@@ -90,10 +85,8 @@ struct MembersView: View {
                         Button("Save") {
                             let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
-                            withAnimation(.snappy) {
-                                DataRepository(context: modelContext, undoManager: undoManager).rename(member: member, to: trimmed)
-                                renaming = nil
-                            }
+                            DataRepository(context: modelContext, undoManager: undoManager).rename(member: member, to: trimmed)
+                            renaming = nil
                         }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
@@ -118,13 +111,11 @@ struct MembersView: View {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { mergingSource = nil; mergingTarget = nil } }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Merge") {
-                            withAnimation(.snappy) {
-                                if let target = mergingTarget {
-                                    DataRepository(context: modelContext, undoManager: undoManager).merge(member: source, into: target, in: group)
-                                }
-                                mergingSource = nil
-                                mergingTarget = nil
+                            if let target = mergingTarget {
+                                DataRepository(context: modelContext, undoManager: undoManager).merge(member: source, into: target, in: group)
                             }
+                            mergingSource = nil
+                            mergingTarget = nil
                         }.disabled(mergingTarget == nil)
                     }
                 }

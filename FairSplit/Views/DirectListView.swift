@@ -72,26 +72,21 @@ struct DirectListView: View {
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
-                                .contentTransition(.numericText())
                         }
                         .swipeActions {
                             Button("Edit") { editingExpense = e }.tint(.blue)
                             Button("Delete", role: .destructive) {
-                                withAnimation(.snappy) {
-                                    modelContext.delete(e)
-                                    try? modelContext.save()
-                                    Haptics.success()
-                                }
+                                modelContext.delete(e)
+                                try? modelContext.save()
+                                Haptics.success()
                             }
                         }
                         .contextMenu {
                             Button("Edit") { editingExpense = e }
                             Button("Delete", role: .destructive) {
-                                withAnimation(.snappy) {
-                                    modelContext.delete(e)
-                                    try? modelContext.save()
-                                    Haptics.success()
-                                }
+                                modelContext.delete(e)
+                                try? modelContext.save()
+                                Haptics.success()
                             }
                         }
                     }
@@ -122,30 +117,25 @@ struct DirectListView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
-                        .keyboardShortcut("n", modifiers: [.command, .shift])
                 }
             }
             .sheet(isPresented: $showingAddExpense) {
                 AddDirectExpenseView(contacts: contacts) { title, amount, payer, other, note in
-                    withAnimation(.snappy) {
-                        let expense = DirectExpense(title: title, amount: amount, payer: payer, other: other, note: note)
-                        modelContext.insert(expense)
-                        try? modelContext.save()
-                        Haptics.success()
-                    }
+                    let expense = DirectExpense(title: title, amount: amount, payer: payer, other: other, note: note)
+                    modelContext.insert(expense)
+                    try? modelContext.save()
+                    Haptics.success()
                 }
             }
             .sheet(item: $editingExpense) { e in
                 AddDirectExpenseView(contacts: contacts, existing: e) { title, amount, payer, other, note in
-                    withAnimation(.snappy) {
-                        e.title = title
-                        e.amount = amount
-                        e.payer = payer
-                        e.other = other
-                        e.note = note
-                        try? modelContext.save()
-                        Haptics.success()
-                    }
+                    e.title = title
+                    e.amount = amount
+                    e.payer = payer
+                    e.other = other
+                    e.note = note
+                    try? modelContext.save()
+                    Haptics.success()
                 }
             }
             .sheet(isPresented: $showingAddContact) {
@@ -161,14 +151,12 @@ struct DirectListView: View {
                             Button("Save") {
                                 let trimmed = newContactName.trimmingCharacters(in: .whitespacesAndNewlines)
                                 guard !trimmed.isEmpty else { return }
-                                withAnimation(.snappy) {
-                                    let c = Contact(name: trimmed)
-                                    modelContext.insert(c)
-                                    try? modelContext.save()
-                                    newContactName = ""
-                                    showingAddContact = false
-                                    Haptics.success()
-                                }
+                                let c = Contact(name: trimmed)
+                                modelContext.insert(c)
+                                try? modelContext.save()
+                                newContactName = ""
+                                showingAddContact = false
+                                Haptics.success()
                             }.disabled(newContactName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
                     }
@@ -185,12 +173,10 @@ struct DirectListView: View {
                                 Button("Save") {
                                     let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                                     guard !trimmed.isEmpty else { return }
-                                    withAnimation(.snappy) {
-                                        contact.name = trimmed
-                                        try? modelContext.save()
-                                        renamingContact = nil
-                                        Haptics.success()
-                                    }
+                                    contact.name = trimmed
+                                    try? modelContext.save()
+                                    renamingContact = nil
+                                    Haptics.success()
                                 }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                             }
                         }

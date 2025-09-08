@@ -17,7 +17,6 @@ struct ContentView: View {
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage("privacy_lock_enabled") private var privacyLockEnabled: Bool = false
-    @AppStorage(AppSettings.onboardingSeenKey) private var onboardingSeen: Bool = false
     @State private var showQuickAdd = false
     @State private var quickAddGroup: Group?
     @State private var showGroup = false
@@ -82,11 +81,9 @@ struct ContentView: View {
             if let group = quickAddGroup {
                 NavigationStack {
                     AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                        withAnimation(.snappy) {
-                            DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
-                            showQuickAdd = false
-                            quickAddGroup = nil
-                        }
+                        DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        showQuickAdd = false
+                        quickAddGroup = nil
                     }
                 }
             }
@@ -94,11 +91,6 @@ struct ContentView: View {
         .sheet(isPresented: $showGroup) {
             if let group = openGroup {
                 NavigationStack { GroupDetailView(group: group) }
-            }
-        }
-        .fullScreenCover(isPresented: Binding(get: { !onboardingSeen }, set: { _ in })) {
-            OnboardingView {
-                onboardingSeen = true
             }
         }
     }

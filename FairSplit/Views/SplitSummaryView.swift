@@ -21,7 +21,6 @@ struct SplitSummaryView: View {
                     .foregroundStyle(positive ? .green : .red)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
-                    .contentTransition(.numericText())
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(m.name), \(amount >= 0 ? "is owed" : "owes") \(CurrencyFormatter.string(from: amount >= 0 ? amount : -amount, currencyCode: group.defaultCurrency))")

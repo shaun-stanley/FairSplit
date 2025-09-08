@@ -38,7 +38,6 @@ struct SettleUpView: View {
                                     .fontWeight(.semibold)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.75)
-                                    .contentTransition(.numericText())
                             }
                             .accessibilityLabel("\(item.from.name) pays \(item.to.name) \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))")
                             .swipeActions(edge: .trailing) {
@@ -97,7 +96,6 @@ struct SettleUpView: View {
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.75)
-                                        .contentTransition(.numericText())
                                 }
                                 .accessibilityLabel("Settlement: \(s.from.name) paid \(s.to.name) \(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency)) on \(s.date.formatted(date: .abbreviated, time: .omitted))")
                                 .contextMenu {
@@ -174,11 +172,9 @@ struct SettleUpView: View {
     }
 
     private func record() {
-        withAnimation(.snappy) {
-            DataRepository(context: modelContext, undoManager: undoManager).recordSettlements(for: group, transfers: proposals)
-            Haptics.success()
-            saved = true
-        }
+        DataRepository(context: modelContext, undoManager: undoManager).recordSettlements(for: group, transfers: proposals)
+        Haptics.success()
+        saved = true
     }
 
     private func prepareShare() {

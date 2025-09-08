@@ -22,7 +22,6 @@ private struct SplitRootView: View {
     @State private var showingAdd = false
     @State private var showingSettings = false
     @State private var searchText = ""
-    @FocusState private var searchFocused: Bool
 
     private var filtered: [Group] {
         let f = groups.filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
@@ -41,23 +40,13 @@ private struct SplitRootView: View {
             }
             .navigationTitle("Groups")
             .searchable(text: $searchText)
-            .searchFocused($searchFocused)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button(action: { showingSettings = true }) { Image(systemName: "gearshape") }
                         .accessibilityLabel("Settings")
-                        .keyboardShortcut(",", modifiers: [.command])
                     Button(action: { showingAdd = true }) { Image(systemName: "plus") }
                         .accessibilityLabel("Add Group")
                         .keyboardShortcut("n", modifiers: [.command])
-                    Button(action: { searchFocused = true }) { EmptyView() }
-                        .keyboardShortcut("f", modifiers: [.command])
-                        .hidden()
-                }
-            }
-            .onAppear {
-                if selected == nil, let first = groups.sorted(by: { $0.lastActivity > $1.lastActivity }).first {
-                    selected = first
                 }
             }
         } detail: {
