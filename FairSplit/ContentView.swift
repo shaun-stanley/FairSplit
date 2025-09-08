@@ -17,6 +17,7 @@ struct ContentView: View {
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage("privacy_lock_enabled") private var privacyLockEnabled: Bool = false
+    @AppStorage(AppSettings.onboardingSeenKey) private var onboardingSeen: Bool = false
     @State private var showQuickAdd = false
     @State private var quickAddGroup: Group?
     @State private var showGroup = false
@@ -91,6 +92,11 @@ struct ContentView: View {
         .sheet(isPresented: $showGroup) {
             if let group = openGroup {
                 NavigationStack { GroupDetailView(group: group) }
+            }
+        }
+        .fullScreenCover(isPresented: Binding(get: { !onboardingSeen }, set: { _ in })) {
+            OnboardingView {
+                onboardingSeen = true
             }
         }
     }
