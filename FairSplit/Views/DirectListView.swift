@@ -122,6 +122,7 @@ struct DirectListView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                     Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
+                        .keyboardShortcut("n", modifiers: [.command, .shift])
                 }
             }
             .sheet(isPresented: $showingAddExpense) {

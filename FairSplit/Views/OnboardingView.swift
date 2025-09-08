@@ -23,7 +23,7 @@ struct OnboardingView: View {
             Spacer()
             Image(systemName: "person.3.fill")
                 .font(.system(size: 56))
-                .foregroundStyle(.accent)
+                .foregroundStyle(.tint)
             Text("Welcome to FairSplit")
                 .font(.largeTitle).bold()
             Text("Track shared expenses with clarity. Log who paid, split fairly, and settle up with confidence.")
@@ -41,7 +41,7 @@ struct OnboardingView: View {
             Spacer()
             Image(systemName: "lock.shield.fill")
                 .font(.system(size: 56))
-                .foregroundStyle(.accent)
+                .foregroundStyle(.tint)
             Text("Privacy & Control")
                 .font(.title).bold()
             VStack(alignment: .leading, spacing: 8) {
@@ -63,7 +63,7 @@ struct OnboardingView: View {
             Spacer()
             Image(systemName: "sparkles")
                 .font(.system(size: 56))
-                .foregroundStyle(.accent)
+                .foregroundStyle(.tint)
             Text("Get Started")
                 .font(.title).bold()
             VStack(alignment: .leading, spacing: 8) {
@@ -111,4 +111,3 @@ struct OnboardingView: View {
 #Preview {
     OnboardingView(onDone: {})
 }
-

@@ -45,6 +45,7 @@ struct MembersView: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button("New Member") { showingAdd = true }
+                        .keyboardShortcut("n", modifiers: [.command, .shift])
                     #if canImport(ContactsUI)
                     Button("From Contacts…") { showingContacts = true }
                     #endif

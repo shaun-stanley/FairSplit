@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 /// Lightweight engine to summarize report metrics off the main thread.
 struct ReportsEngine {
@@ -44,4 +45,3 @@ struct ReportsEngine {
         )
     }
 }
-

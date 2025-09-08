@@ -29,6 +29,7 @@ struct GroupDetailView: View {
     @State private var newCurrencyCode: String = AppSettings.defaultCurrencyCode()
     @State private var confirmCurrencyChange = false
     @State private var selectedDetailTab: DetailTab = .expenses
+    @State private var showSettleSheet = false
 
     private enum Anchor: String, Hashable {
         case balances, settle, expenses, recurring, totals, activity, members
@@ -80,7 +81,7 @@ struct GroupDetailView: View {
     private var mainScrollContent: some View {
         ScrollViewReader { proxy in
             makeList(proxy: proxy)
-                .onChange(of: selectedDetailTab) { newVal in
+                .onChange(of: selectedDetailTab) { _, newVal in
                     withAnimation(.easeInOut) {
                         proxy.scrollTo(anchor(for: newVal), anchor: .top)
                     }
@@ -96,6 +97,21 @@ struct GroupDetailView: View {
             .toolbar { toolbarContent }
             .toolbarTitleMenu { titleMenuContent }
             .searchable(text: $searchText, prompt: "Search expenses")
+            // Keyboard shortcuts
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("") { showingAddExpense = true }
+                        .keyboardShortcut("e", modifiers: [.command, .shift])
+                        .labelsHidden()
+                        .hidden()
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button("") { showSettleSheet = true }
+                        .keyboardShortcut("s", modifiers: [.command, .shift])
+                        .labelsHidden()
+                        .hidden()
+                }
+            }
     }
 
     @ToolbarContentBuilder
@@ -301,6 +317,9 @@ struct GroupDetailView: View {
                 } else {
                     ShareSheet(activityItems: [shareText])
                 }
+            }
+            .sheet(isPresented: $showSettleSheet) {
+                NavigationStack { SettleUpView(group: group) }
             }
             .sheet(item: $commentingExpense) { expense in
                 NavigationStack {

@@ -14,17 +14,21 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PLAT-1] iPad refinements: sidebar polish and keyboard shortcuts
-2. [REPORTS-3] Export CSV/PDF from Reports scope views
-3. [PAY-4] Memo templates and quick copy in Settle Up
+1. [REPORTS-3] Export CSV/PDF from Reports scope views
+2. [PAY-4] Memo templates and quick copy in Settle Up
+3. [UX-43] Pull-to-refresh polish (no-op till CloudKit)
 
 ## In Progress
-
+[PLAT-1] iPad refinements: sidebar polish and keyboard shortcuts
 
 
 
 
 ## Done
+[BUG-13] Reports: fixed missing SwiftData import in ReportsEngine; resolved GroupDetailView deprecation by using two-parameter onChange.
+[BUG-12] Onboarding: replaced deprecated accent style usage with .tint foreground style to fix build.
+[SYS-7] Live Activity: updated request API to iOS 16.2+ content-based initializer with fallback.
+[PLAT-1] iPad refinements: auto-select first group, Command-, for Settings, Command-F focuses search in sidebar; Command-Shift-N for New Member and New Contact; Command-Shift-E to add expense and Command-Shift-S to open Settle Up from Group Detail.
 [SYS-6] Performance polish: offloaded Reports totals (overall, per-group, category, monthly) to a background summarizer with main-thread snapshots for smooth scrolling.
 [UX-42] Micro-interactions: added snappy animations for add/edit/delete, archived/unarchive, and recurring actions; numeric-text transitions for amounts in key lists.
 [ONB-1] Welcome sheet on first run: added a three-step, full-screen welcome with quick tour and privacy note; dismisses to app and never shows again.
@@ -189,6 +193,7 @@
 ---
 
 ## Changelog
+- 2025-09-08: PLAT-1 — iPad refinements with sidebar focus and keyboard shortcuts across Groups, Members, Direct, and Group Detail.
 - 2025-09-08: SYS-6 — Reports computations now summarized off-main for smoother charts and lists; snapshots taken safely on main.
 - 2025-09-08: UX-42 — Micro-interactions across the app: subtle springs on create/edit/delete and numeric transitions on amounts.
 - 2025-09-08: ONB-1 — Added first-run welcome sheet with a brief tour and privacy note; shows once and can be dismissed.
