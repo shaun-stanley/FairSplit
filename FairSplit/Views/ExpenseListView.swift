@@ -80,6 +80,7 @@ struct ExpenseListView: View {
             }
             .onDelete(perform: delete)
         }
+        .contentMargins(.horizontal, 20, for: .scrollContent)
         .navigationTitle("Expenses")
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) { EditButton() }

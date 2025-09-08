@@ -98,7 +98,13 @@ struct AddExpenseView: View {
         .navigationTitle(expense == nil ? "New Expense" : "Edit Expense")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-            ToolbarItem(placement: .confirmationAction) { Button("Save", action: save).disabled(!canSave) }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save", action: save)
+                    .disabled(!canSave)
+                    #if canImport(TipKit)
+                    .popoverTip(AppTips.addExpense)
+                    #endif
+            }
         }
         .sheet(isPresented: $showingScanner) {
             DocumentScannerView { imageData in

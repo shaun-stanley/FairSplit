@@ -14,14 +14,17 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-4] TipKit/coach marks: first-run hints for Add Expense and Settle Up
-2. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
+1. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
+2. [A11Y-2] Color not the only signal: add icons/text for positive/negative balances
+3. [L10N-2] Indian numbering format (₹1,23,456) when locale applies
 
 ## In Progress
-[UX-41] Align page content with nav title margins across all screens (set horizontal content margins; remove only outer horizontal padding that would double-inset)
+
 
 
 ## Done
+[UX-4] TipKit coach marks: first-run hints for Add Expense and Settle Up; added TipKit popover tips to Add Expense Save and Group Detail actions; ensured TipKit configured on launch.
+[UX-41] Align page content with nav title margins across all screens. Applied consistent horizontal scroll content margins to any remaining screens (e.g., Expense List) and avoided double-insets.
 [UX-40] Groups: aligned large titles with content margins across tabs using system-aligned scroll content margins; kept large, horizontally scrollable tiles for Groups
 [DATA-5] Seed: sample group default currency set to INR for all seeded expenses; maintains FX mapping for USD/EUR examples
 [UX-37] Reports: Apple-like chart polish with rounded bars, interactive scrubbing + callouts + haptics, smoother animations, and softer gridlines
@@ -178,6 +181,8 @@
 ---
 
 ## Changelog
+- 2025-09-08: UX-4 — Added TipKit coach marks for Add Expense (Save and Add menu) and Settle Up; configured Tips on launch.
+- 2025-09-08: UX-41 — Aligned page content with navigation title margins across remaining screens (added horizontal content margins to Expense List, ensured no double-insets).
 - 2025-09-08: UX-40 — Aligned large navigation titles with content margins across Groups, Direct, Reports, and Settings using dynamic system-aligned scroll content margins; preserved Groups' large, horizontally scrollable tiles.
 - 2025-08-31: DATA-5 — Sample group seed now uses INR as the default currency; seeded local expenses use INR, with USD examples converted via static demo FX to INR.
 - 2025-08-31: UX-37 — Polished Reports charts: rounded category bars with spacing, material plot backgrounds, interactive scrubbing with callouts and haptics, smoothed area+line trend, and softened grids/labels.
