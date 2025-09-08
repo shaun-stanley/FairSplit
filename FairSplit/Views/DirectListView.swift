@@ -38,7 +38,7 @@ struct DirectListView: View {
             List {
                 Section("Balances") {
                     if pairs.isEmpty {
-                        ContentUnavailableView("No direct expenses", systemImage: "person.fill.and.arrow.right")
+                        ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
                     } else {
                         ForEach(0..<pairs.count, id: \.self) { i in
                             let (a, b, net) = pairs[i]
