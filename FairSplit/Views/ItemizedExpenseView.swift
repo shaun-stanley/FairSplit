@@ -101,6 +101,7 @@ struct ItemizedExpenseView: View {
                 }
             }
         }
+        .contentMargins(.horizontal, for: .scrollContent)
         .navigationTitle("Itemized Expense")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }

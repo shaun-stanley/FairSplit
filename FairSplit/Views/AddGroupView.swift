@@ -10,6 +10,7 @@ struct AddGroupView: View {
             Form {
                 TextField("Name", text: $name)
             }
+            .contentMargins(.horizontal, for: .scrollContent)
             .navigationTitle("New Group")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

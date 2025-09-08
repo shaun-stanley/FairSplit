@@ -227,6 +227,7 @@ struct GroupDetailView: View {
                             .foregroundStyle(.secondary)
                         }
                     }
+                    .contentMargins(.horizontal, for: .scrollContent)
                     .navigationTitle("Group Currency")
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingCurrencyPicker = false } }
@@ -323,6 +324,7 @@ struct GroupDetailView: View {
                                 .keyboardType(.decimalPad)
                         }
                     }
+                    .contentMargins(.horizontal, for: .scrollContent)
                     .navigationTitle("Amount Filter")
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }
@@ -705,6 +707,7 @@ extension GroupDetailView {
             activitySection().id(Anchor.activity)
             membersRows().id(Anchor.members)
         }
+        .contentMargins(.horizontal, for: .scrollContent)
     }
     // Simple inline header row for rows-only sections
     @ViewBuilder private func headerRow(_ title: String) -> some View {

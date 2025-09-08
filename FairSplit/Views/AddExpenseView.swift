@@ -94,6 +94,7 @@ struct AddExpenseView: View {
                 }
             }
         }
+        .contentMargins(.horizontal, for: .scrollContent)
         .navigationTitle(expense == nil ? "New Expense" : "Edit Expense")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }

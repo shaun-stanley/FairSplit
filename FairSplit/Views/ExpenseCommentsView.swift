@@ -39,6 +39,7 @@ struct ExpenseCommentsView: View {
                 }
             }
         }
+        .contentMargins(.horizontal, for: .scrollContent)
         .navigationTitle("Comments")
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
@@ -70,4 +71,3 @@ struct ExpenseCommentsView: View {
     }
     .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self], inMemory: true)
 }
-

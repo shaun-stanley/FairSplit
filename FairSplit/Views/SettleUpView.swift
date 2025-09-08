@@ -109,6 +109,7 @@ struct SettleUpView: View {
                         }
                     }
                 }
+                .contentMargins(.horizontal, for: .scrollContent)
             }
         }
         .navigationTitle("Settle Up")
@@ -217,7 +218,8 @@ private struct ApplePaySheet: View {
                 #endif
                 Spacer()
             }
-            .padding()
+            .contentMargins(.horizontal)
+            .padding(.vertical)
             .navigationTitle("Apple Pay")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: onCancel) }

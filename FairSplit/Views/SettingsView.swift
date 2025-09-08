@@ -147,7 +147,7 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .toolbarTitleDisplayMode(.inlineLarge)
-            .contentMargins(.horizontal, 20, for: .scrollContent)
+            .contentMargins(.horizontal, for: .scrollContent)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
             }

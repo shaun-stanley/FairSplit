@@ -14,6 +14,7 @@ struct SplitSummaryView: View {
                     .foregroundStyle(amount >= 0 ? .green : .red)
             }
         }
+        .contentMargins(.horizontal, for: .scrollContent)
         .navigationTitle("Summary")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

@@ -149,6 +149,7 @@ struct ExpenseListView: View {
                             .keyboardType(.decimalPad)
                     }
                 }
+                .contentMargins(.horizontal, for: .scrollContent)
                 .navigationTitle("Amount Filter")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAmountFilter = false } }

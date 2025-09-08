@@ -37,6 +37,7 @@ struct MembersView: View {
                     }
             }
         }
+        .contentMargins(.horizontal, for: .scrollContent)
         .navigationTitle("Members")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -57,6 +58,7 @@ struct MembersView: View {
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
                 Form { TextField("Name", text: $newName) }
+                .contentMargins(.horizontal, for: .scrollContent)
                 .navigationTitle("New Member")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAdd = false; newName = "" } }
@@ -75,6 +77,7 @@ struct MembersView: View {
         .sheet(item: $renaming) { member in
             NavigationStack {
                 Form { TextField("Name", text: $renameText) }
+                .contentMargins(.horizontal, for: .scrollContent)
                 .navigationTitle("Rename Member")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { renaming = nil } }
@@ -102,6 +105,7 @@ struct MembersView: View {
                     }
                     .pickerStyle(.navigationLink)
                 }
+                .contentMargins(.horizontal, for: .scrollContent)
                 .navigationTitle("Merge Members")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { mergingSource = nil; mergingTarget = nil } }

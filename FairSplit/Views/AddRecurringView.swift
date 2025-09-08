@@ -54,6 +54,7 @@ struct AddRecurringView: View {
                     }
                 }
             }
+            .contentMargins(.horizontal, for: .scrollContent)
             .navigationTitle("New Recurring")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }

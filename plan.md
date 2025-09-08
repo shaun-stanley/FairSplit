@@ -18,7 +18,7 @@
 2. [UX-30] Dynamic Type audit: ensure row spacing, truncation, and labels scale cleanly
 
 ## In Progress
-
+[UX-41] Align page content with nav title margins across all screens (set horizontal content margins; remove only outer horizontal padding that would double-inset)
 
 
 ## Done
