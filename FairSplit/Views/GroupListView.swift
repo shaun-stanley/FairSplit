@@ -25,8 +25,7 @@ struct GroupListView: View {
         }
         .listStyle(.insetGrouped)
         .listSectionSpacing(.compact)
-        // Align large titles with content like Apple apps (dynamic)
-        .systemAlignedScrollContentMargins()
+        // Use the system List insets so headers align with the large title
         .contentMargins(.top, 4, for: .scrollContent)
         .overlay {
             if activeGroups.isEmpty && archivedGroups.isEmpty {
