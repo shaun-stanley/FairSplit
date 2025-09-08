@@ -14,14 +14,17 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [A11Y-2] Color not the only signal: add icons/text for positive/negative balances
-2. [L10N-2] Indian numbering format (₹1,23,456) when locale applies
+1. [L10N-2] Indian numbering format (₹1,23,456) when locale applies
+2. [ONB-1] Welcome sheet on first run: quick tour and privacy note
+3. [UX-42] Micro-interactions: subtle spring animations for add/edit/delete
 
 ## In Progress
+[L10N-2] Indian numbering format (₹1,23,456) when locale applies
 
 
 
 ## Done
+[A11Y-2] Color not the only signal: added icons and text (Owed/Owes) alongside colored amounts in Summary; improved VoiceOver labels to announce "is owed/owes" instead of relying on sign/color.
 [UX-30] Dynamic Type audit: refined trailing amount labels to avoid truncation; added line limits and scaling to Direct and Settle Up lists for clearer large text.
 [UX-4] TipKit coach marks: first-run hints for Add Expense and Settle Up; added TipKit popover tips to Add Expense Save and Group Detail actions; ensured TipKit configured on launch.
 [UX-41] Align page content with nav title margins across all screens. Applied consistent horizontal scroll content margins to any remaining screens (e.g., Expense List) and avoided double-insets.
@@ -181,6 +184,7 @@
 ---
 
 ## Changelog
+- 2025-09-08: A11Y-2 — Balances no longer rely on color alone: added icons and Owed/Owes text; improved VoiceOver labels.
 - 2025-09-08: UX-30 — Improved Dynamic Type handling for key rows: ensured amounts scale and truncate gracefully in Direct and Settle Up lists.
 - 2025-09-08: UX-4 — Added TipKit coach marks for Add Expense (Save and Add menu) and Settle Up; configured Tips on launch.
 - 2025-09-08: UX-41 — Aligned page content with navigation title margins across remaining screens (added horizontal content margins to Expense List, ensured no double-insets).

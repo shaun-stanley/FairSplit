@@ -578,7 +578,7 @@ struct GroupDetailView: View {
                 .minimumScaleFactor(0.75)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(member.name), balance \(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))")
+        .accessibilityLabel("\(member.name), \(amount >= 0 ? "is owed" : "owes") \(CurrencyFormatter.string(from: amount >= 0 ? amount : -amount, currencyCode: group.defaultCurrency))")
         .contextMenu {
             Button("Copy Amount") {
                 let text = CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency)

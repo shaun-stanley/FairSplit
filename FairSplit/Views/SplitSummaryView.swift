@@ -7,12 +7,23 @@ struct SplitSummaryView: View {
         let balances = SplitCalculator.netBalances(expenses: group.expenses, members: group.members, settlements: group.settlements, defaultCurrency: group.defaultCurrency)
         List(group.members, id: \.persistentModelID) { m in
             let amount = balances[m.persistentModelID] ?? 0
-            HStack {
+            HStack(spacing: 8) {
                 Text(m.name)
-                Spacer()
+                Spacer(minLength: 8)
+                let positive = amount >= 0
+                Image(systemName: positive ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
+                    .foregroundStyle(positive ? .green : .red)
+                    .accessibilityHidden(true)
+                Text(positive ? "Owed" : "Owes")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
-                    .foregroundStyle(amount >= 0 ? .green : .red)
+                    .foregroundStyle(positive ? .green : .red)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(m.name), \(amount >= 0 ? "is owed" : "owes") \(CurrencyFormatter.string(from: amount >= 0 ? amount : -amount, currencyCode: group.defaultCurrency))")
         }
         .contentMargins(.horizontal, 20, for: .scrollContent)
         .navigationTitle("Summary")
