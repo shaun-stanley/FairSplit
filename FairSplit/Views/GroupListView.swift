@@ -25,6 +25,8 @@ struct GroupListView: View {
         }
         .listStyle(.insetGrouped)
         .listSectionSpacing(.compact)
+        // Align large titles with content like Apple apps (dynamic)
+        .systemAlignedScrollContentMargins()
         .contentMargins(.top, 4, for: .scrollContent)
         .overlay {
             if activeGroups.isEmpty && archivedGroups.isEmpty {
@@ -71,18 +73,28 @@ private extension GroupListView {
     @ViewBuilder
     var activeSection: some View {
         Section("Active") {
-            ForEach(activeGroups, id: \.persistentModelID) { group in
-                NavigationLink(destination: GroupDetailView(group: group)) {
-                    groupRow(group)
+            // Delightful, large horizontally scrollable tiles inspired by Apple Music
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(activeGroups, id: \.persistentModelID) { group in
+                        NavigationLink(destination: GroupDetailView(group: group)) {
+                            groupTile(group)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button("Archive") {
+                                DataRepository(context: modelContext, undoManager: undoManager)
+                                    .setArchived(true, for: group)
+                                Haptics.success()
+                            }
+                        }
+                    }
                 }
-                .swipeActions(allowsFullSwipe: true) {
-                    Button("Archive") {
-                        DataRepository(context: modelContext, undoManager: undoManager)
-                            .setArchived(true, for: group)
-                        Haptics.success()
-                    }.tint(.orange)
-                }
+                .padding(.horizontal, 4) // breathing room at the edges
+                .padding(.vertical, 2)
             }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -133,6 +145,64 @@ private extension GroupListView {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(groupAccessibilityLabel(group))
         .accessibilityHint("Opens group details")
+    }
+
+    // Large tile used in the horizontal carousel
+    @ViewBuilder
+    func groupTile(_ group: Group) -> some View {
+        let (start, end) = tileGradientColors(for: group)
+        let width: CGFloat = 300
+        let height: CGFloat = 180
+        ZStack(alignment: .bottomLeading) {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(LinearGradient(gradient: Gradient(colors: [start, end]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.08))
+                )
+            VStack(alignment: .leading, spacing: 8) {
+                Text(group.name)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
+                if let me = group.members.first {
+                    let balance = group.balance(for: me)
+                    let subtitle: String = {
+                        if balance > 0 {
+                            return "You're owed \(CurrencyFormatter.string(from: balance, currencyCode: group.defaultCurrency))"
+                        } else if balance < 0 {
+                            return "You owe \(CurrencyFormatter.string(from: -balance, currencyCode: group.defaultCurrency))"
+                        } else {
+                            return "All settled"
+                        }
+                    }()
+                    Text(subtitle)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.95))
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
+                }
+            }
+            .padding(16)
+        }
+        .frame(width: width, height: height)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(groupAccessibilityLabel(group))
+        .accessibilityHint("Opens group details")
+    }
+
+    // Deterministic pleasant gradient based on the group name
+    func tileGradientColors(for group: Group) -> (Color, Color) {
+        let name = group.name
+        var hasher = Hasher()
+        hasher.combine(name)
+        let value = UInt64(bitPattern: Int64(hasher.finalize()))
+        // Map hash to hues for two related colors
+        let hue1 = Double((value % 360)) / 360.0
+        let hue2 = Double(((value >> 8) % 360)) / 360.0
+        let c1 = Color(hue: hue1, saturation: 0.75, brightness: 0.85)
+        let c2 = Color(hue: (hue1 * 0.6 + hue2 * 0.4).truncatingRemainder(dividingBy: 1.0), saturation: 0.85, brightness: 0.75)
+        return (c1, c2)
     }
     func groupAccessibilityLabel(_ group: Group) -> String {
         var parts: [String] = [group.name]
