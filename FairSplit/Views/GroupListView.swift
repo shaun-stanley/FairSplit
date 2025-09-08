@@ -83,9 +83,11 @@ private extension GroupListView {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button("Archive") {
-                                DataRepository(context: modelContext, undoManager: undoManager)
-                                    .setArchived(true, for: group)
-                                Haptics.success()
+                                withAnimation(.snappy) {
+                                    DataRepository(context: modelContext, undoManager: undoManager)
+                                        .setArchived(true, for: group)
+                                    Haptics.success()
+                                }
                             }
                         }
                     }
@@ -108,9 +110,11 @@ private extension GroupListView {
                 .badge("Archived")
                 .swipeActions(allowsFullSwipe: true) {
                     Button("Unarchive") {
-                        DataRepository(context: modelContext, undoManager: undoManager)
-                            .setArchived(false, for: group)
-                        Haptics.success()
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext, undoManager: undoManager)
+                                .setArchived(false, for: group)
+                            Haptics.success()
+                        }
                     }.tint(.green)
                 }
             }

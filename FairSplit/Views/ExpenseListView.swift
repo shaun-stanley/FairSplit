@@ -60,21 +60,26 @@ struct ExpenseListView: View {
                         .fontWeight(.semibold)
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
+                        .contentTransition(.numericText())
                 }
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(expenseAccessibilityLabel(expense))
                 .swipeActions {
                     Button("Edit") { editingExpense = expense }.tint(.blue)
                     Button("Delete", role: .destructive) {
-                        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                        Haptics.success()
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                            Haptics.success()
+                        }
                     }
                 }
                 .contextMenu {
                     Button("Edit") { editingExpense = expense }
                     Button("Delete", role: .destructive) {
-                        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                        Haptics.success()
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                            Haptics.success()
+                        }
                     }
                 }
             }
@@ -129,14 +134,18 @@ struct ExpenseListView: View {
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, included, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    withAnimation(.snappy) {
+                        DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    }
                 }
             }
         }
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, included, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    withAnimation(.snappy) {
+                        DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    }
                 }
             }
         }
@@ -161,27 +170,31 @@ struct ExpenseListView: View {
         .sheet(isPresented: $showingAddItemized) {
             NavigationStack {
                 ItemizedExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, items, tax, tip, allocation, payer, category, note, receipt in
-                    DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
-                        to: group,
-                        title: title,
-                        items: items.map { ($0.0, $0.1, $0.2) },
-                        tax: tax,
-                        tip: tip,
-                        allocation: allocation,
-                        payer: payer,
-                        category: category,
-                        note: note,
-                        receiptImageData: receipt,
-                        currencyCode: group.defaultCurrency
-                    )
+                    withAnimation(.snappy) {
+                        DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
+                            to: group,
+                            title: title,
+                            items: items.map { ($0.0, $0.1, $0.2) },
+                            tax: tax,
+                            tip: tip,
+                            allocation: allocation,
+                            payer: payer,
+                            category: category,
+                            note: note,
+                            receiptImageData: receipt,
+                            currencyCode: group.defaultCurrency
+                        )
+                    }
                 }
             }
-        }
+    }
     }
 
     private func delete(at offsets: IndexSet) {
         let toDelete = offsets.map { group.expenses[$0] }
-        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
+        withAnimation(.snappy) {
+            DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
+        }
     }
 
     private var filteredExpenses: [Expense] {

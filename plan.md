@@ -14,9 +14,9 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-42] Micro-interactions: subtle spring animations for add/edit/delete
-2. [SYS-6] Performance polish: precompute heavy stats off main thread
-3. [PLAT-1] iPad refinements: sidebar polish and keyboard shortcuts
+1. [SYS-6] Performance polish: precompute heavy stats off main thread
+2. [PLAT-1] iPad refinements: sidebar polish and keyboard shortcuts
+3. [REPORTS-3] Export CSV/PDF from Reports scope views
 
 ## In Progress
 
@@ -25,6 +25,7 @@
 
 
 ## Done
+[UX-42] Micro-interactions: added snappy animations for add/edit/delete, archived/unarchive, and recurring actions; numeric-text transitions for amounts in key lists.
 [ONB-1] Welcome sheet on first run: added a three-step, full-screen welcome with quick tour and privacy note; dismisses to app and never shows again.
 [L10N-2] Indian numbering format: format amounts with Indian digit grouping when currency is INR or the user’s region is India (e.g., ₹1,23,456.78).
 [A11Y-2] Color not the only signal: added icons and text (Owed/Owes) alongside colored amounts in Summary; improved VoiceOver labels to announce "is owed/owes" instead of relying on sign/color.
@@ -187,6 +188,7 @@
 ---
 
 ## Changelog
+- 2025-09-08: UX-42 — Micro-interactions across the app: subtle springs on create/edit/delete and numeric transitions on amounts.
 - 2025-09-08: ONB-1 — Added first-run welcome sheet with a brief tour and privacy note; shows once and can be dismissed.
 - 2025-09-08: L10N-2 — Use Indian numbering format when applicable (INR or India region), e.g., ₹1,23,456.78.
 - 2025-09-08: A11Y-2 — Balances no longer rely on color alone: added icons and Owed/Owes text; improved VoiceOver labels.

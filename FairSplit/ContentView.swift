@@ -82,9 +82,11 @@ struct ContentView: View {
             if let group = quickAddGroup {
                 NavigationStack {
                     AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                        DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
-                        showQuickAdd = false
-                        quickAddGroup = nil
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                            showQuickAdd = false
+                            quickAddGroup = nil
+                        }
                     }
                 }
             }

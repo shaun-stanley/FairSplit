@@ -171,11 +171,15 @@ struct GroupDetailView: View {
                 Section("Group") {
                     if group.isArchived {
                         Button("Unarchive Group") {
-                            DataRepository(context: modelContext, undoManager: undoManager).setArchived(false, for: group)
+                            withAnimation(.snappy) {
+                                DataRepository(context: modelContext, undoManager: undoManager).setArchived(false, for: group)
+                            }
                         }
                     } else {
                         Button("Archive Group") {
-                            DataRepository(context: modelContext, undoManager: undoManager).setArchived(true, for: group)
+                            withAnimation(.snappy) {
+                                DataRepository(context: modelContext, undoManager: undoManager).setArchived(true, for: group)
+                            }
                         }
                     }
                 }
@@ -253,26 +257,30 @@ struct GroupDetailView: View {
             .sheet(isPresented: $showingAddExpense) {
                 NavigationStack {
                     AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                        DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        }
                     }
                 }
             }
             .sheet(isPresented: $showingAddItemized) {
                 NavigationStack {
                     ItemizedExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, items, tax, tip, allocation, payer, category, note, receipt in
-                        DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
-                            to: group,
-                            title: title,
-                            items: items.map { ($0.0, $0.1, $0.2) },
-                            tax: tax,
-                            tip: tip,
-                            allocation: allocation,
-                            payer: payer,
-                            category: category,
-                            note: note,
-                            receiptImageData: receipt,
-                            currencyCode: group.defaultCurrency
-                        )
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext, undoManager: undoManager).addItemizedExpense(
+                                to: group,
+                                title: title,
+                                items: items.map { ($0.0, $0.1, $0.2) },
+                                tax: tax,
+                                tip: tip,
+                                allocation: allocation,
+                                payer: payer,
+                                category: category,
+                                note: note,
+                                receiptImageData: receipt,
+                                currencyCode: group.defaultCurrency
+                            )
+                        }
                     }
                 }
             }
@@ -310,7 +318,9 @@ struct GroupDetailView: View {
             .sheet(item: $editingExpense) { expense in
                 NavigationStack {
                     AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, participants, category, note, receipt in
-                        DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        withAnimation(.snappy) {
+                            DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: participants, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        }
                     }
                 }
             }
@@ -386,9 +396,9 @@ struct GroupDetailView: View {
                         }
                         Spacer()
                         Menu {
-                            Button(r.isPaused ? "Resume" : "Pause") { DataRepository(context: modelContext).togglePause(r) }
-                            Button("Run Now") { DataRepository(context: modelContext).generateOnce(r, in: group) }
-                            Button("Delete", role: .destructive) { DataRepository(context: modelContext).deleteRecurring(r, from: group) }
+                    Button(r.isPaused ? "Resume" : "Pause") { withAnimation(.snappy) { DataRepository(context: modelContext).togglePause(r) } }
+                    Button("Run Now") { withAnimation(.snappy) { DataRepository(context: modelContext).generateOnce(r, in: group) } }
+                    Button("Delete", role: .destructive) { withAnimation(.snappy) { DataRepository(context: modelContext).deleteRecurring(r, from: group) } }
                         } label: {
                             Image(systemName: "ellipsis.circle")
                         }
@@ -515,6 +525,7 @@ struct GroupDetailView: View {
                     .fontWeight(.semibold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
+                    .contentTransition(.numericText())
                 if !expense.comments.isEmpty {
                     Button(action: { commentingExpense = expense }) {
                         HStack(spacing: 4) {
@@ -535,8 +546,10 @@ struct GroupDetailView: View {
             if !group.isArchived {
                 Button("Edit") { editingExpense = expense }.tint(.blue)
                 Button("Delete", role: .destructive) {
-                    DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                    Haptics.success()
+                    withAnimation(.snappy) {
+                        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                        Haptics.success()
+                    }
                 }
             }
         }
@@ -544,8 +557,10 @@ struct GroupDetailView: View {
             if !group.isArchived {
                 Button("Edit") { editingExpense = expense }
                 Button("Delete", role: .destructive) {
-                    DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
-                    Haptics.success()
+                    withAnimation(.snappy) {
+                        DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                        Haptics.success()
+                    }
                 }
             }
             Button("Comments") { commentingExpense = expense }
@@ -576,6 +591,7 @@ struct GroupDetailView: View {
                 .foregroundStyle(amount >= 0 ? .green : .red)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
+                .contentTransition(.numericText())
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(member.name), \(amount >= 0 ? "is owed" : "owes") \(CurrencyFormatter.string(from: amount >= 0 ? amount : -amount, currencyCode: group.defaultCurrency))")
@@ -756,9 +772,9 @@ extension GroupDetailView {
                     }
                     Spacer()
                     Menu {
-                        Button(r.isPaused ? "Resume" : "Pause") { DataRepository(context: modelContext).togglePause(r) }
-                        Button("Run Now") { DataRepository(context: modelContext).generateOnce(r, in: group) }
-                        Button("Delete", role: .destructive) { DataRepository(context: modelContext).deleteRecurring(r, from: group) }
+                        Button(r.isPaused ? "Resume" : "Pause") { withAnimation(.snappy) { DataRepository(context: modelContext).togglePause(r) } }
+                        Button("Run Now") { withAnimation(.snappy) { DataRepository(context: modelContext).generateOnce(r, in: group) } }
+                        Button("Delete", role: .destructive) { withAnimation(.snappy) { DataRepository(context: modelContext).deleteRecurring(r, from: group) } }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
