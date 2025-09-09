@@ -37,103 +37,9 @@ struct DirectListView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Balances") {
-                    if pairs.isEmpty {
-                        ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
-                    } else {
-                        ForEach(0..<pairs.count, id: \.self) { i in
-                            let (a, b, net) = pairs[i]
-                            HStack(spacing: 6) {
-                                Text("\(a.name) ↔ \(b.name)")
-                                Spacer()
-                                let amount = abs(net)
-                                let owes = net > 0 ? b.name : a.name
-                                let color: Color = net == 0 ? .secondary : (net > 0 ? .red : .green)
-                                Text(net == 0 ? "Settled" : "\(owes) owes \(CurrencyFormatter.string(from: amount))")
-                                    .font(.subheadline)
-                                    .foregroundStyle(color)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                            }
-                        }
-                    }
-                }
-
-                Section("Recent") {
-                    if expenses.isEmpty {
-                        ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
-                    } else {
-                        ForEach(expenses, id: \.persistentModelID) { e in
-                        HStack(alignment: .firstTextBaseline) {
-                            VStack(alignment: .leading) {
-                                Text(e.title).font(.headline)
-                                Text("Paid by \(e.payer.name) • \(e.date, style: .date)")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Text(CurrencyFormatter.string(from: e.amount, currencyCode: e.currencyCode))
-                                .fontWeight(.semibold)
-                                .monospacedDigit()
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.75)
-                        }
-                        .swipeActions {
-                            Button("Edit") { editingExpense = e }.tint(.blue)
-                            Button("Delete", role: .destructive) {
-                                if reduceMotion {
-                                    modelContext.delete(e)
-                                    try? modelContext.save()
-                                } else {
-                                    withAnimation(AppAnimations.spring) {
-                                        modelContext.delete(e)
-                                        try? modelContext.save()
-                                    }
-                                }
-                                Haptics.success()
-                            }
-                        }
-                        .contextMenu {
-                            Button("Edit") { editingExpense = e }
-                            Button("Delete", role: .destructive) {
-                                if reduceMotion {
-                                    modelContext.delete(e)
-                                    try? modelContext.save()
-                                } else {
-                                    withAnimation(AppAnimations.spring) {
-                                        modelContext.delete(e)
-                                        try? modelContext.save()
-                                    }
-                                }
-                                Haptics.success()
-                            }
-                        }
-                    }
-                }
-
-                Section("Contacts") {
-                    if contacts.isEmpty {
-                        ContentUnavailableView("No Contacts Yet", systemImage: "person.badge.plus")
-                    } else {
-                        ForEach(contacts, id: \.persistentModelID) { c in
-                            Text(c.name)
-                                .swipeActions {
-                                    Button("Rename") { renamingContact = c; renameText = c.name }.tint(.blue)
-                                    Button("Delete", role: .destructive) {
-                                        let used = expenses.contains { $0.payer.persistentModelID == c.persistentModelID || $0.other.persistentModelID == c.persistentModelID }
-                                        if used { alertMessage = "This contact has expenses and can’t be deleted." }
-                                        else {
-                                            withAnimation(AppAnimations.spring) {
-                                                modelContext.delete(c)
-                                                try? modelContext.save()
-                                            }
-                                            Haptics.success()
-                                        }
-                                    }
-                                }
-                        }
-                    }
-                }
+                balancesSection
+                recentSection
+                contactsSection
             }
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
@@ -249,6 +155,129 @@ struct DirectListView: View {
 }
 }
 
+// MARK: - Sections (extracted to keep type-checking fast)
+extension DirectListView {
+    @ViewBuilder private var balancesSection: some View {
+        Section("Balances") {
+            if pairs.isEmpty {
+                ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
+            } else {
+                ForEach(0..<pairs.count, id: \.self) { i in
+                    let (a, b, net) = pairs[i]
+                    HStack(spacing: 6) {
+                        Text("\(a.name) ↔ \(b.name)")
+                        Spacer()
+                        let amount = abs(net)
+                        let owes = net > 0 ? b.name : a.name
+                        let color: Color = net == 0 ? .secondary : (net > 0 ? .red : .green)
+                        Text(net == 0 ? "Settled" : "\(owes) owes \(CurrencyFormatter.string(from: amount))")
+                            .font(.subheadline)
+                            .foregroundStyle(color)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var recentSection: some View {
+        // Avoid large empty card merging with Contacts
+        if !expenses.isEmpty {
+            Section("Recent") {
+                ForEach(expenses, id: \.persistentModelID) { e in
+                    DirectExpenseRow(expense: e) {
+                        editingExpense = e
+                    } onDelete: {
+                        if reduceMotion {
+                            modelContext.delete(e)
+                            try? modelContext.save()
+                        } else {
+                            withAnimation(AppAnimations.spring) {
+                                modelContext.delete(e)
+                                try? modelContext.save()
+                            }
+                        }
+                        Haptics.success()
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var contactsSection: some View {
+        Section("Contacts") {
+            if contacts.isEmpty {
+                ContentUnavailableView("No Contacts Yet", systemImage: "person.badge.plus")
+            } else {
+                ForEach(contacts, id: \.persistentModelID) { c in
+                    ContactRow(name: c.name) {
+                        renamingContact = c
+                        renameText = c.name
+                    } onDelete: {
+                        let used = expenses.contains { $0.payer.persistentModelID == c.persistentModelID || $0.other.persistentModelID == c.persistentModelID }
+                        if used {
+                            alertMessage = "This contact has expenses and can’t be deleted."
+                        } else {
+                            withAnimation(AppAnimations.spring) {
+                                modelContext.delete(c)
+                                try? modelContext.save()
+                            }
+                            Haptics.success()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Rows
+private struct DirectExpenseRow: View {
+    var expense: DirectExpense
+    var onEdit: () -> Void
+    var onDelete: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading) {
+                Text(expense.title).font(.headline)
+                Text("Paid by \(expense.payer.name) • \(expense.date, style: .date)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Text(CurrencyFormatter.string(from: expense.amount, currencyCode: expense.currencyCode))
+                .fontWeight(.semibold)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .swipeActions {
+            Button("Edit") { onEdit() }.tint(.blue)
+            Button("Delete", role: .destructive) { onDelete() }
+        }
+        .contextMenu {
+            Button("Edit") { onEdit() }
+            Button("Delete", role: .destructive) { onDelete() }
+        }
+    }
+}
+
+private struct ContactRow: View {
+    var name: String
+    var onRename: () -> Void
+    var onDelete: () -> Void
+
+    var body: some View {
+        Text(name)
+            .swipeActions {
+                Button("Rename") { onRename() }.tint(.blue)
+                Button("Delete", role: .destructive) { onDelete() }
+            }
+    }
+}
 struct AddDirectExpenseView: View {
     var contacts: [Contact]
     var existing: DirectExpense?

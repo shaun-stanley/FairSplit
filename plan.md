@@ -19,12 +19,13 @@
 3. [UX-48] Add pull-to-refresh placeholders
 
 ## In Progress
-[UX-45] Polish empty states for iOS 18 style
+
 
 
 
 
 ## Done
+[UX-45] Polish empty states for iOS 18 style — hide empty "Recent" card on Direct and keep Contacts as a separate section to match iOS grouped list patterns.
 [A11Y-3] Respect Reduce Motion: disables spring animations when user prefers reduced motion.
 [UX-44] Monospaced digits for amounts: applied monospaced digits to currency labels to prevent jitter in lists and summaries.
 [ONB-1] Welcome sheet on first run: added 3-page tour with privacy note; uses native bottom toolbar for controls.
@@ -190,6 +191,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: UX-45 — Direct: removed empty-state card for "Recent" and kept Contacts as a distinct section to follow Apple’s list/section guidelines.
 - 2025-09-09: A11Y-3 — Respect Reduce Motion and avoid spring animations.
 - 2025-09-09: UX-44 — Monospaced digits for currency amounts across key screens.
 - 2025-09-09: ONB-1 — Added welcome sheet with a short tour and privacy note, adopting native bottom toolbar for navigation.

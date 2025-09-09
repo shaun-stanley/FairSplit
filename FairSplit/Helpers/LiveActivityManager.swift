@@ -19,7 +19,8 @@ enum LiveActivityManager {
         let valueText = summaryText(for: group)
         let state = FairSplitActivityAttributes.ContentState(title: "FairSplit", valueText: valueText)
         do {
-            _ = try Activity.request(attributes: attrs, contentState: state)
+            let content = ActivityContent(state: state)
+            _ = try Activity.request(attributes: attrs, content: content, pushType: nil)
         } catch {
             // Ignore if not permitted
         }
@@ -42,4 +43,3 @@ enum LiveActivityManager {
     }
 }
 #endif
-
