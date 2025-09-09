@@ -170,9 +170,13 @@ extension DirectListView {
             } else {
                 ForEach(0..<pairs.count, id: \.self) { i in
                     let (a, b, net) = pairs[i]
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Text("\(a.name) ↔ \(b.name)")
-                        Spacer()
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .foregroundStyle(.primary)
+                            .layoutPriority(1)
+                        Spacer(minLength: 8)
                         let amount = abs(net)
                         let owes = net > 0 ? b.name : a.name
                         let color: Color = net == 0 ? .secondary : (net > 0 ? .red : .green)
@@ -180,7 +184,8 @@ extension DirectListView {
                             .font(.subheadline)
                             .foregroundStyle(color)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.75)
+                            .minimumScaleFactor(0.85)
+                            .layoutPriority(2) // keep status readable
                     }
                 }
             }

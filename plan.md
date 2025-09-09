@@ -19,12 +19,13 @@
 3. [UX-48] Add pull-to-refresh placeholders
 
 ## In Progress
-[UX-46] Improve balance formatting for long names
+[UX-47] Larger tap targets for swipe actions
 
 
 
 
 ## Done
+[UX-46] Improve balance formatting for long names — truncated names in Balances, preserved trailing status, better spacing for one-line fit.
 [UX-45] Polish empty states for iOS 18 style — hide empty "Recent" card on Direct and keep Contacts as a separate section to match iOS grouped list patterns.
 [A11Y-3] Respect Reduce Motion: disables spring animations when user prefers reduced motion.
 [UX-44] Monospaced digits for amounts: applied monospaced digits to currency labels to prevent jitter in lists and summaries.
@@ -191,6 +192,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: UX-46 — Balances rows now truncate very long names with middle truncation and keep the owes/settled status readable on one line.
 - 2025-09-09: UX-45 — Direct: removed empty-state card for "Recent" and kept Contacts as a distinct section to follow Apple’s list/section guidelines.
 - 2025-09-09: A11Y-3 — Respect Reduce Motion and avoid spring animations.
 - 2025-09-09: UX-44 — Monospaced digits for currency amounts across key screens.
