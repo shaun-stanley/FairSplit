@@ -147,6 +147,8 @@ struct DirectListView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .listSectionSpacing(.compact)
             .contentMargins(.horizontal, 20, for: .scrollContent)
         }
         .navigationTitle("Direct")

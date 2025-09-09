@@ -104,6 +104,8 @@ struct ExpenseListView: View {
                 .onDelete(perform: delete)
             }
         }
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
         .contentMargins(.horizontal, 20, for: .scrollContent)
         .navigationTitle("Expenses")
         .toolbar {

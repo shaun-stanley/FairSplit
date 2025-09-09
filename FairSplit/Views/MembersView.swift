@@ -55,6 +55,8 @@ struct MembersView: View {
             }
             }
         }
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
         .contentMargins(.horizontal, 20, for: .scrollContent)
         .navigationTitle("Members")
         .toolbar {
