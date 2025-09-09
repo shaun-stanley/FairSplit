@@ -266,6 +266,8 @@ private struct DirectExpenseRow: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onEdit)
         .swipeActions {
             Button("Edit") { onEdit() }.tint(.blue)
             Button("Delete", role: .destructive) { onDelete() }
@@ -274,6 +276,9 @@ private struct DirectExpenseRow: View {
             Button("Edit") { onEdit() }
             Button("Delete", role: .destructive) { onDelete() }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.activate, onEdit)
     }
 }
 
@@ -284,10 +289,14 @@ private struct ContactRow: View {
 
     var body: some View {
         Text(name)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onRename)
             .swipeActions {
                 Button("Rename") { onRename() }.tint(.blue)
                 Button("Delete", role: .destructive) { onDelete() }
             }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction(.activate, onRename)
     }
 }
 struct AddDirectExpenseView: View {

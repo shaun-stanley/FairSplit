@@ -14,17 +14,18 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-46] Improve balance formatting for long names
-2. [UX-47] Larger tap targets for swipe actions
-3. [UX-48] Add pull-to-refresh placeholders
+1. [UX-48] Add pull-to-refresh placeholders
+2. [UX-49] Combine add buttons into a single Add menu
+3. [UX-50] Review empty-state spacing and icon sizes
 
 ## In Progress
-[UX-47] Larger tap targets for swipe actions
+[UX-48] Add pull-to-refresh placeholders
 
 
 
 
 ## Done
+[UX-47] Larger tap targets for swipe actions — tap a Recent row to edit; tap a Contact to rename; kept swipe as secondary.
 [UX-46] Improve balance formatting for long names — truncated names in Balances, preserved trailing status, better spacing for one-line fit.
 [UX-45] Polish empty states for iOS 18 style — hide empty "Recent" card on Direct and keep Contacts as a separate section to match iOS grouped list patterns.
 [A11Y-3] Respect Reduce Motion: disables spring animations when user prefers reduced motion.
@@ -192,6 +193,8 @@
 ---
 
 ## Changelog
+- 2025-09-09: UX-47 — Rows are tappable (Edit/Rename) to avoid hunting for swipe gestures; improves reachability and clarity.
+
 - 2025-09-09: UX-46 — Balances rows now truncate very long names with middle truncation and keep the owes/settled status readable on one line.
 - 2025-09-09: UX-45 — Direct: removed empty-state card for "Recent" and kept Contacts as a distinct section to follow Apple’s list/section guidelines.
 - 2025-09-09: A11Y-3 — Respect Reduce Motion and avoid spring animations.
