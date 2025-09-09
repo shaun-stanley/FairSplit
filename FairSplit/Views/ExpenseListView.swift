@@ -17,7 +17,16 @@ struct ExpenseListView: View {
 
     var body: some View {
         List {
-            ForEach(filteredExpenses, id: \.persistentModelID) { expense in
+            if filteredExpenses.isEmpty {
+                ContentUnavailableView {
+                    Label("No Expenses", systemImage: "receipt")
+                } description: {
+                    Text("Add your first expense to start splitting.")
+                } actions: {
+                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                }
+            } else {
+                ForEach(filteredExpenses, id: \.persistentModelID) { expense in
                 HStack(alignment: .top, spacing: 12) {
                     if let data = expense.receiptImageData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
@@ -91,25 +100,11 @@ struct ExpenseListView: View {
                         Haptics.success()
                     }
                 }
+                }
+                .onDelete(perform: delete)
             }
-            .onDelete(perform: delete)
         }
         .contentMargins(.horizontal, 20, for: .scrollContent)
-        .overlay {
-            if filteredExpenses.isEmpty {
-                ContentUnavailableView {
-                    Label("No Expenses", systemImage: "receipt")
-                } description: {
-                    Text("Add your first expense to start splitting.")
-                } actions: {
-                    Button {
-                        showingAdd = true
-                    } label: {
-                        Label("Add Expense", systemImage: "plus")
-                    }
-                }
-            }
-        }
         .navigationTitle("Expenses")
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) { EditButton() }
@@ -222,7 +217,6 @@ struct ExpenseListView: View {
 
     private func delete(at offsets: IndexSet) {
         let toDelete = offsets.map { group.expenses[$0] }
-        withAnimation(AppAnimations.spring) {
         if reduceMotion {
             DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
         } else {
@@ -230,7 +224,6 @@ struct ExpenseListView: View {
                 DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
             }
         }
-    }
     }
 
     private var filteredExpenses: [Expense] {

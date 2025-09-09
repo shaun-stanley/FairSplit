@@ -20,7 +20,16 @@ struct MembersView: View {
 
     var body: some View {
         List {
-            ForEach(group.members, id: \.persistentModelID) { member in
+            if group.members.isEmpty {
+                ContentUnavailableView {
+                    Label("No Members", systemImage: "person.2")
+                } description: {
+                    Text("Add people to split expenses together.")
+                } actions: {
+                    Button { showingAdd = true } label: { Label("Add Member", systemImage: "plus") }
+                }
+            } else {
+                ForEach(group.members, id: \.persistentModelID) { member in
                 Text(member.name)
                     .swipeActions {
                         Button("Rename") {
@@ -44,19 +53,9 @@ struct MembersView: View {
                         }
                     }
             }
-        }
-        .contentMargins(.horizontal, 20, for: .scrollContent)
-        .overlay {
-            if group.members.isEmpty {
-                ContentUnavailableView {
-                    Label("No Members", systemImage: "person.2")
-                } description: {
-                    Text("Add people to split expenses together.")
-                } actions: {
-                    Button { showingAdd = true } label: { Label("Add Member", systemImage: "plus") }
-                }
             }
         }
+        .contentMargins(.horizontal, 20, for: .scrollContent)
         .navigationTitle("Members")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

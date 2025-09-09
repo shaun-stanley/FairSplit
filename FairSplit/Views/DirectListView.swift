@@ -60,7 +60,16 @@ struct DirectListView: View {
                 }
 
                 Section("Recent") {
-                    ForEach(expenses, id: \.persistentModelID) { e in
+                    if expenses.isEmpty {
+                        ContentUnavailableView {
+                            Label("No Direct Expenses", systemImage: "arrow.left.arrow.right")
+                        } description: {
+                            Text("Log who paid whom to track balances.")
+                        } actions: {
+                            Button { showingAddExpense = true } label: { Label("Add Expense", systemImage: "plus") }
+                        }
+                    } else {
+                        ForEach(expenses, id: \.persistentModelID) { e in
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading) {
                                 Text(e.title).font(.headline)
@@ -109,47 +118,38 @@ struct DirectListView: View {
                 }
 
                 Section("Contacts") {
-                    ForEach(contacts, id: \.persistentModelID) { c in
-                        Text(c.name)
-                            .swipeActions {
-                                Button("Rename") { renamingContact = c; renameText = c.name }.tint(.blue)
-                                Button("Delete", role: .destructive) {
-                                    let used = expenses.contains { $0.payer.persistentModelID == c.persistentModelID || $0.other.persistentModelID == c.persistentModelID }
-                                    if used { alertMessage = "This contact has expenses and can’t be deleted." }
-                                    else {
-                                        withAnimation(AppAnimations.spring) {
-                                            modelContext.delete(c)
-                                            try? modelContext.save()
+                    if contacts.isEmpty {
+                        ContentUnavailableView {
+                            Label("No Contacts Yet", systemImage: "person.badge.plus")
+                        } description: {
+                            Text("Add contacts to start logging direct expenses.")
+                        } actions: {
+                            Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "plus") }
+                        }
+                    } else {
+                        ForEach(contacts, id: \.persistentModelID) { c in
+                            Text(c.name)
+                                .swipeActions {
+                                    Button("Rename") { renamingContact = c; renameText = c.name }.tint(.blue)
+                                    Button("Delete", role: .destructive) {
+                                        let used = expenses.contains { $0.payer.persistentModelID == c.persistentModelID || $0.other.persistentModelID == c.persistentModelID }
+                                        if used { alertMessage = "This contact has expenses and can’t be deleted." }
+                                        else {
+                                            withAnimation(AppAnimations.spring) {
+                                                modelContext.delete(c)
+                                                try? modelContext.save()
+                                            }
+                                            Haptics.success()
                                         }
-                                        Haptics.success()
                                     }
                                 }
-                            }
+                        }
                     }
                 }
             }
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
-            .overlay {
-                if expenses.isEmpty && contacts.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Contacts Yet", systemImage: "person.badge.plus")
-                    } description: {
-                        Text("Add contacts to start logging direct expenses.")
-                    } actions: {
-                        Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "plus") }
-                    }
-                } else if expenses.isEmpty && !contacts.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Direct Expenses", systemImage: "arrow.left.arrow.right")
-                    } description: {
-                        Text("Log who paid whom to track balances.")
-                    } actions: {
-                        Button { showingAddExpense = true } label: { Label("Add Expense", systemImage: "plus") }
-                    }
-                }
-            }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
