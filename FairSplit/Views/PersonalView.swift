@@ -52,15 +52,15 @@ struct PersonalView: View {
                 VStack {
                     if expenses.isEmpty {
                         ContentUnavailableView {
-                        Label("No Personal Expenses", systemImage: "creditcard")
+                            Label("No Personal Expenses", systemImage: "creditcard")
                         } description: {
                             Text("Add your own expenses to track and review.")
                         } actions: {
                             Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
                         }
                     }
-                    .padding(.top, 24)
                 }
+                .padding(.top, 24)
                 .padding(.horizontal, 20)
             }
         }
