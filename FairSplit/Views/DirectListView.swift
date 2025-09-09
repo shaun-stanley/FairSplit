@@ -61,13 +61,7 @@ struct DirectListView: View {
 
                 Section("Recent") {
                     if expenses.isEmpty {
-                        ContentUnavailableView {
-                            Label("No Direct Expenses", systemImage: "arrow.left.arrow.right")
-                        } description: {
-                            Text("Log who paid whom to track balances.")
-                        } actions: {
-                            Button { showingAddExpense = true } label: { Label("Add Expense", systemImage: "plus") }
-                        }
+                        ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
                     } else {
                         ForEach(expenses, id: \.persistentModelID) { e in
                         HStack(alignment: .firstTextBaseline) {
@@ -119,13 +113,7 @@ struct DirectListView: View {
 
                 Section("Contacts") {
                     if contacts.isEmpty {
-                        ContentUnavailableView {
-                            Label("No Contacts Yet", systemImage: "person.badge.plus")
-                        } description: {
-                            Text("Add contacts to start logging direct expenses.")
-                        } actions: {
-                            Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "plus") }
-                        }
+                        ContentUnavailableView("No Contacts Yet", systemImage: "person.badge.plus")
                     } else {
                         ForEach(contacts, id: \.persistentModelID) { c in
                             Text(c.name)
