@@ -175,9 +175,13 @@ extension DirectListView {
             if pairs.isEmpty {
                 // Keep in-section empty state minimal to avoid oversized cards.
                 ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
             } else {
                 ForEach(0..<pairs.count, id: \.self) { i in
                     let (a, b, net) = pairs[i]
+                    let amount = abs(net)
+                    let owes = net > 0 ? b.name : a.name
+                    let color: Color = net == 0 ? .secondary : (net > 0 ? .red : .green)
                     HStack(spacing: 8) {
                         Text("\(a.name) ↔ \(b.name)")
                             .lineLimit(1)
@@ -185,16 +189,16 @@ extension DirectListView {
                             .foregroundStyle(.primary)
                             .layoutPriority(1)
                         Spacer(minLength: 8)
-                        let amount = abs(net)
-                        let owes = net > 0 ? b.name : a.name
-                        let color: Color = net == 0 ? .secondary : (net > 0 ? .red : .green)
                         Text(net == 0 ? "Settled" : "\(owes) owes \(CurrencyFormatter.string(from: amount))")
                             .font(.subheadline)
                             .foregroundStyle(color)
                             .lineLimit(1)
                             .minimumScaleFactor(0.85)
-                            .layoutPriority(2) // keep status readable
+                            .layoutPriority(2)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Text("\(a.name) and \(b.name)"))
+                    .accessibilityValue(Text(net == 0 ? "Settled" : "\(owes) owes \(CurrencyFormatter.string(from: amount))"))
                 }
             }
         }
@@ -229,6 +233,7 @@ extension DirectListView {
             if contacts.isEmpty {
                 // Minimal variant keeps the card compact per HIG
                 ContentUnavailableView("No Contacts Yet", systemImage: "person.badge.plus")
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
             } else {
                 ForEach(contacts, id: \.persistentModelID) { c in
                     ContactRow(name: c.name) {
@@ -260,6 +265,8 @@ private struct DirectExpenseRow: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        let amountString = CurrencyFormatter.string(from: expense.amount, currencyCode: expense.currencyCode)
+        let dateString = expense.date.formatted(date: .abbreviated, time: .omitted)
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading) {
                 Text(expense.title).font(.headline)
@@ -268,7 +275,7 @@ private struct DirectExpenseRow: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Text(CurrencyFormatter.string(from: expense.amount, currencyCode: expense.currencyCode))
+            Text(amountString)
                 .fontWeight(.semibold)
                 .monospacedDigit()
                 .lineLimit(1)
@@ -287,6 +294,9 @@ private struct DirectExpenseRow: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { onEdit() }
+        .accessibilityAction(named: Text("Delete")) { onDelete() }
+        .accessibilityLabel(Text("\(expense.title), \(amountString). Paid by \(expense.payer.name) on \(dateString)."))
+        .accessibilityHint(Text("Double-tap to edit. Use Actions to delete."))
     }
 }
 
@@ -305,6 +315,9 @@ private struct ContactRow: View {
             }
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { onRename() }
+            .accessibilityAction(named: Text("Delete")) { onDelete() }
+            .accessibilityLabel(Text("\(name) contact"))
+            .accessibilityHint(Text("Double-tap to rename. Use Actions to delete."))
     }
 }
 struct AddDirectExpenseView: View {

@@ -14,17 +14,18 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [A11Y-4] VoiceOver polish for Direct actions and rows
-2. [UX-52] Refine list section spacing across tabs
-3. [TEST-3] Snapshot tests for Direct (empty + populated)
+1. [UX-52] Refine list section spacing across tabs
+2. [TEST-3] Snapshot tests for Direct (empty + populated)
+3. [A11Y-5] Announce owes/settled summary in Balances header
 
 ## In Progress
-
+[A11Y-4] VoiceOver polish for Direct actions and rows
 
 
 
 
 ## Done
+[A11Y-4] VoiceOver polish for Direct actions and rows — rows act like buttons with clear labels and custom Actions (Edit/Delete, Rename/Delete); balances rows read “A and B, Settled/B owes amount”.
 [UX-50] Review empty-state spacing and icon sizes — standardized on compact ContentUnavailableView and tightened row insets for empty sections.
 [UX-48] Add pull-to-refresh placeholders — added pull-to-refresh to key lists and placeholder redaction while refreshing (Direct, Groups, Reports).
 [UX-47] Larger tap targets for swipe actions — tap a Recent row to edit; tap a Contact to rename; kept swipe as secondary.
@@ -195,6 +196,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: A11Y-4 — VoiceOver polish on Direct: tappable rows with clear labels and custom Actions; balances rows announce owes/settled.
 - 2025-09-09: UX-48 — Pull-to-refresh added with subtle placeholder redaction across Direct, Group List, and Reports.
 - 2025-09-09: UX-47 — Rows are tappable (Edit/Rename) to avoid hunting for swipe gestures; improves reachability and clarity.
 
