@@ -32,7 +32,12 @@ struct AccountView: View {
             .navigationTitle("Account")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel("Close")
+                }
             }
         }
     }
@@ -41,4 +46,3 @@ struct AccountView: View {
 #Preview {
     AccountView()
 }
-

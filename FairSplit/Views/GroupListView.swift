@@ -57,13 +57,13 @@ struct GroupListView: View {
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
-                    .accessibilityLabel("Account")
                 Button(action: { showingAdd = true }) { Image(systemName: "plus") }
                     .accessibilityLabel("Add Group")
                     #if canImport(TipKit)
                     .popoverTip(AppTips.addGroup)
                     #endif
+                Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
+                    .accessibilityLabel("Account")
             }
         }
         .sheet(isPresented: $showingAccount) { AccountView() }

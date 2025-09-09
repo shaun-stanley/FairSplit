@@ -14,17 +14,18 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PERS-2] Personal basics: list, add, edit, delete
-2. [PERS-3] Categories and quick filters (month, category)
-3. [PERS-4] Personal summary: this month total + simple chart
+1. [PERS-3] Categories and quick filters (month, category)
+2. [PERS-4] Personal summary: this month total + simple chart
+3. [PERS-5] Quick Add: recent categories + smart defaults
 
 ## In Progress
-[PERS-3] Categories and quick filters (month, category)
+[PERS-2A] Toolbar polish: Account rightmost; close with X
 
 
 
 
 ## Done
+[PERS-2A] Toolbar polish — Account button is now rightmost on all main screens; Account sheet replaces overflow with a clear X close button.
 [PERS-2] Personal basics — added SwiftData PersonalExpense model, Personal list with add/edit/delete, and minimal empty state.
 [PERS-1] Add Personal tab and move Settings under Account — added Personal tab in TabView, Account button on all main screens, nested Settings inside Account; removed 3-dot overflow on main tabs.
 [A11Y-5] Announce owes/settled summary in Balances header — section header now announces total pairs and how many are unsettled/settled.

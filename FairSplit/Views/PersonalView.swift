@@ -39,10 +39,10 @@ struct PersonalView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
-                        .accessibilityLabel("Account")
                     Button { showingAdd = true } label: { Image(systemName: "plus") }
                         .accessibilityLabel("Add Expense")
+                    Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
+                        .accessibilityLabel("Account")
                 }
             }
             // Minimal, Apple-like empty state as an overlay (no big card)

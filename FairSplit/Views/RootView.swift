@@ -42,11 +42,11 @@ private struct SplitRootView: View {
             .searchable(text: $searchText)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
-                    Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
-                        .accessibilityLabel("Account")
                     Button(action: { showingAdd = true }) { Image(systemName: "plus") }
                         .accessibilityLabel("Add Group")
                         .keyboardShortcut("n", modifiers: [.command])
+                    Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
+                        .accessibilityLabel("Account")
                 }
             }
         } detail: {
