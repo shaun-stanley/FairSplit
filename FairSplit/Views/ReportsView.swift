@@ -73,6 +73,7 @@ struct ReportsView: View {
         let months = max(1, Set(monthlyTotals.map { $0.0 }).count)
         return overallTotal / Decimal(months)
     }
+    @State private var isRefreshing = false
 
     var body: some View {
         NavigationStack {
@@ -88,6 +89,12 @@ struct ReportsView: View {
             .navigationTitle("Reports")
             .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .redacted(reason: isRefreshing ? .placeholder : [])
+            .refreshable {
+                isRefreshing = true
+                try? await Task.sleep(nanoseconds: 800_000_000)
+                isRefreshing = false
+            }
         }
     }
 

@@ -9,6 +9,7 @@ struct GroupListView: View {
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @State private var searchText = ""
     @State private var showingAdd = false
+    @State private var isRefreshing = false
 
     private var activeGroups: [Group] {
         groups.filter { !$0.isArchived && (searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText)) }
@@ -29,6 +30,12 @@ struct GroupListView: View {
         // Align large titles with content like Apple apps
         .contentMargins(.horizontal, 20, for: .scrollContent)
         .contentMargins(.top, 4, for: .scrollContent)
+        .redacted(reason: isRefreshing ? .placeholder : [])
+        .refreshable {
+            isRefreshing = true
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            isRefreshing = false
+        }
         .overlay {
             if activeGroups.isEmpty && archivedGroups.isEmpty {
                 ContentUnavailableView {

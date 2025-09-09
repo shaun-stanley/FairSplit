@@ -19,12 +19,13 @@
 3. [UX-50] Review empty-state spacing and icon sizes
 
 ## In Progress
-[UX-48] Add pull-to-refresh placeholders
+[UX-49] Combine add buttons into a single Add menu
 
 
 
 
 ## Done
+[UX-48] Add pull-to-refresh placeholders — added pull-to-refresh to key lists and placeholder redaction while refreshing (Direct, Groups, Reports).
 [UX-47] Larger tap targets for swipe actions — tap a Recent row to edit; tap a Contact to rename; kept swipe as secondary.
 [UX-46] Improve balance formatting for long names — truncated names in Balances, preserved trailing status, better spacing for one-line fit.
 [UX-45] Polish empty states for iOS 18 style — hide empty "Recent" card on Direct and keep Contacts as a separate section to match iOS grouped list patterns.
@@ -193,6 +194,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: UX-48 — Pull-to-refresh added with subtle placeholder redaction across Direct, Group List, and Reports.
 - 2025-09-09: UX-47 — Rows are tappable (Edit/Rename) to avoid hunting for swipe gestures; improves reachability and clarity.
 
 - 2025-09-09: UX-46 — Balances rows now truncate very long names with middle truncation and keep the owes/settled status readable on one line.

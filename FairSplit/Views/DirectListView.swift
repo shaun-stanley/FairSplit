@@ -13,6 +13,7 @@ struct DirectListView: View {
     @State private var renamingContact: Contact?
     @State private var renameText: String = ""
     @State private var alertMessage: String?
+    @State private var isRefreshing = false
 
     private struct PairKey: Hashable { let a: PersistentIdentifier; let b: PersistentIdentifier;
         init(_ p: PersistentIdentifier, _ q: PersistentIdentifier) {
@@ -44,6 +45,13 @@ struct DirectListView: View {
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .redacted(reason: isRefreshing ? .placeholder : [])
+            .refreshable {
+                // No-op refresh until CloudKit sync arrives
+                isRefreshing = true
+                try? await Task.sleep(nanoseconds: 800_000_000)
+                isRefreshing = false
+            }
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
@@ -278,7 +286,7 @@ private struct DirectExpenseRow: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction(.activate, onEdit)
+        .accessibilityAction { onEdit() }
     }
 }
 
@@ -296,7 +304,7 @@ private struct ContactRow: View {
                 Button("Delete", role: .destructive) { onDelete() }
             }
             .accessibilityAddTraits(.isButton)
-            .accessibilityAction(.activate, onRename)
+            .accessibilityAction { onRename() }
     }
 }
 struct AddDirectExpenseView: View {
