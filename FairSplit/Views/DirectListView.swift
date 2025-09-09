@@ -147,114 +147,114 @@ struct DirectListView: View {
                     }
                 }
             }
-            .navigationTitle("Direct")
-            .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { showingAddExpense = true } label: { Image(systemName: "plus") }
-                    Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
-                }
+        }
+        .navigationTitle("Direct")
+        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button { showingAddExpense = true } label: { Image(systemName: "plus") }
+                Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
             }
-            .sheet(isPresented: $showingAddExpense) {
-                AddDirectExpenseView(contacts: contacts) { title, amount, payer, other, note in
-                    let expense = DirectExpense(title: title, amount: amount, payer: payer, other: other, note: note)
-                    if reduceMotion {
+        }
+        .sheet(isPresented: $showingAddExpense) {
+            AddDirectExpenseView(contacts: contacts) { title, amount, payer, other, note in
+                let expense = DirectExpense(title: title, amount: amount, payer: payer, other: other, note: note)
+                if reduceMotion {
+                    modelContext.insert(expense)
+                    try? modelContext.save()
+                } else {
+                    withAnimation(AppAnimations.spring) {
                         modelContext.insert(expense)
                         try? modelContext.save()
-                    } else {
-                        withAnimation(AppAnimations.spring) {
-                            modelContext.insert(expense)
-                            try? modelContext.save()
-                        }
                     }
-                    Haptics.success()
                 }
+                Haptics.success()
             }
-            .sheet(item: $editingExpense) { e in
-                AddDirectExpenseView(contacts: contacts, existing: e) { title, amount, payer, other, note in
-                    if reduceMotion {
+        }
+        .sheet(item: $editingExpense) { e in
+            AddDirectExpenseView(contacts: contacts, existing: e) { title, amount, payer, other, note in
+                if reduceMotion {
+                    e.title = title
+                    e.amount = amount
+                    e.payer = payer
+                    e.other = other
+                    e.note = note
+                    try? modelContext.save()
+                } else {
+                    withAnimation(AppAnimations.spring) {
                         e.title = title
                         e.amount = amount
                         e.payer = payer
                         e.other = other
                         e.note = note
                         try? modelContext.save()
-                    } else {
-                        withAnimation(AppAnimations.spring) {
-                            e.title = title
-                            e.amount = amount
-                            e.payer = payer
-                            e.other = other
-                            e.note = note
-                            try? modelContext.save()
-                        }
                     }
-                    Haptics.success()
+                }
+                Haptics.success()
+            }
+        }
+        .sheet(isPresented: $showingAddContact) {
+            NavigationStack {
+                Form {
+                    TextField("Name", text: $newContactName)
+                }
+                .contentMargins(.horizontal, 20, for: .scrollContent)
+                .navigationTitle("New Contact")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAddContact = false; newContactName = "" } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            let trimmed = newContactName.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !trimmed.isEmpty else { return }
+                            let c = Contact(name: trimmed)
+                            if reduceMotion {
+                                modelContext.insert(c)
+                                try? modelContext.save()
+                            } else {
+                                withAnimation(AppAnimations.spring) {
+                                    modelContext.insert(c)
+                                    try? modelContext.save()
+                                }
+                            }
+                            newContactName = ""
+                            showingAddContact = false
+                            Haptics.success()
+                        }.disabled(newContactName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
                 }
             }
-            .sheet(isPresented: $showingAddContact) {
-                NavigationStack {
-                    Form {
-                        TextField("Name", text: $newContactName)
-                    }
+        }
+        .sheet(item: $renamingContact) { contact in
+            NavigationStack {
+                Form { TextField("Name", text: $renameText) }
                     .contentMargins(.horizontal, 20, for: .scrollContent)
-                    .navigationTitle("New Contact")
+                    .navigationTitle("Rename Contact")
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showingAddContact = false; newContactName = "" } }
+                        ToolbarItem(placement: .cancellationAction) { Button("Cancel") { renamingContact = nil } }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                let trimmed = newContactName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                                 guard !trimmed.isEmpty else { return }
-                                let c = Contact(name: trimmed)
                                 if reduceMotion {
-                                    modelContext.insert(c)
+                                    contact.name = trimmed
                                     try? modelContext.save()
                                 } else {
                                     withAnimation(AppAnimations.spring) {
-                                        modelContext.insert(c)
+                                        contact.name = trimmed
                                         try? modelContext.save()
                                     }
                                 }
-                                newContactName = ""
-                                showingAddContact = false
+                                renamingContact = nil
                                 Haptics.success()
-                            }.disabled(newContactName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                            }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
                     }
-                }
             }
-            .sheet(item: $renamingContact) { contact in
-                NavigationStack {
-                    Form { TextField("Name", text: $renameText) }
-                        .contentMargins(.horizontal, 20, for: .scrollContent)
-                        .navigationTitle("Rename Contact")
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) { Button("Cancel") { renamingContact = nil } }
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Save") {
-                                    let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
-                                    guard !trimmed.isEmpty else { return }
-                                    if reduceMotion {
-                                        contact.name = trimmed
-                                        try? modelContext.save()
-                                    } else {
-                                        withAnimation(AppAnimations.spring) {
-                                            contact.name = trimmed
-                                            try? modelContext.save()
-                                        }
-                                    }
-                                    renamingContact = nil
-                                    Haptics.success()
-                                }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                            }
-                        }
-                }
-            }
-            .alert("Cannot Delete", isPresented: Binding(get: { alertMessage != nil }, set: { if !$0 { alertMessage = nil } })) {
-                Button("OK", role: .cancel) { alertMessage = nil }
-            } message: { Text(alertMessage ?? "") }
         }
+        .alert("Cannot Delete", isPresented: Binding(get: { alertMessage != nil }, set: { if !$0 { alertMessage = nil } })) {
+            Button("OK", role: .cancel) { alertMessage = nil }
+        } message: { Text(alertMessage ?? "") }
     }
 }
 }
