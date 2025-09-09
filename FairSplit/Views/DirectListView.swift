@@ -44,13 +44,19 @@ struct DirectListView: View {
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
             .contentMargins(.horizontal, 20, for: .scrollContent)
-        }
-        .navigationTitle("Direct")
-        .toolbarTitleDisplayMode(.inlineLarge)
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button { showingAddExpense = true } label: { Image(systemName: "plus") }
-                Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
+            .navigationTitle("Direct")
+            .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { showingAddExpense = true } label: { Image(systemName: "plus") }
+                        .accessibilityLabel("Add Direct Expense")
+                    Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
+                        .accessibilityLabel("Add Contact")
+                }
+            }
+            .toolbarTitleMenu {
+                Button { showingAddExpense = true } label: { Label("Add Direct Expense", systemImage: "plus") }
+                Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "person.badge.plus") }
             }
         }
         .sheet(isPresented: $showingAddExpense) {
@@ -153,13 +159,13 @@ struct DirectListView: View {
         } message: { Text(alertMessage ?? "") }
     }
 }
-}
 
 // MARK: - Sections (extracted to keep type-checking fast)
 extension DirectListView {
     @ViewBuilder private var balancesSection: some View {
         Section("Balances") {
             if pairs.isEmpty {
+                // Keep in-section empty state minimal to avoid oversized cards.
                 ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
             } else {
                 ForEach(0..<pairs.count, id: \.self) { i in
@@ -208,6 +214,7 @@ extension DirectListView {
     @ViewBuilder private var contactsSection: some View {
         Section("Contacts") {
             if contacts.isEmpty {
+                // Minimal variant keeps the card compact per HIG
                 ContentUnavailableView("No Contacts Yet", systemImage: "person.badge.plus")
             } else {
                 ForEach(contacts, id: \.persistentModelID) { c in
