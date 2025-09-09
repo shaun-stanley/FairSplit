@@ -19,7 +19,7 @@
 3. [UX-48] Add pull-to-refresh placeholders
 
 ## In Progress
-
+[UX-46] Improve balance formatting for long names
 
 
 
