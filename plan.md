@@ -19,13 +19,14 @@
 3. [UX-43] Balance cells: add gentle reveal animation on appear
 
 ## In Progress
-[UX-42] Micro-interactions: subtle spring animations for add/edit/delete
+[UX-43] Balance cells: add gentle reveal animation on appear
 
 
 
 
 ## Done
 [ONB-1] Welcome sheet on first run: added 3-page tour with privacy note; uses native bottom toolbar for controls.
+[UX-42] Micro-interactions: added subtle spring animations for add/edit/delete across expenses, members, groups, and direct items.
 [L10N-2] Indian numbering format: format amounts with Indian digit grouping when currency is INR or the user’s region is India (e.g., ₹1,23,456.78).
 [A11Y-2] Color not the only signal: added icons and text (Owed/Owes) alongside colored amounts in Summary; improved VoiceOver labels to announce "is owed/owes" instead of relying on sign/color.
 [UX-30] Dynamic Type audit: refined trailing amount labels to avoid truncation; added line limits and scaling to Direct and Settle Up lists for clearer large text.
