@@ -19,12 +19,13 @@
 3. [UX-43] Balance cells: add gentle reveal animation on appear
 
 ## In Progress
-[ONB-1] Welcome sheet on first run: quick tour and privacy note
+[UX-42] Micro-interactions: subtle spring animations for add/edit/delete
 
 
 
 
 ## Done
+[ONB-1] Welcome sheet on first run: added 3-page tour with privacy note; uses native bottom toolbar for controls.
 [L10N-2] Indian numbering format: format amounts with Indian digit grouping when currency is INR or the user’s region is India (e.g., ₹1,23,456.78).
 [A11Y-2] Color not the only signal: added icons and text (Owed/Owes) alongside colored amounts in Summary; improved VoiceOver labels to announce "is owed/owes" instead of relying on sign/color.
 [UX-30] Dynamic Type audit: refined trailing amount labels to avoid truncation; added line limits and scaling to Direct and Settle Up lists for clearer large text.
@@ -186,6 +187,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: ONB-1 — Added welcome sheet with a short tour and privacy note, adopting native bottom toolbar for navigation.
 - 2025-09-08: L10N-2 — Use Indian numbering format when applicable (INR or India region), e.g., ₹1,23,456.78.
 - 2025-09-08: A11Y-2 — Balances no longer rely on color alone: added icons and Owed/Owes text; improved VoiceOver labels.
 - 2025-09-08: UX-30 — Improved Dynamic Type handling for key rows: ensured amounts scale and truncate gracefully in Direct and Settle Up lists.

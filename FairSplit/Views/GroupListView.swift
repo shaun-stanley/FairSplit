@@ -59,7 +59,7 @@ struct GroupListView: View {
         }
         .sheet(isPresented: $showingAdd) {
             AddGroupView { name in
-                withAnimation {
+                withAnimation(AppAnimations.spring) {
                     DataRepository(context: modelContext, undoManager: undoManager)
                         .addGroup(name: name, defaultCurrency: defaultCurrency)
                 }
@@ -83,8 +83,10 @@ private extension GroupListView {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button("Archive") {
-                                DataRepository(context: modelContext, undoManager: undoManager)
-                                    .setArchived(true, for: group)
+                                withAnimation(AppAnimations.spring) {
+                                    DataRepository(context: modelContext, undoManager: undoManager)
+                                        .setArchived(true, for: group)
+                                }
                                 Haptics.success()
                             }
                         }
@@ -108,8 +110,10 @@ private extension GroupListView {
                 .badge("Archived")
                 .swipeActions(allowsFullSwipe: true) {
                     Button("Unarchive") {
-                        DataRepository(context: modelContext, undoManager: undoManager)
-                            .setArchived(false, for: group)
+                        withAnimation(AppAnimations.spring) {
+                            DataRepository(context: modelContext, undoManager: undoManager)
+                                .setArchived(false, for: group)
+                        }
                         Haptics.success()
                     }.tint(.green)
                 }
