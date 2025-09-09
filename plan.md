@@ -14,17 +14,19 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-52] Refine list section spacing across tabs
-2. [TEST-3] Snapshot tests for Direct (empty + populated)
-3. [A11Y-5] Announce owes/settled summary in Balances header
+1. [PERS-2] Personal basics: list, add, edit, delete
+2. [PERS-3] Categories and quick filters (month, category)
+3. [PERS-4] Personal summary: this month total + simple chart
 
 ## In Progress
-[A11Y-4] VoiceOver polish for Direct actions and rows
+[PERS-1] Add Personal tab and move Settings under Account (top bar)
 
 
 
 
 ## Done
+[A11Y-5] Announce owes/settled summary in Balances header — section header now announces total pairs and how many are unsettled/settled.
+[UX-52] Refine list section spacing across tabs — aligned list style, section spacing, and top content margins on Direct, Reports, and Settings.
 [A11Y-4] VoiceOver polish for Direct actions and rows — rows act like buttons with clear labels and custom Actions (Edit/Delete, Rename/Delete); balances rows read “A and B, Settled/B owes amount”.
 [UX-50] Review empty-state spacing and icon sizes — standardized on compact ContentUnavailableView and tightened row insets for empty sections.
 [UX-48] Add pull-to-refresh placeholders — added pull-to-refresh to key lists and placeholder redaction while refreshing (Direct, Groups, Reports).
@@ -126,6 +128,24 @@
 
 ## Backlog (move items up to “Next Up” when ready)
 
+### Epic: Personal Expenses (Apple-like, simple and clear)
+- [PERS-5] Quick Add: one-tap add with recent categories and smart defaults
+- [PERS-6] Budgets: monthly caps per category with gentle alerts
+- [PERS-7] Search: name, notes, amount, category, and date range
+- [PERS-8] Receipts: attach photo, auto-scan amount/date when possible
+- [PERS-9] Calendar view: daily spend with month switcher
+- [PERS-10] Insights: top categories, trends, averages, and highlights
+- [PERS-11] Recurring: track subscriptions and monthly bills; pause/resume
+- [PERS-12] Tags: optional labels (Work, Personal, Travel) for flexible grouping
+- [PERS-13] Widgets: this month spend and quick add
+- [PERS-14] Privacy: Face ID lock toggle and blurred app switcher
+- [PERS-15] iCloud sync: private, on-device caching, simple conflict handling
+- [PERS-16] Export: CSV/PDF of a month or custom range
+- [PERS-17] Shortcuts: “Log expense”, “Show this month”, “Open budgets”
+- [PERS-18] Onboarding: short tour for Personal with tips
+- [PERS-19] Empty states: friendly copy and actions for first add
+
+
 ### Core Experience
  - [CORE-2] Group detail: sections (Expenses, Balances, Settle Up, Members) with sticky headers
 - [CORE-9] App theming: light/dark with accent color; respect system appearance
@@ -196,6 +216,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: UX-52 — Standardized list spacing and margins across Direct, Reports, and Settings for visual consistency.
 - 2025-09-09: A11Y-4 — VoiceOver polish on Direct: tappable rows with clear labels and custom Actions; balances rows announce owes/settled.
 - 2025-09-09: UX-48 — Pull-to-refresh added with subtle placeholder redaction across Direct, Group List, and Reports.
 - 2025-09-09: UX-47 — Rows are tappable (Edit/Rename) to avoid hunting for swipe gestures; improves reachability and clarity.

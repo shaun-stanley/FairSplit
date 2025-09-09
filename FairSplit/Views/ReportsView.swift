@@ -11,6 +11,7 @@ struct ReportsView: View {
     @State private var selectedMonthLabel: String?
     @State private var selectedCategoryLabel: String?
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
+    @State private var showingAccount = false
     private var groupSelection: Binding<PersistentIdentifier?> {
         Binding<PersistentIdentifier?>(
             get: { selectedGroupID },
@@ -86,16 +87,26 @@ struct ReportsView: View {
                 memberSection
                 monthlyTrendSection
             }
+            .listStyle(.insetGrouped)
+            .listSectionSpacing(.compact)
             .navigationTitle("Reports")
             .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .contentMargins(.top, 4, for: .scrollContent)
             .redacted(reason: isRefreshing ? .placeholder : [])
             .refreshable {
                 isRefreshing = true
                 try? await Task.sleep(nanoseconds: 800_000_000)
                 isRefreshing = false
             }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
+                        .accessibilityLabel("Account")
+                }
+            }
         }
+        .sheet(isPresented: $showingAccount) { AccountView() }
     }
 
     // MARK: - Section Builders

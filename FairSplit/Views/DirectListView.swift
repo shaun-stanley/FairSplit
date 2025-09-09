@@ -13,6 +13,7 @@ struct DirectListView: View {
     @State private var renamingContact: Contact?
     @State private var renameText: String = ""
     @State private var alertMessage: String?
+    @State private var showingAccount = false
     @State private var isRefreshing = false
 
     private struct PairKey: Hashable { let a: PersistentIdentifier; let b: PersistentIdentifier;
@@ -45,6 +46,7 @@ struct DirectListView: View {
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .contentMargins(.top, 4, for: .scrollContent)
             .redacted(reason: isRefreshing ? .placeholder : [])
             .refreshable {
                 // No-op refresh until CloudKit sync arrives
@@ -55,6 +57,10 @@ struct DirectListView: View {
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
+                        .accessibilityLabel("Account")
+                }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }
                         .accessibilityLabel("Add Direct Expense")
@@ -165,13 +171,14 @@ struct DirectListView: View {
         .alert("Cannot Delete", isPresented: Binding(get: { alertMessage != nil }, set: { if !$0 { alertMessage = nil } })) {
             Button("OK", role: .cancel) { alertMessage = nil }
         } message: { Text(alertMessage ?? "") }
+        .sheet(isPresented: $showingAccount) { AccountView() }
     }
 }
 
 // MARK: - Sections (extracted to keep type-checking fast)
 extension DirectListView {
     @ViewBuilder private var balancesSection: some View {
-        Section("Balances") {
+        Section(header: balancesHeader) {
             if pairs.isEmpty {
                 // Keep in-section empty state minimal to avoid oversized cards.
                 ContentUnavailableView("No direct expenses", systemImage: "arrow.left.arrow.right")
@@ -202,6 +209,17 @@ extension DirectListView {
                 }
             }
         }
+    }
+
+    // Accessible header summarizing balances status
+    @ViewBuilder private var balancesHeader: some View {
+        let total = pairs.count
+        let settled = pairs.filter { $0.2 == 0 }.count
+        let unsettled = max(0, total - settled)
+        Text("Balances")
+            .accessibilityElement()
+            .accessibilityLabel(Text("Balances"))
+            .accessibilityValue(Text(total == 0 ? "No balances" : "\(total) pairs, \(unsettled) unsettled, \(settled) settled"))
     }
 
     @ViewBuilder private var recentSection: some View {

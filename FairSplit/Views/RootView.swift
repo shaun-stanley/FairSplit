@@ -20,7 +20,7 @@ private struct SplitRootView: View {
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @State private var selected: Group?
     @State private var showingAdd = false
-    @State private var showingSettings = false
+    @State private var showingAccount = false
     @State private var searchText = ""
 
     private var filtered: [Group] {
@@ -42,8 +42,8 @@ private struct SplitRootView: View {
             .searchable(text: $searchText)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
-                    Button(action: { showingSettings = true }) { Image(systemName: "gearshape") }
-                        .accessibilityLabel("Settings")
+                    Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
+                        .accessibilityLabel("Account")
                     Button(action: { showingAdd = true }) { Image(systemName: "plus") }
                         .accessibilityLabel("Add Group")
                         .keyboardShortcut("n", modifiers: [.command])
@@ -63,7 +63,7 @@ private struct SplitRootView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingSettings) { SettingsView() }
+        .sheet(isPresented: $showingAccount) { AccountView() }
     }
 }
 

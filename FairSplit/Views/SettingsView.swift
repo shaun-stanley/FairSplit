@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    var showsClose: Bool = true
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage(AppSettings.cloudSyncKey) private var cloudSync: Bool = false
@@ -148,8 +149,11 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .contentMargins(.top, 4, for: .scrollContent)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
+                if showsClose {
+                    ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
+                }
             }
             .sheet(isPresented: $showingShare) {
                 if let url = exportURL {

@@ -13,14 +13,14 @@ struct MainTabView: View {
                     Label("Direct", systemImage: "arrow.left.arrow.right")
                 }
 
+            PersonalView()
+                .tabItem {
+                    Label("Personal", systemImage: "creditcard")
+                }
+
             ReportsView()
                 .tabItem {
                     Label("Reports", systemImage: "chart.bar")
-                }
-
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
                 }
         }
     }

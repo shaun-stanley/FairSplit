@@ -9,6 +9,7 @@ struct GroupListView: View {
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @State private var searchText = ""
     @State private var showingAdd = false
+    @State private var showingAccount = false
     @State private var isRefreshing = false
 
     private var activeGroups: [Group] {
@@ -55,6 +56,10 @@ struct GroupListView: View {
         .navigationTitle("Groups")
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
+                    .accessibilityLabel("Account")
+            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button(action: { showingAdd = true }) {
                     Image(systemName: "plus")
@@ -65,6 +70,7 @@ struct GroupListView: View {
                 #endif
             }
         }
+        .sheet(isPresented: $showingAccount) { AccountView() }
         .sheet(isPresented: $showingAdd) {
             AddGroupView { name in
                 if reduceMotion {
