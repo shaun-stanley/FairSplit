@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct GroupListView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: [SortDescriptor(\Group.name)]) private var groups: [Group]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.undoManager) private var undoManager
@@ -59,9 +60,14 @@ struct GroupListView: View {
         }
         .sheet(isPresented: $showingAdd) {
             AddGroupView { name in
-                withAnimation(AppAnimations.spring) {
+                if reduceMotion {
                     DataRepository(context: modelContext, undoManager: undoManager)
                         .addGroup(name: name, defaultCurrency: defaultCurrency)
+                } else {
+                    withAnimation(AppAnimations.spring) {
+                        DataRepository(context: modelContext, undoManager: undoManager)
+                            .addGroup(name: name, defaultCurrency: defaultCurrency)
+                    }
                 }
                 searchText = ""
             }
@@ -83,9 +89,14 @@ private extension GroupListView {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button("Archive") {
-                                withAnimation(AppAnimations.spring) {
+                                if reduceMotion {
                                     DataRepository(context: modelContext, undoManager: undoManager)
                                         .setArchived(true, for: group)
+                                } else {
+                                    withAnimation(AppAnimations.spring) {
+                                        DataRepository(context: modelContext, undoManager: undoManager)
+                                            .setArchived(true, for: group)
+                                    }
                                 }
                                 Haptics.success()
                             }
@@ -110,9 +121,14 @@ private extension GroupListView {
                 .badge("Archived")
                 .swipeActions(allowsFullSwipe: true) {
                     Button("Unarchive") {
-                        withAnimation(AppAnimations.spring) {
+                        if reduceMotion {
                             DataRepository(context: modelContext, undoManager: undoManager)
                                 .setArchived(false, for: group)
+                        } else {
+                            withAnimation(AppAnimations.spring) {
+                                DataRepository(context: modelContext, undoManager: undoManager)
+                                    .setArchived(false, for: group)
+                            }
                         }
                         Haptics.success()
                     }.tint(.green)

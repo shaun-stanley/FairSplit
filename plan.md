@@ -14,17 +14,18 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-44] Monospaced digits for amounts to reduce jitter
-2. [A11Y-3] Respect Reduce Motion for animations
-3. [UX-45] Polish empty states for iOS 18 style
+1. [UX-45] Polish empty states for iOS 18 style
+2. [UX-46] Improve balance formatting for long names
+3. [UX-47] Larger tap targets for swipe actions
 
 ## In Progress
-[UX-44] Monospaced digits for amounts to reduce jitter
+[A11Y-3] Respect Reduce Motion for animations
 
 
 
 
 ## Done
+[UX-44] Monospaced digits for amounts: applied monospaced digits to currency labels to prevent jitter in lists and summaries.
 [ONB-1] Welcome sheet on first run: added 3-page tour with privacy note; uses native bottom toolbar for controls.
 [UX-42] Micro-interactions: added subtle spring animations for add/edit/delete across expenses, members, groups, and direct items.
 [L10N-2] Indian numbering format: format amounts with Indian digit grouping when currency is INR or the user’s region is India (e.g., ₹1,23,456.78).
@@ -188,6 +189,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: UX-44 — Monospaced digits for currency amounts across key screens.
 - 2025-09-09: ONB-1 — Added welcome sheet with a short tour and privacy note, adopting native bottom toolbar for navigation.
 - 2025-09-08: L10N-2 — Use Indian numbering format when applicable (INR or India region), e.g., ₹1,23,456.78.
 - 2025-09-08: A11Y-2 — Balances no longer rely on color alone: added icons and Owed/Owes text; improved VoiceOver labels.

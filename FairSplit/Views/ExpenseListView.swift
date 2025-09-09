@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct ExpenseListView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
     @Environment(\.undoManager) private var undoManager
     var group: Group
@@ -67,8 +68,12 @@ struct ExpenseListView: View {
                 .swipeActions {
                     Button("Edit") { editingExpense = expense }.tint(.blue)
                     Button("Delete", role: .destructive) {
-                        withAnimation(AppAnimations.spring) {
+                        if reduceMotion {
                             DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                        } else {
+                            withAnimation(AppAnimations.spring) {
+                                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                            }
                         }
                         Haptics.success()
                     }
@@ -76,8 +81,12 @@ struct ExpenseListView: View {
                 .contextMenu {
                     Button("Edit") { editingExpense = expense }
                     Button("Delete", role: .destructive) {
-                        withAnimation(AppAnimations.spring) {
+                        if reduceMotion {
                             DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                        } else {
+                            withAnimation(AppAnimations.spring) {
+                                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: [expense], from: group)
+                            }
                         }
                         Haptics.success()
                     }
@@ -134,8 +143,12 @@ struct ExpenseListView: View {
         .sheet(isPresented: $showingAdd) {
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, included, category, note, receipt in
-                    withAnimation(AppAnimations.spring) {
+                    if reduceMotion {
                         DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    } else {
+                        withAnimation(AppAnimations.spring) {
+                            DataRepository(context: modelContext, undoManager: undoManager).addExpense(to: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        }
                     }
                 }
             }
@@ -143,8 +156,12 @@ struct ExpenseListView: View {
         .sheet(item: $editingExpense) { expense in
             NavigationStack {
                 AddExpenseView(members: group.members, groupCurrencyCode: group.defaultCurrency, expense: expense, lastRates: group.lastFXRates) { title, amount, currency, rate, payer, included, category, note, receipt in
-                    withAnimation(AppAnimations.spring) {
+                    if reduceMotion {
                         DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                    } else {
+                        withAnimation(AppAnimations.spring) {
+                            DataRepository(context: modelContext, undoManager: undoManager).update(expense: expense, in: group, title: title, amount: amount, payer: payer, participants: included, category: category, note: note, receiptImageData: receipt, currencyCode: currency, fxRateToGroupCurrency: rate)
+                        }
                     }
                 }
             }
@@ -191,8 +208,14 @@ struct ExpenseListView: View {
     private func delete(at offsets: IndexSet) {
         let toDelete = offsets.map { group.expenses[$0] }
         withAnimation(AppAnimations.spring) {
+        if reduceMotion {
             DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
+        } else {
+            withAnimation(AppAnimations.spring) {
+                DataRepository(context: modelContext, undoManager: undoManager).delete(expenses: toDelete, from: group)
+            }
         }
+    }
     }
 
     private var filteredExpenses: [Expense] {

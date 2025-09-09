@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct DirectListView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
     @Query(sort: [SortDescriptor(\Contact.name)]) private var contacts: [Contact]
     @Query(sort: [SortDescriptor(\DirectExpense.date, order: .reverse)]) private var expenses: [DirectExpense]
@@ -77,9 +78,14 @@ struct DirectListView: View {
                         .swipeActions {
                             Button("Edit") { editingExpense = e }.tint(.blue)
                             Button("Delete", role: .destructive) {
-                                withAnimation(AppAnimations.spring) {
+                                if reduceMotion {
                                     modelContext.delete(e)
                                     try? modelContext.save()
+                                } else {
+                                    withAnimation(AppAnimations.spring) {
+                                        modelContext.delete(e)
+                                        try? modelContext.save()
+                                    }
                                 }
                                 Haptics.success()
                             }
@@ -87,9 +93,14 @@ struct DirectListView: View {
                         .contextMenu {
                             Button("Edit") { editingExpense = e }
                             Button("Delete", role: .destructive) {
-                                withAnimation(AppAnimations.spring) {
+                                if reduceMotion {
                                     modelContext.delete(e)
                                     try? modelContext.save()
+                                } else {
+                                    withAnimation(AppAnimations.spring) {
+                                        modelContext.delete(e)
+                                        try? modelContext.save()
+                                    }
                                 }
                                 Haptics.success()
                             }
@@ -129,22 +140,36 @@ struct DirectListView: View {
             .sheet(isPresented: $showingAddExpense) {
                 AddDirectExpenseView(contacts: contacts) { title, amount, payer, other, note in
                     let expense = DirectExpense(title: title, amount: amount, payer: payer, other: other, note: note)
-                    withAnimation(AppAnimations.spring) {
+                    if reduceMotion {
                         modelContext.insert(expense)
                         try? modelContext.save()
+                    } else {
+                        withAnimation(AppAnimations.spring) {
+                            modelContext.insert(expense)
+                            try? modelContext.save()
+                        }
                     }
                     Haptics.success()
                 }
             }
             .sheet(item: $editingExpense) { e in
                 AddDirectExpenseView(contacts: contacts, existing: e) { title, amount, payer, other, note in
-                    withAnimation(AppAnimations.spring) {
+                    if reduceMotion {
                         e.title = title
                         e.amount = amount
                         e.payer = payer
                         e.other = other
                         e.note = note
                         try? modelContext.save()
+                    } else {
+                        withAnimation(AppAnimations.spring) {
+                            e.title = title
+                            e.amount = amount
+                            e.payer = payer
+                            e.other = other
+                            e.note = note
+                            try? modelContext.save()
+                        }
                     }
                     Haptics.success()
                 }
@@ -163,9 +188,14 @@ struct DirectListView: View {
                                 let trimmed = newContactName.trimmingCharacters(in: .whitespacesAndNewlines)
                                 guard !trimmed.isEmpty else { return }
                                 let c = Contact(name: trimmed)
-                                withAnimation(AppAnimations.spring) {
+                                if reduceMotion {
                                     modelContext.insert(c)
                                     try? modelContext.save()
+                                } else {
+                                    withAnimation(AppAnimations.spring) {
+                                        modelContext.insert(c)
+                                        try? modelContext.save()
+                                    }
                                 }
                                 newContactName = ""
                                 showingAddContact = false
@@ -186,9 +216,14 @@ struct DirectListView: View {
                                 Button("Save") {
                                     let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                                     guard !trimmed.isEmpty else { return }
-                                    withAnimation(AppAnimations.spring) {
+                                    if reduceMotion {
                                         contact.name = trimmed
                                         try? modelContext.save()
+                                    } else {
+                                        withAnimation(AppAnimations.spring) {
+                                            contact.name = trimmed
+                                            try? modelContext.save()
+                                        }
                                     }
                                     renamingContact = nil
                                     Haptics.success()

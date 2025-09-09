@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct MembersView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
     @Environment(\.undoManager) private var undoManager
     let group: Group
@@ -31,8 +32,13 @@ struct MembersView: View {
                             mergingTarget = group.members.first { $0.persistentModelID != member.persistentModelID }
                         }.tint(.purple)
                         Button("Delete", role: .destructive) {
-                            let ok = withAnimation(AppAnimations.spring) {
-                                DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
+                            let ok: Bool
+                            if reduceMotion {
+                                ok = DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
+                            } else {
+                                ok = withAnimation(AppAnimations.spring) {
+                                    DataRepository(context: modelContext, undoManager: undoManager).delete(member: member, from: group)
+                                }
                             }
                             if !ok { alertMessage = "This member is used in expenses and cannot be deleted." }
                         }
@@ -68,8 +74,12 @@ struct MembersView: View {
                         Button("Save") {
                             let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
-                            withAnimation(AppAnimations.spring) {
+                            if reduceMotion {
                                 DataRepository(context: modelContext, undoManager: undoManager).addMember(to: group, name: trimmed)
+                            } else {
+                                withAnimation(AppAnimations.spring) {
+                                    DataRepository(context: modelContext, undoManager: undoManager).addMember(to: group, name: trimmed)
+                                }
                             }
                             showingAdd = false
                             newName = ""
@@ -89,8 +99,12 @@ struct MembersView: View {
                         Button("Save") {
                             let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
-                            withAnimation(AppAnimations.spring) {
+                            if reduceMotion {
                                 DataRepository(context: modelContext, undoManager: undoManager).rename(member: member, to: trimmed)
+                            } else {
+                                withAnimation(AppAnimations.spring) {
+                                    DataRepository(context: modelContext, undoManager: undoManager).rename(member: member, to: trimmed)
+                                }
                             }
                             renaming = nil
                         }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -118,8 +132,12 @@ struct MembersView: View {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Merge") {
                             if let target = mergingTarget {
-                                withAnimation(AppAnimations.spring) {
+                                if reduceMotion {
                                     DataRepository(context: modelContext, undoManager: undoManager).merge(member: source, into: target, in: group)
+                                } else {
+                                    withAnimation(AppAnimations.spring) {
+                                        DataRepository(context: modelContext, undoManager: undoManager).merge(member: source, into: target, in: group)
+                                    }
                                 }
                             }
                             mergingSource = nil
