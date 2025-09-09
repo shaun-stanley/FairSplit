@@ -131,6 +131,25 @@ struct DirectListView: View {
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
             .contentMargins(.horizontal, 20, for: .scrollContent)
+            .overlay {
+                if expenses.isEmpty && contacts.isEmpty {
+                    ContentUnavailableView {
+                        Label("No Contacts Yet", systemImage: "person.badge.plus")
+                    } description: {
+                        Text("Add contacts to start logging direct expenses.")
+                    } actions: {
+                        Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "plus") }
+                    }
+                } else if expenses.isEmpty && !contacts.isEmpty {
+                    ContentUnavailableView {
+                        Label("No Direct Expenses", systemImage: "arrow.left.arrow.right")
+                    } description: {
+                        Text("Log who paid whom to track balances.")
+                    } actions: {
+                        Button { showingAddExpense = true } label: { Label("Add Expense", systemImage: "plus") }
+                    }
+                }
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAddExpense = true } label: { Image(systemName: "plus") }

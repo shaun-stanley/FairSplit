@@ -14,17 +14,18 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-45] Polish empty states for iOS 18 style
-2. [UX-46] Improve balance formatting for long names
-3. [UX-47] Larger tap targets for swipe actions
+1. [UX-46] Improve balance formatting for long names
+2. [UX-47] Larger tap targets for swipe actions
+3. [UX-48] Add pull-to-refresh placeholders
 
 ## In Progress
-[A11Y-3] Respect Reduce Motion for animations
+[UX-45] Polish empty states for iOS 18 style
 
 
 
 
 ## Done
+[A11Y-3] Respect Reduce Motion: disables spring animations when user prefers reduced motion.
 [UX-44] Monospaced digits for amounts: applied monospaced digits to currency labels to prevent jitter in lists and summaries.
 [ONB-1] Welcome sheet on first run: added 3-page tour with privacy note; uses native bottom toolbar for controls.
 [UX-42] Micro-interactions: added subtle spring animations for add/edit/delete across expenses, members, groups, and direct items.
@@ -189,6 +190,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: A11Y-3 — Respect Reduce Motion and avoid spring animations.
 - 2025-09-09: UX-44 — Monospaced digits for currency amounts across key screens.
 - 2025-09-09: ONB-1 — Added welcome sheet with a short tour and privacy note, adopting native bottom toolbar for navigation.
 - 2025-09-08: L10N-2 — Use Indian numbering format when applicable (INR or India region), e.g., ₹1,23,456.78.

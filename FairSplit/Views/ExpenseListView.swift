@@ -95,6 +95,21 @@ struct ExpenseListView: View {
             .onDelete(perform: delete)
         }
         .contentMargins(.horizontal, 20, for: .scrollContent)
+        .overlay {
+            if filteredExpenses.isEmpty {
+                ContentUnavailableView {
+                    Label("No Expenses", systemImage: "receipt")
+                } description: {
+                    Text("Add your first expense to start splitting.")
+                } actions: {
+                    Button {
+                        showingAdd = true
+                    } label: {
+                        Label("Add Expense", systemImage: "plus")
+                    }
+                }
+            }
+        }
         .navigationTitle("Expenses")
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) { EditButton() }

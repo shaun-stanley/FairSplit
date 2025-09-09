@@ -46,6 +46,17 @@ struct MembersView: View {
             }
         }
         .contentMargins(.horizontal, 20, for: .scrollContent)
+        .overlay {
+            if group.members.isEmpty {
+                ContentUnavailableView {
+                    Label("No Members", systemImage: "person.2")
+                } description: {
+                    Text("Add people to split expenses together.")
+                } actions: {
+                    Button { showingAdd = true } label: { Label("Add Member", systemImage: "plus") }
+                }
+            }
+        }
         .navigationTitle("Members")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
