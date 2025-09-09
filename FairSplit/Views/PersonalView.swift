@@ -15,7 +15,7 @@ struct PersonalView: View {
                 if expenses.isEmpty == false {
                     Section("Recent") {
                         ForEach(expenses, id: \.persistentModelID) { e in
-                            PersonalExpenseRow(expense: e) { editing = e } onDelete: {
+                            PersonalExpenseCard(expense: e) { editing = e } onDelete: {
                                 if reduceMotion {
                                     modelContext.delete(e)
                                     try? modelContext.save()
@@ -27,6 +27,8 @@ struct PersonalView: View {
                                 }
                                 Haptics.success()
                             }
+                            .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                            .listRowBackground(Color.clear)
                         }
                     }
                 }
@@ -49,17 +51,30 @@ struct PersonalView: View {
             .overlay(alignment: .top) {
                 VStack {
                     if expenses.isEmpty {
-                        ContentUnavailableView {
-                            Label("No Personal Expenses", systemImage: "creditcard")
-                        } description: {
-                            Text("Add your own expenses to track and review.")
-                        } actions: {
-                            Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color(.secondarySystemBackground))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                )
+                            VStack(spacing: 12) {
+                                ContentUnavailableView {
+                                    Label("No Personal Expenses", systemImage: "creditcard")
+                                } description: {
+                                    Text("Add your own expenses to track and review.")
+                                } actions: {
+                                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                                }
+                                .padding(.vertical, 12)
+                            }
+                            .padding(4)
                         }
+                        .frame(maxWidth: 420)
+                        .padding(.horizontal, 20)
                     }
                 }
                 .padding(.top, 24)
-                .padding(.horizontal, 20)
             }
         }
         .sheet(isPresented: $showingAccount) { AccountView() }
@@ -108,27 +123,47 @@ struct PersonalView: View {
         .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self, PersonalExpense.self], inMemory: true)
 }
 
-private struct PersonalExpenseRow: View {
+private struct PersonalExpenseCard: View {
     var expense: PersonalExpense
     var onEdit: () -> Void
     var onDelete: () -> Void
 
     var body: some View {
         let amountString = CurrencyFormatter.string(from: expense.amount, currencyCode: expense.currencyCode)
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading) {
-                Text(expense.title).font(.headline)
-                Text("\(expense.date, style: .date)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Image(systemName: expense.category?.symbolName ?? "creditcard")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .frame(width: 28)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(expense.title)
+                    .font(.headline)
+                HStack(spacing: 6) {
+                    if let cat = expense.category {
+                        Text(cat.displayName)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("\(expense.date, style: .date)")
+                        .foregroundStyle(.secondary)
+                }
+                .font(.subheadline)
             }
-            Spacer()
+            Spacer(minLength: 12)
             Text(amountString)
                 .fontWeight(.semibold)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
         .contentShape(Rectangle())
         .onTapGesture(perform: onEdit)
         .swipeActions {
