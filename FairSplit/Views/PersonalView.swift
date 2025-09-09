@@ -38,11 +38,9 @@ struct PersonalView: View {
             .navigationTitle("Personal")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
                         .accessibilityLabel("Account")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
                     Button { showingAdd = true } label: { Image(systemName: "plus") }
                         .accessibilityLabel("Add Expense")
                 }

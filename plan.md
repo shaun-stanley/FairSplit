@@ -19,12 +19,13 @@
 3. [PERS-4] Personal summary: this month total + simple chart
 
 ## In Progress
-[PERS-2] Personal basics: list, add, edit, delete
+[PERS-3] Categories and quick filters (month, category)
 
 
 
 
 ## Done
+[PERS-2] Personal basics — added SwiftData PersonalExpense model, Personal list with add/edit/delete, and minimal empty state.
 [PERS-1] Add Personal tab and move Settings under Account — added Personal tab in TabView, Account button on all main screens, nested Settings inside Account; removed 3-dot overflow on main tabs.
 [A11Y-5] Announce owes/settled summary in Balances header — section header now announces total pairs and how many are unsettled/settled.
 [UX-52] Refine list section spacing across tabs — aligned list style, section spacing, and top content margins on Direct, Reports, and Settings.
@@ -217,6 +218,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: PERS-2 — Personal basics: CRUD for personal expenses and refined empty state.
 - 2025-09-09: PERS-1 — Added Personal tab and Account screen; Account button on main screens; removed 3-dot overflow; refined empty state for Personal to minimal overlay.
 - 2025-09-09: UX-52 — Standardized list spacing and margins across Direct, Reports, and Settings for visual consistency.
 - 2025-09-09: A11Y-4 — VoiceOver polish on Direct: tappable rows with clear labels and custom Actions; balances rows announce owes/settled.

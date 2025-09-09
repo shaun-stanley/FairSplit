@@ -56,18 +56,14 @@ struct GroupListView: View {
         .navigationTitle("Groups")
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button(action: { showingAccount = true }) { Image(systemName: "person.crop.circle") }
                     .accessibilityLabel("Account")
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button(action: { showingAdd = true }) {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Add Group")
-                #if canImport(TipKit)
-                .popoverTip(AppTips.addGroup)
-                #endif
+                Button(action: { showingAdd = true }) { Image(systemName: "plus") }
+                    .accessibilityLabel("Add Group")
+                    #if canImport(TipKit)
+                    .popoverTip(AppTips.addGroup)
+                    #endif
             }
         }
         .sheet(isPresented: $showingAccount) { AccountView() }

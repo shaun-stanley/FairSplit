@@ -57,15 +57,16 @@ struct DirectListView: View {
             .navigationTitle("Direct")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
                         .accessibilityLabel("Account")
-                }
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { showingAddExpense = true } label: { Image(systemName: "plus") }
-                        .accessibilityLabel("Add Direct Expense")
-                    Button { showingAddContact = true } label: { Image(systemName: "person.badge.plus") }
-                        .accessibilityLabel("Add Contact")
+                    Menu {
+                        Button { showingAddExpense = true } label: { Label("Add Direct Expense", systemImage: "plus") }
+                        Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "person.badge.plus") }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add")
                 }
             }
             // No title menu on main screens to avoid the 3-dot button
