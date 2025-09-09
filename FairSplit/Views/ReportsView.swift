@@ -100,7 +100,7 @@ struct ReportsView: View {
                 isRefreshing = false
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
                         .accessibilityLabel("Account")
                 }

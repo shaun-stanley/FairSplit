@@ -68,10 +68,7 @@ struct DirectListView: View {
                         .accessibilityLabel("Add Contact")
                 }
             }
-            .toolbarTitleMenu {
-                Button { showingAddExpense = true } label: { Label("Add Direct Expense", systemImage: "plus") }
-                Button { showingAddContact = true } label: { Label("Add Contact", systemImage: "person.badge.plus") }
-            }
+            // No title menu on main screens to avoid the 3-dot button
         }
         .sheet(isPresented: $showingAddExpense) {
             AddDirectExpenseView(contacts: contacts) { title, amount, payer, other, note in

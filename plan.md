@@ -19,12 +19,13 @@
 3. [PERS-4] Personal summary: this month total + simple chart
 
 ## In Progress
-[PERS-1] Add Personal tab and move Settings under Account (top bar)
+[PERS-2] Personal basics: list, add, edit, delete
 
 
 
 
 ## Done
+[PERS-1] Add Personal tab and move Settings under Account — added Personal tab in TabView, Account button on all main screens, nested Settings inside Account; removed 3-dot overflow on main tabs.
 [A11Y-5] Announce owes/settled summary in Balances header — section header now announces total pairs and how many are unsettled/settled.
 [UX-52] Refine list section spacing across tabs — aligned list style, section spacing, and top content margins on Direct, Reports, and Settings.
 [A11Y-4] VoiceOver polish for Direct actions and rows — rows act like buttons with clear labels and custom Actions (Edit/Delete, Rename/Delete); balances rows read “A and B, Settled/B owes amount”.
@@ -216,6 +217,7 @@
 ---
 
 ## Changelog
+- 2025-09-09: PERS-1 — Added Personal tab and Account screen; Account button on main screens; removed 3-dot overflow; refined empty state for Personal to minimal overlay.
 - 2025-09-09: UX-52 — Standardized list spacing and margins across Direct, Reports, and Settings for visual consistency.
 - 2025-09-09: A11Y-4 — VoiceOver polish on Direct: tappable rows with clear labels and custom Actions; balances rows announce owes/settled.
 - 2025-09-09: UX-48 — Pull-to-refresh added with subtle placeholder redaction across Direct, Group List, and Reports.

@@ -28,5 +28,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self], inMemory: true)
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self, PersonalExpense.self], inMemory: true)
 }
