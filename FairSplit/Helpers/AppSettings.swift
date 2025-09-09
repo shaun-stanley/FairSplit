@@ -3,6 +3,7 @@ import SwiftUI
 enum AppSettings {
     static let accentKey = "app_accent"
     static let appearanceKey = "app_appearance"
+    static let welcomeCompletedKey = "welcome_completed"
     static let cloudSyncKey = "cloud_sync_enabled"
     static let notificationsEnabledKey = "notifications_enabled"
     static let notificationsHourKey = "notifications_hour"

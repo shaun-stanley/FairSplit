@@ -14,11 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [L10N-2] Indian numbering format (₹1,23,456) when locale applies
-2. [ONB-1] Welcome sheet on first run: quick tour and privacy note
-3. [UX-42] Micro-interactions: subtle spring animations for add/edit/delete
+1. [ONB-1] Welcome sheet on first run: quick tour and privacy note
+2. [UX-42] Micro-interactions: subtle spring animations for add/edit/delete
+3. [UX-43] Balance cells: add gentle reveal animation on appear
 
 ## In Progress
+[ONB-1] Welcome sheet on first run: quick tour and privacy note
 
 
 

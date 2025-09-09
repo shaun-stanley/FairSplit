@@ -16,6 +16,7 @@ struct ContentView: View {
     @Query(sort: [SortDescriptor(\Group.createdAt, order: .reverse)]) private var groups: [Group]
     @AppStorage(AppSettings.accentKey) private var accentID: String = "blue"
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
+    @AppStorage(AppSettings.welcomeCompletedKey) private var welcomeCompleted: Bool = false
     @AppStorage("privacy_lock_enabled") private var privacyLockEnabled: Bool = false
     @State private var showQuickAdd = false
     @State private var quickAddGroup: Group?
@@ -23,6 +24,8 @@ struct ContentView: View {
     @State private var openGroup: Group?
     @State private var isLocked: Bool = false
     @State private var isAuthenticating: Bool = false
+
+    @State private var showWelcome: Bool = false
 
     var body: some View {
         MainTabView()
@@ -39,6 +42,11 @@ struct ContentView: View {
             WidgetDataWriter.updateTopGroupSummary(groups: groups)
             // Configure coach marks
             AppTips.configure()
+            // Show welcome on first run
+            if !welcomeCompleted {
+                // Ensure it presents after initial setup
+                DispatchQueue.main.async { self.showWelcome = true }
+            }
         }
         .onChange(of: groups) { _, newValue in
             WidgetDataWriter.updateTopGroupSummary(groups: newValue)
@@ -77,6 +85,12 @@ struct ContentView: View {
         .preferredColorScheme(AppSettings.scheme(for: appearance))
         .tint(AppSettings.color(for: accentID))
         .overlay(privacyOverlay())
+        .fullScreenCover(isPresented: $showWelcome) {
+            WelcomeView {
+                welcomeCompleted = true
+                showWelcome = false
+            }
+        }
         .sheet(isPresented: $showQuickAdd) {
             if let group = quickAddGroup {
                 NavigationStack {
