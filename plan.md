@@ -14,17 +14,18 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [UX-48] Add pull-to-refresh placeholders
-2. [UX-49] Combine add buttons into a single Add menu
-3. [UX-50] Review empty-state spacing and icon sizes
+1. [A11Y-4] VoiceOver polish for Direct actions and rows
+2. [UX-52] Refine list section spacing across tabs
+3. [TEST-3] Snapshot tests for Direct (empty + populated)
 
 ## In Progress
-[UX-49] Combine add buttons into a single Add menu
+
 
 
 
 
 ## Done
+[UX-50] Review empty-state spacing and icon sizes — standardized on compact ContentUnavailableView and tightened row insets for empty sections.
 [UX-48] Add pull-to-refresh placeholders — added pull-to-refresh to key lists and placeholder redaction while refreshing (Direct, Groups, Reports).
 [UX-47] Larger tap targets for swipe actions — tap a Recent row to edit; tap a Contact to rename; kept swipe as secondary.
 [UX-46] Improve balance formatting for long names — truncated names in Balances, preserved trailing status, better spacing for one-line fit.
