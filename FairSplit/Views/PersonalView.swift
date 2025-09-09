@@ -8,13 +8,45 @@ struct PersonalView: View {
     @State private var showingAdd = false
     @State private var showingAccount = false
     @State private var editing: PersonalExpense?
+    @State private var scope: MonthScope = .thisMonth
+    @State private var selectedCategory: ExpenseCategory? = nil
+
+    private var scopeFiltered: [PersonalExpense] {
+        guard let range = scope.dateRange else { return expenses }
+        return expenses.filter { range.contains($0.date) }
+    }
+    private var filteredExpenses: [PersonalExpense] {
+        scopeFiltered.filter { exp in
+            guard let cat = selectedCategory else { return true }
+            return exp.category == cat
+        }
+    }
+    private var categoryCounts: [(ExpenseCategory?, Int)] {
+        var map: [ExpenseCategory: Int] = [:]
+        for e in scopeFiltered { if let c = e.category { map[c, default: 0] += 1 } }
+        // Build chips: All first with total count, then categories with non-zero count (or all if none yet)
+        let total = scopeFiltered.count
+        var chips: [(ExpenseCategory?, Int)] = [(nil, total)]
+        let cats = ExpenseCategory.allCases
+        let anyCounts = map.values.contains { $0 > 0 }
+        for c in cats {
+            let count = map[c, default: 0]
+            if anyCounts {
+                if count > 0 { chips.append((c, count)) }
+            } else {
+                chips.append((c, 0))
+            }
+        }
+        return chips
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                if expenses.isEmpty == false {
+                filtersSection
+                if filteredExpenses.isEmpty == false {
                     Section("Recent") {
-                        ForEach(expenses, id: \.persistentModelID) { e in
+                        ForEach(filteredExpenses, id: \.persistentModelID) { e in
                             PersonalExpenseCard(expense: e) { editing = e } onDelete: {
                                 if reduceMotion {
                                     modelContext.delete(e)
@@ -50,7 +82,7 @@ struct PersonalView: View {
             // Minimal, Apple-like empty state as an overlay (no big card)
             .overlay(alignment: .top) {
                 VStack {
-                    if expenses.isEmpty {
+                    if filteredExpenses.isEmpty {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .fill(Color(.secondarySystemBackground))
@@ -64,7 +96,15 @@ struct PersonalView: View {
                                 } description: {
                                     Text("Add your own expenses to track and review.")
                                 } actions: {
-                                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                                    HStack(spacing: 16) {
+                                        Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                                        if scope != .all || selectedCategory != nil {
+                                            Button(role: .none) {
+                                                scope = .all
+                                                selectedCategory = nil
+                                            } label: { Label("Clear Filters", systemImage: "line.3.horizontal.decrease.circle") }
+                                        }
+                                    }
                                 }
                                 .padding(.vertical, 12)
                             }
@@ -121,6 +161,73 @@ struct PersonalView: View {
 #Preview {
     PersonalView()
         .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self, PersonalExpense.self], inMemory: true)
+}
+
+// MARK: - Filters UI
+private extension PersonalView {
+    @ViewBuilder var filtersSection: some View {
+        Section("Filters") {
+            Picker("Time", selection: $scope) {
+                ForEach(MonthScope.allCases, id: \.self) { s in
+                    Text(s.label).tag(s)
+                }
+            }
+            .pickerStyle(.segmented)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(categoryCounts, id: \.0?.id) { item in
+                        let cat = item.0
+                        let isSelected = selectedCategory == cat || (cat == nil && selectedCategory == nil)
+                        Button(action: { selectedCategory = cat }) {
+                            HStack(spacing: 6) {
+                                if let c = cat { Image(systemName: c.symbolName) }
+                                Text(cat?.displayName ?? "All")
+                                if item.1 > 0 { Text("\(item.1)").foregroundStyle(.secondary) }
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(isSelected ? Color.accentColor.opacity(0.18) : Color(.tertiarySystemBackground))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(cat == nil ? "All" : cat!.displayName)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+        }
+    }
+}
+
+enum MonthScope: String, CaseIterable {
+    case thisMonth, lastMonth, all
+    var label: String {
+        switch self {
+        case .thisMonth: return "This Month"
+        case .lastMonth: return "Last Month"
+        case .all: return "All"
+        }
+    }
+    var dateRange: ClosedRange<Date>? {
+        switch self {
+        case .all: return nil
+        case .thisMonth:
+            return Self.range(for: Date())
+        case .lastMonth:
+            if let d = Calendar.current.date(byAdding: .month, value: -1, to: Date()) { return Self.range(for: d) }
+            return nil
+        }
+    }
+    private static func range(for date: Date) -> ClosedRange<Date>? {
+        let cal = Calendar.current
+        guard let start = cal.date(from: cal.dateComponents([.year, .month], from: date)),
+              let endStart = cal.date(byAdding: DateComponents(month: 1, day: 0), to: start),
+              let end = cal.date(byAdding: .second, value: -1, to: endStart) else { return nil }
+        return start...end
+    }
 }
 
 private struct PersonalExpenseCard: View {
