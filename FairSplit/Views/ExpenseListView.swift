@@ -58,6 +58,7 @@ struct ExpenseListView: View {
                     Spacer(minLength: 8)
                     Text(CurrencyFormatter.string(from: SplitCalculator.amountInGroupCurrency(for: expense, defaultCurrency: group.defaultCurrency), currencyCode: group.defaultCurrency))
                         .fontWeight(.semibold)
+                        .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                 }

@@ -36,6 +36,7 @@ struct SettleUpView: View {
                                 Spacer()
                                 Text(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency))
                                     .fontWeight(.semibold)
+                                    .monospacedDigit()
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.75)
                             }
@@ -93,6 +94,7 @@ struct SettleUpView: View {
                                             .foregroundStyle(.secondary)
                                     }
                                     Text(CurrencyFormatter.string(from: s.amount, currencyCode: group.defaultCurrency))
+                                        .monospacedDigit()
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.75)

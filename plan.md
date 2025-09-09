@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [ONB-1] Welcome sheet on first run: quick tour and privacy note
-2. [UX-42] Micro-interactions: subtle spring animations for add/edit/delete
-3. [UX-43] Balance cells: add gentle reveal animation on appear
+1. [UX-44] Monospaced digits for amounts to reduce jitter
+2. [A11Y-3] Respect Reduce Motion for animations
+3. [UX-45] Polish empty states for iOS 18 style
 
 ## In Progress
-[UX-43] Balance cells: add gentle reveal animation on appear
+[UX-44] Monospaced digits for amounts to reduce jitter
 
 
 

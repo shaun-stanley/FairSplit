@@ -21,6 +21,7 @@ struct SplitSummaryView: View {
                     .foregroundStyle(.secondary)
                 Text(CurrencyFormatter.string(from: amount, currencyCode: group.defaultCurrency))
                     .foregroundStyle(positive ? .green : .red)
+                    .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }

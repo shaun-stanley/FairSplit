@@ -70,6 +70,7 @@ struct DirectListView: View {
                             Spacer()
                             Text(CurrencyFormatter.string(from: e.amount, currencyCode: e.currencyCode))
                                 .fontWeight(.semibold)
+                                .monospacedDigit()
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                         }
