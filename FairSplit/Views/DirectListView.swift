@@ -257,6 +257,7 @@ struct DirectListView: View {
         }
     }
 }
+}
 
 struct AddDirectExpenseView: View {
     var contacts: [Contact]
