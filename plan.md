@@ -19,7 +19,7 @@
 3. [PERS-6] Budgets: monthly caps per category with gentle alerts
 
 ## In Progress
-
+[PERS-4] Personal summary: this month total + simple chart
 
 
 

@@ -137,6 +137,19 @@ struct PersonalView: View {
 
 // MARK: - Filters UI
 private extension PersonalView {
+    // Precompute simple models to help the type-checker and keep ForEach stable.
+    private var chipModels: [CategoryChipModel] {
+        categoryCounts.map { pair in
+            let cat = pair.0
+            return CategoryChipModel(
+                id: cat?.id ?? "all",
+                category: cat,
+                title: cat?.displayName ?? "All",
+                systemImage: cat?.symbolName,
+                count: pair.1
+            )
+        }
+    }
     // A compact, delightful filter bar that sits under the large title.
     // Segmented month scope + gently rounded category chips, like Apple apps.
     @ViewBuilder var filtersBar: some View {
@@ -153,20 +166,20 @@ private extension PersonalView {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(categoryCounts, id: \.0?.id) { item in
-                        let cat = item.0
+                    ForEach(chipModels) { chip in
+                        let isSelected = (selectedCategory?.id ?? "all") == (chip.category?.id ?? "all")
                         CategoryChip(
-                            title: cat?.displayName ?? "All",
-                            systemImage: cat?.symbolName,
-                            count: item.1,
-                            isSelected: (selectedCategory == cat) || (cat == nil && selectedCategory == nil)
+                            title: chip.title,
+                            systemImage: chip.systemImage,
+                            count: chip.count,
+                            isSelected: isSelected
                         ) {
                             withAnimation(AppAnimations.spring) {
-                                selectedCategory = cat
+                                selectedCategory = chip.category
                             }
                             Haptics.light()
                         }
-                        .accessibilityLabel(cat == nil ? "All" : cat!.displayName)
+                        .accessibilityLabel(chip.title)
                     }
 
                     if scope != .all || selectedCategory != nil {
@@ -230,6 +243,13 @@ private extension PersonalView {
 }
 
 // MARK: - Components
+private struct CategoryChipModel: Identifiable, Equatable {
+    var id: String
+    var category: ExpenseCategory?
+    var title: String
+    var systemImage: String?
+    var count: Int
+}
 private struct CategoryChip: View {
     var title: String
     var systemImage: String?

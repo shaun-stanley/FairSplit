@@ -80,7 +80,7 @@ struct GroupDetailView: View {
     private var mainScrollContent: some View {
         ScrollViewReader { proxy in
             makeList(proxy: proxy)
-                .onChange(of: selectedDetailTab) { newVal in
+                .onChange(of: selectedDetailTab) { _, newVal in
                     withAnimation(.easeInOut) {
                         proxy.scrollTo(anchor(for: newVal), anchor: .top)
                     }
