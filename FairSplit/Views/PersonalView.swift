@@ -43,7 +43,6 @@ struct PersonalView: View {
     var body: some View {
         NavigationStack {
             List {
-                filtersSection
                 if filteredExpenses.isEmpty {
                     Section {
                         emptyCard
@@ -86,6 +85,9 @@ struct PersonalView: View {
                 }
             }
             // Empty state shown inline as a card row to avoid overlay sizing issues
+            .safeAreaInset(edge: .top, spacing: 0) {
+                filtersBar
+            }
         }
         .sheet(isPresented: $showingAccount) { AccountView() }
         .sheet(isPresented: $showingAdd) {
@@ -135,40 +137,62 @@ struct PersonalView: View {
 
 // MARK: - Filters UI
 private extension PersonalView {
-    @ViewBuilder var filtersSection: some View {
-        Section("Filters") {
+    // A compact, delightful filter bar that sits under the large title.
+    // Segmented month scope + gently rounded category chips, like Apple apps.
+    @ViewBuilder var filtersBar: some View {
+        VStack(spacing: 10) {
             Picker("Time", selection: $scope) {
                 ForEach(MonthScope.allCases, id: \.self) { s in
                     Text(s.label).tag(s)
                 }
             }
             .pickerStyle(.segmented)
+            .accessibilityLabel("Time Filter")
+
+            Divider().overlay(Color.primary.opacity(0.08)).padding(.horizontal, 2)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(categoryCounts, id: \.0?.id) { item in
                         let cat = item.0
-                        let isSelected = selectedCategory == cat || (cat == nil && selectedCategory == nil)
-                        Button(action: { selectedCategory = cat }) {
-                            HStack(spacing: 6) {
-                                if let c = cat { Image(systemName: c.symbolName) }
-                                Text(cat?.displayName ?? "All")
-                                if item.1 > 0 { Text("\(item.1)").foregroundStyle(.secondary) }
+                        CategoryChip(
+                            title: cat?.displayName ?? "All",
+                            systemImage: cat?.symbolName,
+                            count: item.1,
+                            isSelected: (selectedCategory == cat) || (cat == nil && selectedCategory == nil)
+                        ) {
+                            withAnimation(AppAnimations.spring) {
+                                selectedCategory = cat
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule(style: .continuous)
-                                    .fill(isSelected ? Color.accentColor.opacity(0.18) : Color(.tertiarySystemBackground))
-                            )
+                            Haptics.light()
                         }
-                        .buttonStyle(.plain)
                         .accessibilityLabel(cat == nil ? "All" : cat!.displayName)
                     }
+
+                    if scope != .all || selectedCategory != nil {
+                        CategoryChip(title: "Clear", systemImage: "line.3.horizontal.decrease.circle", count: nil, isSelected: false) {
+                            withAnimation(AppAnimations.spring) {
+                                scope = .all
+                                selectedCategory = nil
+                            }
+                            Haptics.selection()
+                        }
+                        .accessibilityLabel("Clear Filters")
+                    }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, 2)
             }
-            .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
         }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .shadow(color: Color.black.opacity(0.05), radius: 12, x: 0, y: 6)
+        )
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .background(Color.clear.ignoresSafeArea())
     }
 
     @ViewBuilder var emptyCard: some View {
@@ -202,6 +226,32 @@ private extension PersonalView {
         )
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - Components
+private struct CategoryChip: View {
+    var title: String
+    var systemImage: String?
+    var count: Int?
+    var isSelected: Bool
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if let name = systemImage { Image(systemName: name) }
+                Text(title)
+                if let count, count > 0 { Text("\(count)").foregroundStyle(.secondary) }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(isSelected ? Color.accentColor.opacity(0.18) : Color(.tertiarySystemBackground))
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

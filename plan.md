@@ -19,12 +19,13 @@
 3. [PERS-6] Budgets: monthly caps per category with gentle alerts
 
 ## In Progress
-[PERS-3] Categories and quick filters (month, category)
+
 
 
 
 
 ## Done
+[PERS-3] Personal filters — redesigned to a compact, Apple-like bar with segmented month scope, tidy category chips, and a Clear action; refined empty state.
 [PERS-2A] Toolbar polish — Account button is now rightmost on all main screens; Account sheet replaces overflow with a clear X close button.
 [PERS-2] Personal basics — added SwiftData PersonalExpense model, Personal list with add/edit/delete, and minimal empty state.
 [PERS-1] Add Personal tab and move Settings under Account — added Personal tab in TabView, Account button on all main screens, nested Settings inside Account; removed 3-dot overflow on main tabs.
@@ -219,6 +220,7 @@
 ---
 
 ## Changelog
+- 2025-09-10: PERS-3 — Personal filters: segmented month scope + category chips in a glass bar with Clear action; improved empty state card spacing.
 - 2025-09-09: PERS-2 — Personal basics: CRUD for personal expenses and refined empty state.
 - 2025-09-09: PERS-1 — Added Personal tab and Account screen; Account button on main screens; removed 3-dot overflow; refined empty state for Personal to minimal overlay.
 - 2025-09-09: UX-52 — Standardized list spacing and margins across Direct, Reports, and Settings for visual consistency.
