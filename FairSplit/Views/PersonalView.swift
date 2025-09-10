@@ -43,6 +43,7 @@ struct PersonalView: View {
     var body: some View {
         NavigationStack {
             List {
+                summarySection
                 if filteredExpenses.isEmpty {
                     Section {
                         emptyCard
@@ -137,6 +138,39 @@ struct PersonalView: View {
 
 // MARK: - Filters UI
 private extension PersonalView {
+    // MARK: Summary data
+    private var periodLabel: String { scope.label }
+    private var periodExpenses: [PersonalExpense] { scopeFiltered }
+    private var periodTotal: Decimal { periodExpenses.reduce(0) { $0 + $1.amount } }
+    private var topCategories: [(ExpenseCategory, Decimal)] {
+        var map: [ExpenseCategory: Decimal] = [:]
+        for e in periodExpenses { if let c = e.category { map[c, default: 0] += e.amount } }
+        return ExpenseCategory.allCases.compactMap { c in
+            if let v = map[c], v > 0 { return (c, v) }
+            return nil
+        }.sorted { $0.1 > $1.1 }.prefix(3).map { $0 }
+    }
+    private var last7Values: [Double] {
+        // Build last 7 days relative to today but clamp to scope range
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let start = cal.date(byAdding: .day, value: -6, to: today) ?? today
+        let rangeStart = scope.dateRange?.lowerBound ?? start
+        let effectiveStart = max(rangeStart, start)
+        var dayTotals: [Date: Decimal] = [:]
+        for e in periodExpenses {
+            let d = cal.startOfDay(for: e.date)
+            if d >= effectiveStart && d <= today { dayTotals[d, default: 0] += e.amount }
+        }
+        var vals: [Double] = []
+        for i in 0..<7 {
+            if let d = cal.date(byAdding: .day, value: i, to: effectiveStart) {
+                let v = dayTotals[cal.startOfDay(for: d)] ?? 0
+                vals.append((NSDecimalNumber(decimal: v).doubleValue))
+            }
+        }
+        return vals
+    }
     private var selectedChipID: String { selectedCategory?.id ?? "all" }
     // Precompute simple models to help the type-checker and keep ForEach stable.
     private var chipModels: [CategoryChipModel] {
@@ -223,6 +257,41 @@ private extension PersonalView {
 }
 
 // MARK: - Components
+@ViewBuilder private var summarySection: some View {
+    Section("Summary") {
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(periodLabel)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text(CurrencyFormatter.string(from: periodTotal, currencyCode: Locale.current.currency?.identifier ?? "INR"))
+                    .font(.title3).fontWeight(.semibold).monospacedDigit()
+            }
+            Spacer(minLength: 12)
+            MiniBarChart(values: last7Values)
+                .frame(width: 120, height: 48)
+                .accessibilityHidden(true)
+        }
+        if !topCategories.isEmpty {
+            HStack(spacing: 8) {
+                ForEach(0..<topCategories.count, id: \.self) { i in
+                    let item = topCategories[i]
+                    let amount = CurrencyFormatter.string(from: item.1, currencyCode: Locale.current.currency?.identifier ?? "INR")
+                    Label("\(item.0.displayName) \(amount)", systemImage: item.0.symbolName)
+                        .labelStyle(.titleAndIcon)
+                        .font(.footnote)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule(style: .continuous).fill(Color(.tertiarySystemBackground))
+                        )
+                }
+            }
+            .padding(.top, 2)
+        }
+    }
+}
+
 private struct CategoryChipModel: Identifiable, Equatable {
     var id: String
     var category: ExpenseCategory?
@@ -265,6 +334,23 @@ private struct CategoryChipsRow: View {
                 }
             }
             .padding(.vertical, 2)
+        }
+    }
+}
+
+private struct MiniBarChart: View {
+    var values: [Double]
+    var body: some View {
+        GeometryReader { geo in
+            let maxV = max(values.max() ?? 0, 1)
+            HStack(alignment: .bottom, spacing: 6) {
+                ForEach(Array(values.enumerated()), id: \.offset) { _, item in
+                    let height = CGFloat(item / maxV) * geo.size.height
+                    Capsule(style: .continuous)
+                        .fill(Color.accentColor.opacity(0.35))
+                        .frame(width: (geo.size.width - 6 * CGFloat(values.count - 1)) / CGFloat(values.count), height: height)
+                }
+            }
         }
     }
 }
