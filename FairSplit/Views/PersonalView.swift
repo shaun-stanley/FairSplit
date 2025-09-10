@@ -44,7 +44,13 @@ struct PersonalView: View {
         NavigationStack {
             List {
                 filtersSection
-                if filteredExpenses.isEmpty == false {
+                if filteredExpenses.isEmpty {
+                    Section {
+                        emptyCard
+                    }
+                    .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    .listRowBackground(Color.clear)
+                } else {
                     Section("Recent") {
                         ForEach(filteredExpenses, id: \.persistentModelID) { e in
                             PersonalExpenseCard(expense: e) { editing = e } onDelete: {
@@ -79,43 +85,7 @@ struct PersonalView: View {
                         .accessibilityLabel("Account")
                 }
             }
-            // Minimal, Apple-like empty state as an overlay (no big card)
-            .overlay(alignment: .top) {
-                VStack {
-                    if filteredExpenses.isEmpty {
-                        VStack(spacing: 12) {
-                            ContentUnavailableView {
-                                Label("No Personal Expenses", systemImage: "creditcard")
-                            } description: {
-                                Text("Add your own expenses to track and review.")
-                            } actions: {
-                                HStack(spacing: 16) {
-                                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
-                                    if scope != .all || selectedCategory != nil {
-                                        Button(role: .none) {
-                                            scope = .all
-                                            selectedCategory = nil
-                                        } label: { Label("Clear Filters", systemImage: "line.3.horizontal.decrease.circle") }
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.vertical, 20)
-                        .padding(.horizontal, 16)
-                        .frame(maxWidth: 420)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color(.secondarySystemBackground))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                                )
-                        )
-                        .padding(.horizontal, 20)
-                    }
-                }
-                .padding(.top, 24)
-            }
+            // Empty state shown inline as a card row to avoid overlay sizing issues
         }
         .sheet(isPresented: $showingAccount) { AccountView() }
         .sheet(isPresented: $showingAdd) {
@@ -199,6 +169,39 @@ private extension PersonalView {
             }
             .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
         }
+    }
+
+    @ViewBuilder var emptyCard: some View {
+        VStack(spacing: 12) {
+            ContentUnavailableView {
+                Label("No Personal Expenses", systemImage: "creditcard")
+            } description: {
+                Text("Add your own expenses to track and review.")
+            } actions: {
+                HStack(spacing: 16) {
+                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                    if scope != .all || selectedCategory != nil {
+                        Button(role: .none) {
+                            scope = .all
+                            selectedCategory = nil
+                        } label: { Label("Clear Filters", systemImage: "line.3.horizontal.decrease.circle") }
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: 420)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 20)
     }
 }
 
