@@ -163,7 +163,7 @@ private extension PersonalView {
                     scope = .all
                     selectedCategory = nil
                 }
-                Haptics.selection()
+                Haptics.impact(.light)
             }
         }
         .padding(.vertical, 10)
@@ -252,7 +252,7 @@ private struct CategoryChipsRow: View {
                         withAnimation(AppAnimations.spring) {
                             selectedCategory = chip.category
                         }
-                        Haptics.light()
+                        Haptics.impact(.light)
                     }
                     .accessibilityLabel(chip.title)
                 }
