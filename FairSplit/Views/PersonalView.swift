@@ -257,37 +257,39 @@ private extension PersonalView {
 }
 
 // MARK: - Components
-@ViewBuilder private var summarySection: some View {
-    Section("Summary") {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(periodLabel)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(CurrencyFormatter.string(from: periodTotal, currencyCode: Locale.current.currency?.identifier ?? "INR"))
-                    .font(.title3).fontWeight(.semibold).monospacedDigit()
-            }
-            Spacer(minLength: 12)
-            MiniBarChart(values: last7Values)
-                .frame(width: 120, height: 48)
-                .accessibilityHidden(true)
-        }
-        if !topCategories.isEmpty {
-            HStack(spacing: 8) {
-                ForEach(0..<topCategories.count, id: \.self) { i in
-                    let item = topCategories[i]
-                    let amount = CurrencyFormatter.string(from: item.1, currencyCode: Locale.current.currency?.identifier ?? "INR")
-                    Label("\(item.0.displayName) \(amount)", systemImage: item.0.symbolName)
-                        .labelStyle(.titleAndIcon)
-                        .font(.footnote)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule(style: .continuous).fill(Color(.tertiarySystemBackground))
-                        )
+private extension PersonalView {
+    @ViewBuilder var summarySection: some View {
+        Section("Summary") {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(periodLabel)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(CurrencyFormatter.string(from: periodTotal, currencyCode: Locale.current.currency?.identifier ?? "INR"))
+                        .font(.title3).fontWeight(.semibold).monospacedDigit()
                 }
+                Spacer(minLength: 12)
+                MiniBarChart(values: last7Values)
+                    .frame(width: 120, height: 48)
+                    .accessibilityHidden(true)
             }
-            .padding(.top, 2)
+            if !topCategories.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(0..<topCategories.count, id: \.self) { i in
+                        let item = topCategories[i]
+                        let amount = CurrencyFormatter.string(from: item.1, currencyCode: Locale.current.currency?.identifier ?? "INR")
+                        Label("\(item.0.displayName) \(amount)", systemImage: item.0.symbolName)
+                            .labelStyle(.titleAndIcon)
+                            .font(.footnote)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule(style: .continuous).fill(Color(.tertiarySystemBackground))
+                            )
+                    }
+                }
+                .padding(.top, 2)
+            }
         }
     }
 }
