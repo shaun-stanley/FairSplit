@@ -137,6 +137,7 @@ struct PersonalView: View {
 
 // MARK: - Filters UI
 private extension PersonalView {
+    private var selectedChipID: String { selectedCategory?.id ?? "all" }
     // Precompute simple models to help the type-checker and keep ForEach stable.
     private var chipModels: [CategoryChipModel] {
         categoryCounts.map { pair in
@@ -154,46 +155,15 @@ private extension PersonalView {
     // Segmented month scope + gently rounded category chips, like Apple apps.
     @ViewBuilder var filtersBar: some View {
         VStack(spacing: 10) {
-            Picker("Time", selection: $scope) {
-                ForEach(MonthScope.allCases, id: \.self) { s in
-                    Text(s.label).tag(s)
-                }
-            }
-            .pickerStyle(.segmented)
-            .accessibilityLabel("Time Filter")
-
+            timePicker
             Divider().overlay(Color.primary.opacity(0.08)).padding(.horizontal, 2)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(chipModels) { chip in
-                        let isSelected = (selectedCategory?.id ?? "all") == (chip.category?.id ?? "all")
-                        CategoryChip(
-                            title: chip.title,
-                            systemImage: chip.systemImage,
-                            count: chip.count,
-                            isSelected: isSelected
-                        ) {
-                            withAnimation(AppAnimations.spring) {
-                                selectedCategory = chip.category
-                            }
-                            Haptics.light()
-                        }
-                        .accessibilityLabel(chip.title)
-                    }
-
-                    if scope != .all || selectedCategory != nil {
-                        CategoryChip(title: "Clear", systemImage: "line.3.horizontal.decrease.circle", count: nil, isSelected: false) {
-                            withAnimation(AppAnimations.spring) {
-                                scope = .all
-                                selectedCategory = nil
-                            }
-                            Haptics.selection()
-                        }
-                        .accessibilityLabel("Clear Filters")
-                    }
+            CategoryChipsRow(chips: chipModels, selectedCategory: $selectedCategory, showClear: scope != .all || selectedCategory != nil) {
+                // Clear action
+                withAnimation(AppAnimations.spring) {
+                    scope = .all
+                    selectedCategory = nil
                 }
-                .padding(.vertical, 2)
+                Haptics.selection()
             }
         }
         .padding(.vertical, 10)
@@ -206,6 +176,16 @@ private extension PersonalView {
         .padding(.horizontal, 16)
         .padding(.top, 8)
         .background(Color.clear.ignoresSafeArea())
+    }
+
+    private var timePicker: some View {
+        Picker("Time", selection: $scope) {
+            ForEach(MonthScope.allCases, id: \.self) { s in
+                Text(s.label).tag(s)
+            }
+        }
+        .pickerStyle(.segmented)
+        .accessibilityLabel("Time Filter")
     }
 
     @ViewBuilder var emptyCard: some View {
@@ -249,6 +229,44 @@ private struct CategoryChipModel: Identifiable, Equatable {
     var title: String
     var systemImage: String?
     var count: Int
+}
+
+private struct CategoryChipsRow: View {
+    var chips: [CategoryChipModel]
+    @Binding var selectedCategory: ExpenseCategory?
+    var showClear: Bool
+    var onClear: () -> Void
+
+    private var selectedID: String { selectedCategory?.id ?? "all" }
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(chips) { chip in
+                    CategoryChip(
+                        title: chip.title,
+                        systemImage: chip.systemImage,
+                        count: chip.count,
+                        isSelected: selectedID == chip.id
+                    ) {
+                        withAnimation(AppAnimations.spring) {
+                            selectedCategory = chip.category
+                        }
+                        Haptics.light()
+                    }
+                    .accessibilityLabel(chip.title)
+                }
+
+                if showClear {
+                    CategoryChip(title: "Clear", systemImage: "line.3.horizontal.decrease.circle", count: nil, isSelected: false) {
+                        onClear()
+                    }
+                    .accessibilityLabel("Clear Filters")
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
 }
 private struct CategoryChip: View {
     var title: String
