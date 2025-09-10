@@ -14,12 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PERS-3] Categories and quick filters (month, category)
-2. [PERS-4] Personal summary: this month total + simple chart
-3. [PERS-5] Quick Add: recent categories + smart defaults
+1. [PERS-4] Personal summary: this month total + simple chart
+2. [PERS-5] Quick Add: recent categories + smart defaults
+3. [PERS-6] Budgets: monthly caps per category with gentle alerts
 
 ## In Progress
-[PERS-2A] Toolbar polish: Account rightmost; close with X
+[PERS-3] Categories and quick filters (month, category)
 
 
 

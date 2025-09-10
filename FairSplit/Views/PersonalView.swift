@@ -83,34 +83,34 @@ struct PersonalView: View {
             .overlay(alignment: .top) {
                 VStack {
                     if filteredExpenses.isEmpty {
-                        ZStack {
+                        VStack(spacing: 12) {
+                            ContentUnavailableView {
+                                Label("No Personal Expenses", systemImage: "creditcard")
+                            } description: {
+                                Text("Add your own expenses to track and review.")
+                            } actions: {
+                                HStack(spacing: 16) {
+                                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
+                                    if scope != .all || selectedCategory != nil {
+                                        Button(role: .none) {
+                                            scope = .all
+                                            selectedCategory = nil
+                                        } label: { Label("Clear Filters", systemImage: "line.3.horizontal.decrease.circle") }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.vertical, 20)
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: 420)
+                        .background(
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .fill(Color(.secondarySystemBackground))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                                 )
-                            VStack(spacing: 12) {
-                                ContentUnavailableView {
-                                    Label("No Personal Expenses", systemImage: "creditcard")
-                                } description: {
-                                    Text("Add your own expenses to track and review.")
-                                } actions: {
-                                    HStack(spacing: 16) {
-                                        Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
-                                        if scope != .all || selectedCategory != nil {
-                                            Button(role: .none) {
-                                                scope = .all
-                                                selectedCategory = nil
-                                            } label: { Label("Clear Filters", systemImage: "line.3.horizontal.decrease.circle") }
-                                        }
-                                    }
-                                }
-                                .padding(.vertical, 12)
-                            }
-                            .padding(4)
-                        }
-                        .frame(maxWidth: 420)
+                        )
                         .padding(.horizontal, 20)
                     }
                 }
