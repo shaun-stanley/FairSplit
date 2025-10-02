@@ -8,51 +8,27 @@ struct PersonalView: View {
     @State private var showingAdd = false
     @State private var showingAccount = false
     @State private var editing: PersonalExpense?
-    @State private var scope: MonthScope = .thisMonth
-    @State private var selectedCategory: ExpenseCategory? = nil
 
-    private var scopeFiltered: [PersonalExpense] {
-        guard let range = scope.dateRange else { return expenses }
+    // Focus the screen on an elegant summary of "This Month".
+    private var thisMonthRange: ClosedRange<Date>? { MonthScope.thisMonth.dateRange }
+    private var thisMonthExpenses: [PersonalExpense] {
+        guard let range = thisMonthRange else { return [] }
         return expenses.filter { range.contains($0.date) }
     }
-    private var filteredExpenses: [PersonalExpense] {
-        scopeFiltered.filter { exp in
-            guard let cat = selectedCategory else { return true }
-            return exp.category == cat
-        }
-    }
-    private var categoryCounts: [(ExpenseCategory?, Int)] {
-        var map: [ExpenseCategory: Int] = [:]
-        for e in scopeFiltered { if let c = e.category { map[c, default: 0] += 1 } }
-        // Build chips: All first with total count, then categories with non-zero count (or all if none yet)
-        let total = scopeFiltered.count
-        var chips: [(ExpenseCategory?, Int)] = [(nil, total)]
-        let cats = ExpenseCategory.allCases
-        let anyCounts = map.values.contains { $0 > 0 }
-        for c in cats {
-            let count = map[c, default: 0]
-            if anyCounts {
-                if count > 0 { chips.append((c, count)) }
-            } else {
-                chips.append((c, 0))
-            }
-        }
-        return chips
-    }
+    private var monthTotal: Decimal { thisMonthExpenses.reduce(0) { $0 + $1.amount } }
 
     var body: some View {
         NavigationStack {
             List {
-                summarySection
-                if filteredExpenses.isEmpty {
+                if thisMonthExpenses.isEmpty {
                     Section {
-                        emptyCard
+                        emptyState
                     }
-                    .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 12, trailing: 0))
                     .listRowBackground(Color.clear)
                 } else {
                     Section("Recent") {
-                        ForEach(filteredExpenses, id: \.persistentModelID) { e in
+                        ForEach(thisMonthExpenses, id: \.persistentModelID) { e in
                             PersonalExpenseCard(expense: e) { editing = e } onDelete: {
                                 if reduceMotion {
                                     modelContext.delete(e)
@@ -85,10 +61,8 @@ struct PersonalView: View {
                         .accessibilityLabel("Account")
                 }
             }
-            // Empty state shown inline as a card row to avoid overlay sizing issues
-            .safeAreaInset(edge: .top, spacing: 0) {
-                filtersBar
-            }
+            // Elegant hero summary header
+            .safeAreaInset(edge: .top, spacing: 0) { headerSummary }
         }
         .sheet(isPresented: $showingAccount) { AccountView() }
         .sheet(isPresented: $showingAdd) {
@@ -136,12 +110,11 @@ struct PersonalView: View {
         .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self, PersonalExpense.self], inMemory: true)
 }
 
-// MARK: - Filters UI
+// MARK: - Summary
 private extension PersonalView {
-    // MARK: Summary data
-    private var periodLabel: String { scope.label }
-    private var periodExpenses: [PersonalExpense] { scopeFiltered }
-    private var periodTotal: Decimal { periodExpenses.reduce(0) { $0 + $1.amount } }
+    private var periodLabel: String { "This Month" }
+    private var periodExpenses: [PersonalExpense] { thisMonthExpenses }
+    private var periodTotal: Decimal { monthTotal }
     private var topCategories: [(ExpenseCategory, Decimal)] {
         var map: [ExpenseCategory: Decimal] = [:]
         for e in periodExpenses { if let c = e.category { map[c, default: 0] += e.amount } }
@@ -151,11 +124,10 @@ private extension PersonalView {
         }.sorted { $0.1 > $1.1 }.prefix(3).map { $0 }
     }
     private var last7Values: [Double] {
-        // Build last 7 days relative to today but clamp to scope range
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
         let start = cal.date(byAdding: .day, value: -6, to: today) ?? today
-        let rangeStart = scope.dateRange?.lowerBound ?? start
+        let rangeStart = thisMonthRange?.lowerBound ?? start
         let effectiveStart = max(rangeStart, start)
         var dayTotals: [Date: Decimal] = [:]
         for e in periodExpenses {
@@ -171,106 +143,19 @@ private extension PersonalView {
         }
         return vals
     }
-    private var selectedChipID: String { selectedCategory?.id ?? "all" }
-    // Precompute simple models to help the type-checker and keep ForEach stable.
-    private var chipModels: [CategoryChipModel] {
-        categoryCounts.map { pair in
-            let cat = pair.0
-            return CategoryChipModel(
-                id: cat?.id ?? "all",
-                category: cat,
-                title: cat?.displayName ?? "All",
-                systemImage: cat?.symbolName,
-                count: pair.1
-            )
-        }
-    }
-    // A compact, delightful filter bar that sits under the large title.
-    // Segmented month scope + gently rounded category chips, like Apple apps.
-    @ViewBuilder var filtersBar: some View {
-        VStack(spacing: 10) {
-            timePicker
-            Divider().overlay(Color.primary.opacity(0.08)).padding(.horizontal, 2)
-            CategoryChipsRow(chips: chipModels, selectedCategory: $selectedCategory, showClear: scope != .all || selectedCategory != nil) {
-                // Clear action
-                withAnimation(AppAnimations.spring) {
-                    scope = .all
-                    selectedCategory = nil
-                }
-                Haptics.impact(.light)
-            }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .shadow(color: Color.black.opacity(0.05), radius: 12, x: 0, y: 6)
-        )
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .background(Color.clear.ignoresSafeArea())
-    }
 
-    private var timePicker: some View {
-        Picker("Time", selection: $scope) {
-            ForEach(MonthScope.allCases, id: \.self) { s in
-                Text(s.label).tag(s)
-            }
-        }
-        .pickerStyle(.segmented)
-        .accessibilityLabel("Time Filter")
-    }
-
-    @ViewBuilder var emptyCard: some View {
-        VStack(spacing: 12) {
-            ContentUnavailableView {
-                Label("No Personal Expenses", systemImage: "creditcard")
-            } description: {
-                Text("Add your own expenses to track and review.")
-            } actions: {
-                HStack(spacing: 16) {
-                    Button { showingAdd = true } label: { Label("Add Expense", systemImage: "plus") }
-                    if scope != .all || selectedCategory != nil {
-                        Button(role: .none) {
-                            scope = .all
-                            selectedCategory = nil
-                        } label: { Label("Clear Filters", systemImage: "line.3.horizontal.decrease.circle") }
-                    }
-                }
-            }
-        }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .frame(maxWidth: 420)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                )
-        )
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.horizontal, 20)
-    }
-}
-
-// MARK: - Components
-private extension PersonalView {
-    @ViewBuilder var summarySection: some View {
-        Section("Summary") {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(periodLabel)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text(CurrencyFormatter.string(from: periodTotal, currencyCode: Locale.current.currency?.identifier ?? "INR"))
-                        .font(.title3).fontWeight(.semibold).monospacedDigit()
-                }
+    // Hero header summary shown in safe area inset.
+    @ViewBuilder var headerSummary: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(periodLabel)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            HStack(alignment: .lastTextBaseline) {
+                Text(CurrencyFormatter.string(from: periodTotal, currencyCode: Locale.current.currency?.identifier ?? "INR"))
+                    .font(.largeTitle).fontWeight(.bold).monospacedDigit()
                 Spacer(minLength: 12)
                 MiniBarChart(values: last7Values)
-                    .frame(width: 120, height: 48)
+                    .frame(width: 140, height: 56)
                     .accessibilityHidden(true)
             }
             if !topCategories.isEmpty {
@@ -283,62 +168,63 @@ private extension PersonalView {
                             .font(.footnote)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(
-                                Capsule(style: .continuous).fill(Color(.tertiarySystemBackground))
-                            )
+                            .background(Capsule(style: .continuous).fill(.ultraThinMaterial))
                     }
                 }
-                .padding(.top, 2)
             }
         }
+        .padding(.vertical, 18)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(LinearGradient(colors: [Color.accentColor.opacity(0.18), Color.accentColor.opacity(0.06)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.04), radius: 16, x: 0, y: 8)
+        )
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .background(Color.clear.ignoresSafeArea())
+    }
+
+    @ViewBuilder var emptyState: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "creditcard")
+                .font(.system(size: 34, weight: .semibold))
+                .foregroundStyle(.secondary)
+            Text("No spending this month")
+                .font(.title3).fontWeight(.semibold)
+            Text("Add an expense to get started.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            HStack { // keep the button compact
+                Button(action: { showingAdd = true }) {
+                    Label("Add Expense", systemImage: "plus")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
+            }
+        }
+        .padding(22)
+        .frame(maxWidth: 420)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
+        )
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
     }
 }
 
-private struct CategoryChipModel: Identifiable, Equatable {
-    var id: String
-    var category: ExpenseCategory?
-    var title: String
-    var systemImage: String?
-    var count: Int
-}
+// (Old summarySection removed; replaced with headerSummary)
 
-private struct CategoryChipsRow: View {
-    var chips: [CategoryChipModel]
-    @Binding var selectedCategory: ExpenseCategory?
-    var showClear: Bool
-    var onClear: () -> Void
-
-    private var selectedID: String { selectedCategory?.id ?? "all" }
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(chips) { chip in
-                    CategoryChip(
-                        title: chip.title,
-                        systemImage: chip.systemImage,
-                        count: chip.count,
-                        isSelected: selectedID == chip.id
-                    ) {
-                        withAnimation(AppAnimations.spring) {
-                            selectedCategory = chip.category
-                        }
-                        Haptics.impact(.light)
-                    }
-                    .accessibilityLabel(chip.title)
-                }
-
-                if showClear {
-                    CategoryChip(title: "Clear", systemImage: "line.3.horizontal.decrease.circle", count: nil, isSelected: false) {
-                        onClear()
-                    }
-                    .accessibilityLabel("Clear Filters")
-                }
-            }
-            .padding(.vertical, 2)
-        }
-    }
-}
+// (Old category chip UI removed)
 
 private struct MiniBarChart: View {
     var values: [Double]
@@ -356,52 +242,14 @@ private struct MiniBarChart: View {
         }
     }
 }
-private struct CategoryChip: View {
-    var title: String
-    var systemImage: String?
-    var count: Int?
-    var isSelected: Bool
-    var action: () -> Void
+// (Old chip button removed)
 
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                if let name = systemImage { Image(systemName: name) }
-                Text(title)
-                if let count, count > 0 { Text("\(count)").foregroundStyle(.secondary) }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(
-                Capsule(style: .continuous)
-                    .fill(isSelected ? Color.accentColor.opacity(0.18) : Color(.tertiarySystemBackground))
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-enum MonthScope: String, CaseIterable {
-    case thisMonth, lastMonth, all
-    var label: String {
-        switch self {
-        case .thisMonth: return "This Month"
-        case .lastMonth: return "Last Month"
-        case .all: return "All"
-        }
-    }
+// Keep a minimal MonthScope for internal range calculation
+private enum MonthScope: String, CaseIterable {
+    case thisMonth
     var dateRange: ClosedRange<Date>? {
-        switch self {
-        case .all: return nil
-        case .thisMonth:
-            return Self.range(for: Date())
-        case .lastMonth:
-            if let d = Calendar.current.date(byAdding: .month, value: -1, to: Date()) { return Self.range(for: d) }
-            return nil
-        }
-    }
-    private static func range(for date: Date) -> ClosedRange<Date>? {
         let cal = Calendar.current
+        let date = Date()
         guard let start = cal.date(from: cal.dateComponents([.year, .month], from: date)),
               let endStart = cal.date(byAdding: DateComponents(month: 1, day: 0), to: start),
               let end = cal.date(byAdding: .second, value: -1, to: endStart) else { return nil }
