@@ -14,11 +14,12 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [REL-6] Ensure widget App Group access degrades gracefully when the entitlement is missing
-2. [REL-7] Validate CloudKit entitlements/configuration and run QA for sync on iCloud-signed builds
+1. [PERS-8] Personal receipts: attach photo, auto-scan amount/date
+2. [PERS-9] Personal calendar: daily spend view with month switcher
+3. [PERS-10] Personal insights: top categories, trends, and highlights
 
 ## In Progress
-[REL-5] Replace placeholder Apple Pay sheet with a real Apple Pay flow or remove the entry point
+[PERS-7] Personal search: name, notes, amount, category, date range
 
 
 
@@ -28,6 +29,12 @@
 [REL-2] Privacy usage strings — Camera, Contacts, and Face ID prompts now explain receipt scanning, member imports, and app lock access per Apple guidelines.
 [REL-3] Multi-currency entry — Amount field tracks the selected currency and captures a required FX rate when it differs from the group default, pre-filling with recent rates.
 [REL-4] Recurring & widget alignment — Recurring amount input now uses the group currency, and widget updates fall back to standard defaults when the App Group is unavailable.
+[REL-7] CloudKit QA — Cloud sync now checks entitlements/account status, warns testers when unavailable, and falls back to local mode without surprises.
+[REL-8] App Store metadata — Prepared description, keywords, privacy answers, and review notes for submission.
+[REL-6] Widget App Group fallback — App now flags missing shared access and shows a gentle widget placeholder instead of failing.
+[REL-5] Removed Apple Pay placeholder flow — pulled the fake Apple Pay sheet and kept a simple share option so the app no longer promises a payment it cannot deliver.
+[PERS-5] Quick Add — Personal tab now surfaces recent categories for one-tap logging with smart defaults in the add sheet.
+[PERS-6] Personal budgets — Added one-tap budget setup with monthly caps, progress cards, and gentle alerts once you near or exceed a limit.
 [PERS-4] Personal summary — Rebuilt Personal screen with a calm hero header (This Month total + mini chart), simplified list, and a refined empty state; removed chips/filters.
 [PERS-3] Personal filters — redesigned to a compact, Apple-like bar with segmented month scope, tidy category chips, and a Clear action; refined empty state.
 [PERS-2A] Toolbar polish — Account button is now rightmost on all main screens; Account sheet replaces overflow with a clear X close button.
@@ -137,9 +144,8 @@
 ## Backlog (move items up to “Next Up” when ready)
 
 ### Release Readiness
-- [REL-5] Replace placeholder Apple Pay sheet with a real Apple Pay flow or remove the entry point
-- [REL-6] Ensure widget App Group access degrades gracefully when the entitlement is missing
 - [REL-7] Validate CloudKit entitlements/configuration and run QA for sync on iCloud-signed builds
+- [REL-8] Finalize App Store metadata and privacy answers before submission
 
 ### Epic: Personal Expenses (Apple-like, simple and clear)
 - [PERS-5] Quick Add: one-tap add with recent categories and smart defaults
@@ -229,6 +235,12 @@
 ---
 
 ## Changelog
+- 2025-09-11: REL-8 — Finalized App Store description, keywords, privacy answers, and review notes for submission.
+- 2025-09-11: PERS-5 — Added Quick Add shortcuts for Personal expenses with prefilled categories and recent amounts.
+- 2025-09-11: PERS-6 — Personal budgets now track monthly caps with progress, gentle alerts, and an editor for quick adjustments.
+- 2025-09-11: REL-7 — Cloud sync now checks entitlements and iCloud availability, alerting testers when sync can’t start and keeping the toggle honest.
+- 2025-09-11: REL-6 — App warns about the missing widget App Group and the widget now shows a gentle placeholder instead of stale data.
+- 2025-09-11: REL-5 — Removed the Apple Pay placeholder button from Settle Up and kept a simple share option so the app stops promising Apple Pay.
 - 2025-09-10: PERS-4 — Personal summary rebuilt: elegant hero header for This Month with mini chart, simplified Recent list, and clean empty state. Removed previous filter bar and category chips.
 - 2025-09-10: PERS-3 — Personal filters: segmented month scope + category chips in a glass bar with Clear action; improved empty state card spacing.
 - 2025-09-09: PERS-2 — Personal basics: CRUD for personal expenses and refined empty state.

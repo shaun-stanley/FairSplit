@@ -8,9 +8,14 @@ struct SettingsView: View {
     @AppStorage("privacy_lock_enabled") private var privacyLock: Bool = false
     @AppStorage(AppSettings.defaultCurrencyKey) private var defaultCurrency: String = AppSettings.defaultCurrencyCode()
     @AppStorage(AppSettings.diagnosticsEnabledKey) private var diagnosticsEnabled: Bool = false
+    @AppStorage(WidgetDataWriter.availabilityKey) private var widgetAppGroupAvailable: Bool = true
+    @AppStorage(AppSettings.cloudSyncStatusKey) private var cloudSyncStatusRaw: String = CloudSyncStatus.unknown.rawValue
+    @AppStorage(AppSettings.cloudSyncStatusMessageKey) private var cloudSyncStatusMessage: String = ""
     @Environment(\.dismiss) private var dismiss
     @State private var showingShare = false
     @State private var exportURL: URL?
+    @State private var showCloudSyncAlert = false
+    @State private var cloudSyncAlertMessage: String = ""
     @State private var reminderTime: Date = {
         var comps = DateComponents()
         let hour = UserDefaults.standard.object(forKey: AppSettings.notificationsHourKey) as? Int ?? 9
@@ -36,6 +41,20 @@ struct SettingsView: View {
                     Text("Used for new groups and formatting.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                }
+                if !widgetAppGroupAvailable {
+                    Section("Widgets") {
+                        Label {
+                            Text("Widget data can’t refresh in this build.")
+                                .font(.callout)
+                        } icon: {
+                            Image(systemName: "rectangle.on.rectangle.slash")
+                                .foregroundStyle(.secondary)
+                        }
+                        Text("Enable the shared App Group entitlement or install the App Store build to let the FairSplit widget stay updated.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Section("Privacy") {
                     Toggle(isOn: $privacyLock) {
@@ -67,13 +86,35 @@ struct SettingsView: View {
                     }
                 }
                 Section("Sync") {
-                    Toggle(isOn: $cloudSync) {
+                    Toggle(isOn: Binding(get: {
+                        cloudSync
+                    }, set: { newValue in
+                        cloudSync = newValue
+                        if newValue {
+                            CloudSyncStatusChecker.refresh()
+                            cloudSyncAlertMessage = "Restart FairSplit after enabling sync so it can connect to iCloud."
+                            showCloudSyncAlert = true
+                        } else {
+                            CloudSyncStatusReporter.update(.unknown)
+                        }
+                    })) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Sync with iCloud")
                             Text("Keeps data updated across devices. Requires iCloud & may need a restart.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
+                    }
+                    if let statusMessage = friendlyCloudSyncStatusDescription {
+                        Label {
+                            Text(statusMessage)
+                                .font(.callout)
+                        } icon: {
+                            Image(systemName: "icloud.slash")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundStyle(.secondary)
+                        }
+                        .accessibilityHint("Cloud sync status")
                     }
                 }
                 Section("Reminders") {
@@ -160,6 +201,33 @@ struct SettingsView: View {
                     ShareSheet(activityItems: [url])
                 }
             }
+            .alert("iCloud Sync", isPresented: $showCloudSyncAlert, actions: {
+                Button("OK", role: .cancel) {}
+            }, message: {
+                Text(cloudSyncAlertMessage)
+            })
+        }
+    }
+}
+
+private extension SettingsView {
+    var cloudSyncStatus: CloudSyncStatus {
+        CloudSyncStatus(rawValue: cloudSyncStatusRaw) ?? .unknown
+    }
+
+    var friendlyCloudSyncStatusDescription: String? {
+        switch cloudSyncStatus {
+        case .unknown:
+            return cloudSync ? "Sync will start after you restart FairSplit." : nil
+        case .available:
+            return nil
+        case .missingEntitlement:
+            return "This build is missing the CloudKit entitlement. Use an iCloud-signed build to sync."
+        case .accountUnavailable:
+            return "Sign in to iCloud on this device to enable syncing."
+        case .error:
+            let trimmed = cloudSyncStatusMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? "Sync is temporarily unavailable." : trimmed
         }
     }
 }

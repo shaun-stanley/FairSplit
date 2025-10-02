@@ -5,9 +5,12 @@ struct PersonalView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: [SortDescriptor(\PersonalExpense.date, order: .reverse)]) private var expenses: [PersonalExpense]
+    @Query(sort: [SortDescriptor(\PersonalBudget.categoryRaw, order: .forward)]) private var budgets: [PersonalBudget]
     @State private var showingAdd = false
+    @State private var addPrefill: PersonalExpensePrefill?
     @State private var showingAccount = false
     @State private var editing: PersonalExpense?
+    @State private var showingBudgets = false
 
     // Focus the screen on an elegant summary of "This Month".
     private var thisMonthRange: ClosedRange<Date>? { MonthScope.thisMonth.dateRange }
@@ -16,10 +19,81 @@ struct PersonalView: View {
         return expenses.filter { range.contains($0.date) }
     }
     private var monthTotal: Decimal { thisMonthExpenses.reduce(0) { $0 + $1.amount } }
+    private var quickAddOptions: [PersonalQuickAddOption] {
+        var seen = Set<ExpenseCategory>()
+        var options: [PersonalQuickAddOption] = []
+        for expense in expenses.sorted(by: { $0.date > $1.date }) {
+            guard let category = expense.category, !seen.contains(category) else { continue }
+            seen.insert(category)
+            options.append(PersonalQuickAddOption(category: category, lastAmount: expense.amount))
+            if options.count == 4 { break }
+        }
+        if options.isEmpty {
+            return ExpenseCategory.allCases.map { PersonalQuickAddOption(category: $0, lastAmount: nil) }
+        }
+        return options
+    }
+    private var budgetSummaries: [BudgetSummary] {
+        budgets.compactMap { budget in
+            guard let category = budget.category else { return nil }
+            let spent = thisMonthExpenses
+                .filter { $0.category == category }
+                .reduce(Decimal.zero) { $0 + $1.amount }
+            return BudgetSummary(
+                id: budget.persistentModelID,
+                category: category,
+                currencyCode: budget.currencyCode,
+                limit: budget.amount,
+                threshold: budget.threshold,
+                spent: spent
+            )
+        }
+        .sorted { $0.category.displayName < $1.category.displayName }
+    }
 
     var body: some View {
         NavigationStack {
             List {
+                if !quickAddOptions.isEmpty {
+                    Section("Quick Add") {
+                        QuickAddRow(options: quickAddOptions) { option in
+                            addPrefill = PersonalExpensePrefill(
+                                title: option.suggestedTitle,
+                                amount: option.lastAmount,
+                                date: .now,
+                                category: option.category,
+                                note: nil
+                            )
+                            showingAdd = true
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                    .listRowBackground(Color.clear)
+                }
+
+                Section("Budgets") {
+                    if budgetSummaries.isEmpty {
+                        Button {
+                            showingBudgets = true
+                        } label: {
+                            Label("Set up budgets", systemImage: "target")
+                        }
+                        .buttonStyle(.borderless)
+                    } else {
+                        ForEach(budgetSummaries) { summary in
+                            BudgetRow(summary: summary)
+                                .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                                .listRowBackground(Color.clear)
+                        }
+                        Button("Edit Budgets") { showingBudgets = true }
+                            .buttonStyle(.borderless)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                .listRowBackground(Color.clear)
+
                 if thisMonthExpenses.isEmpty {
                     Section {
                         emptyState
@@ -55,7 +129,10 @@ struct PersonalView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { showingAdd = true } label: { Image(systemName: "plus") }
+                    Button {
+                        addPrefill = nil
+                        showingAdd = true
+                    } label: { Image(systemName: "plus") }
                         .accessibilityLabel("Add Expense")
                     Button { showingAccount = true } label: { Image(systemName: "person.crop.circle") }
                         .accessibilityLabel("Account")
@@ -65,8 +142,8 @@ struct PersonalView: View {
             .safeAreaInset(edge: .top, spacing: 0) { headerSummary }
         }
         .sheet(isPresented: $showingAccount) { AccountView() }
-        .sheet(isPresented: $showingAdd) {
-            AddPersonalExpenseView { title, amount, date, category, note in
+        .sheet(isPresented: $showingAdd, onDismiss: { addPrefill = nil }) {
+            AddPersonalExpenseView(prefill: addPrefill) { title, amount, date, category, note in
                 let e = PersonalExpense(title: title, amount: amount, date: date, category: category, note: note)
                 if reduceMotion {
                     modelContext.insert(e)
@@ -78,6 +155,7 @@ struct PersonalView: View {
                     }
                 }
                 Haptics.success()
+                addPrefill = nil
             }
         }
         .sheet(item: $editing) { e in
@@ -102,12 +180,15 @@ struct PersonalView: View {
                 Haptics.success()
             }
         }
+        .sheet(isPresented: $showingBudgets) {
+            PersonalBudgetsView()
+        }
     }
 }
 
 #Preview {
     PersonalView()
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self, PersonalExpense.self], inMemory: true)
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, Comment.self, PersonalExpense.self, PersonalBudget.self], inMemory: true)
 }
 
 // MARK: - Summary
@@ -200,7 +281,10 @@ private extension PersonalView {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             HStack { // keep the button compact
-                Button(action: { showingAdd = true }) {
+                Button(action: {
+                    addPrefill = nil
+                    showingAdd = true
+                }) {
                     Label("Add Expense", systemImage: "plus")
                 }
                 .buttonStyle(.bordered)
@@ -254,6 +338,316 @@ private enum MonthScope: String, CaseIterable {
               let endStart = cal.date(byAdding: DateComponents(month: 1, day: 0), to: start),
               let end = cal.date(byAdding: .second, value: -1, to: endStart) else { return nil }
         return start...end
+    }
+}
+
+private struct PersonalExpensePrefill {
+    var title: String
+    var amount: Decimal?
+    var date: Date
+    var category: ExpenseCategory?
+    var note: String?
+}
+
+private struct BudgetSummary: Identifiable {
+    var id: PersistentIdentifier
+    var category: ExpenseCategory
+    var currencyCode: String
+    var limit: Decimal
+    var threshold: Decimal
+    var spent: Decimal
+
+    var progress: Double {
+        guard limit > 0 else { return 0 }
+        let spentValue = NSDecimalNumber(decimal: spent).doubleValue
+        let limitValue = NSDecimalNumber(decimal: limit).doubleValue
+        guard limitValue > 0 else { return 0 }
+        let ratio = spentValue / limitValue
+        return min(max(ratio, 0), 1)
+    }
+
+    var status: BudgetStatus {
+        if spent >= limit { return .over }
+        if spent >= threshold { return .approaching }
+        return .comfort
+    }
+
+    var remainingText: String {
+        switch status {
+        case .over:
+            let over = spent - limit
+            return "Over by " + CurrencyFormatter.string(from: over, currencyCode: currencyCode)
+        case .approaching:
+            let remaining = max(limit - spent, 0)
+            return "" + CurrencyFormatter.string(from: remaining, currencyCode: currencyCode) + " left this month"
+        case .comfort:
+            let remaining = max(limit - spent, 0)
+            return CurrencyFormatter.string(from: remaining, currencyCode: currencyCode) + " left"
+        }
+    }
+
+    enum BudgetStatus {
+        case comfort
+        case approaching
+        case over
+
+        var tint: Color {
+            switch self {
+            case .comfort: return Color.accentColor
+            case .approaching: return .orange
+            case .over: return .red
+            }
+        }
+    }
+}
+
+private struct PersonalQuickAddOption: Identifiable {
+    var category: ExpenseCategory
+    var lastAmount: Decimal?
+
+    var id: String { category.id }
+    var suggestedTitle: String { category.displayName }
+    var iconName: String { category.symbolName }
+    var formattedAmount: String? {
+        guard let amount = lastAmount else { return nil }
+        return CurrencyFormatter.string(from: amount, currencyCode: Locale.current.currency?.identifier ?? "INR")
+    }
+}
+
+private struct QuickAddRow: View {
+    var options: [PersonalQuickAddOption]
+    var onSelect: (PersonalQuickAddOption) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(options) { option in
+                    Button {
+                        onSelect(option)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label(option.suggestedTitle, systemImage: option.iconName)
+                                .labelStyle(.titleAndIcon)
+                                .font(.callout)
+                            if let amount = option.formattedAmount {
+                                Text(amount)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Text("Tap to log quickly")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(width: 160, alignment: .leading)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color(.secondarySystemBackground))
+                                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+}
+
+private struct BudgetRow: View {
+    var summary: BudgetSummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Label(summary.category.displayName, systemImage: summary.category.symbolName)
+                    .labelStyle(.titleAndIcon)
+                    .font(.headline)
+                Spacer()
+                Text(leadingText)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            ProgressView(value: summary.progress)
+                .tint(summary.status.tint)
+            Text(summary.remainingText)
+                .font(.footnote)
+                .foregroundStyle(summary.status == .comfort ? .secondary : summary.status.tint)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(accessibilityLabel))
+    }
+
+    private var leadingText: String {
+        let spent = CurrencyFormatter.string(from: summary.spent, currencyCode: summary.currencyCode)
+        let total = CurrencyFormatter.string(from: summary.limit, currencyCode: summary.currencyCode)
+        return "\(spent) of \(total)"
+    }
+
+    private var accessibilityLabel: String {
+        switch summary.status {
+        case .over:
+            return "\(summary.category.displayName) budget exceeded. Spent \(leadingText). \(summary.remainingText)."
+        case .approaching:
+            return "\(summary.category.displayName) budget near limit. \(leadingText). \(summary.remainingText)."
+        case .comfort:
+            return "\(summary.category.displayName) budget. \(leadingText). \(summary.remainingText)."
+        }
+    }
+}
+
+private struct PersonalBudgetsView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Query(sort: [SortDescriptor(\PersonalBudget.categoryRaw, order: .forward)]) private var budgets: [PersonalBudget]
+    @State private var amountTexts: [ExpenseCategory: String] = [:]
+    @State private var errorMessage: String?
+
+    private let currencyCode = Locale.current.currency?.identifier ?? "INR"
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Monthly caps") {
+                    ForEach(ExpenseCategory.allCases, id: \.self) { category in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Label(category.displayName, systemImage: category.symbolName)
+                                Spacer()
+                                TextField("Amount", text: binding(for: category))
+                                    .multilineTextAlignment(.trailing)
+                                    .keyboardType(.decimalPad)
+                                    .textContentType(.oneTimeCode)
+                            }
+                            if let existing = existingBudget(for: category) {
+                                Text("Current: " + CurrencyFormatter.string(from: existing.amount, currencyCode: existing.currencyCode))
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Text("Optional. Leave blank to skip this category.")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
+                Section {
+                    Button("Save") { save() }
+                        .buttonStyle(.borderedProminent)
+                }
+
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle("Personal Budgets")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+            }
+            .onAppear(perform: load)
+        }
+    }
+
+    private func binding(for category: ExpenseCategory) -> Binding<String> {
+        Binding<String>(
+            get: { amountTexts[category] ?? existingText(for: category) ?? "" },
+            set: { amountTexts[category] = $0 }
+        )
+    }
+
+    private func existingBudget(for category: ExpenseCategory) -> PersonalBudget? {
+        budgets.first { $0.category == category }
+    }
+
+    private func existingText(for category: ExpenseCategory) -> String? {
+        guard let budget = existingBudget(for: category) else { return nil }
+        return numberFormatter.string(from: NSDecimalNumber(decimal: budget.amount))
+    }
+
+    private func load() {
+        if !amountTexts.isEmpty { return }
+        for category in ExpenseCategory.allCases {
+            if let text = existingText(for: category) {
+                amountTexts[category] = text
+            }
+        }
+    }
+
+    private func save() {
+        errorMessage = nil
+
+        var parsedValues: [ExpenseCategory: Decimal] = [:]
+        var clearedCategories: Set<ExpenseCategory> = []
+
+        for category in ExpenseCategory.allCases {
+            let raw = amountTexts[category]?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            guard let raw, !raw.isEmpty else {
+                clearedCategories.insert(category)
+                continue
+            }
+
+            guard let decimal = parseDecimal(raw), decimal > 0 else {
+                errorMessage = "Enter valid numbers using digits and a decimal separator."
+                return
+            }
+
+            parsedValues[category] = decimal
+        }
+
+        for category in ExpenseCategory.allCases {
+            let existing = existingBudget(for: category)
+            if let value = parsedValues[category] {
+                if let existing {
+                    existing.amount = value
+                    existing.currencyCode = currencyCode
+                    existing.threshold = (value * Decimal(85)) / Decimal(100)
+                } else {
+                    let budget = PersonalBudget(category: category, amount: value, currencyCode: currencyCode)
+                    modelContext.insert(budget)
+                }
+            } else if clearedCategories.contains(category), let existing {
+                modelContext.delete(existing)
+            }
+        }
+
+        do {
+            try modelContext.save()
+            Haptics.success()
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func parseDecimal(_ text: String) -> Decimal? {
+        if let number = numberFormatter.number(from: text) {
+            return number.decimalValue
+        }
+        let normalised = text.replacingOccurrences(of: Locale.current.decimalSeparator ?? ".", with: ".")
+        return Decimal(string: normalised)
+    }
+
+    private var numberFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 0
+        formatter.locale = Locale.current
+        return formatter
     }
 }
 
@@ -315,6 +709,7 @@ private struct PersonalExpenseCard: View {
 
 private struct AddPersonalExpenseView: View {
     var existing: PersonalExpense?
+    var prefill: PersonalExpensePrefill?
     var onSave: (_ title: String, _ amount: Decimal, _ date: Date, _ category: ExpenseCategory?, _ note: String?) -> Void
     @Environment(\.dismiss) private var dismiss
 
@@ -324,14 +719,15 @@ private struct AddPersonalExpenseView: View {
     @State private var category: ExpenseCategory?
     @State private var note: String
 
-    init(existing: PersonalExpense? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ date: Date, _ category: ExpenseCategory?, _ note: String?) -> Void) {
+    init(existing: PersonalExpense? = nil, prefill: PersonalExpensePrefill? = nil, onSave: @escaping (_ title: String, _ amount: Decimal, _ date: Date, _ category: ExpenseCategory?, _ note: String?) -> Void) {
         self.existing = existing
+        self.prefill = prefill
         self.onSave = onSave
-        _title = State(initialValue: existing?.title ?? "")
-        _amount = State(initialValue: existing.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
-        _date = State(initialValue: existing?.date ?? .now)
-        _category = State(initialValue: existing?.category)
-        _note = State(initialValue: existing?.note ?? "")
+        _title = State(initialValue: existing?.title ?? prefill?.title ?? "")
+        _amount = State(initialValue: existing.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) } ?? prefill?.amount.map { Double(truncating: NSDecimalNumber(decimal: $0)) })
+        _date = State(initialValue: existing?.date ?? prefill?.date ?? .now)
+        _category = State(initialValue: existing?.category ?? prefill?.category)
+        _note = State(initialValue: existing?.note ?? prefill?.note ?? "")
     }
 
     var body: some View {

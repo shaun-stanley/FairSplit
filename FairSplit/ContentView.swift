@@ -18,6 +18,10 @@ struct ContentView: View {
     @AppStorage(AppSettings.appearanceKey) private var appearance: String = "system"
     @AppStorage(AppSettings.welcomeCompletedKey) private var welcomeCompleted: Bool = false
     @AppStorage("privacy_lock_enabled") private var privacyLockEnabled: Bool = false
+    @AppStorage(AppSettings.cloudSyncKey) private var cloudSyncEnabled: Bool = false
+    @AppStorage(WidgetDataWriter.availabilityKey) private var widgetAppGroupAvailable: Bool = true
+    @AppStorage(AppSettings.cloudSyncStatusKey) private var cloudSyncStatusRaw: String = CloudSyncStatus.unknown.rawValue
+    @AppStorage(AppSettings.cloudSyncStatusMessageKey) private var cloudSyncStatusMessage: String = ""
     @State private var showQuickAdd = false
     @State private var quickAddGroup: Group?
     @State private var showGroup = false
@@ -26,6 +30,10 @@ struct ContentView: View {
     @State private var isAuthenticating: Bool = false
 
     @State private var showWelcome: Bool = false
+    @State private var hasShownWidgetWarning = false
+    @State private var hasShownCloudWarning = false
+    @State private var activeSystemAlert: SystemAlert?
+    @State private var alertQueue: [SystemAlert] = []
 
     var body: some View {
         MainTabView()
@@ -40,6 +48,14 @@ struct ContentView: View {
             SpotlightIndexer.reindexAll(context: modelContext)
             // Seed widget data (if App Group is enabled)
             WidgetDataWriter.updateTopGroupSummary(groups: groups)
+            if !widgetAppGroupAvailable {
+                enqueueAlert(.widget)
+                hasShownWidgetWarning = true
+            }
+            checkCloudSyncStatusForAlert()
+            if cloudSyncEnabled {
+                CloudSyncStatusChecker.refresh()
+            }
             // Configure coach marks
             AppTips.configure()
             // Show welcome on first run
@@ -50,6 +66,24 @@ struct ContentView: View {
         }
         .onChange(of: groups) { _, newValue in
             WidgetDataWriter.updateTopGroupSummary(groups: newValue)
+        }
+        .onChange(of: widgetAppGroupAvailable) { _, newValue in
+            if !newValue && !hasShownWidgetWarning {
+                enqueueAlert(.widget)
+                hasShownWidgetWarning = true
+            }
+        }
+        .onChange(of: cloudSyncEnabled) { _, newValue in
+            if newValue {
+                hasShownCloudWarning = false
+                CloudSyncStatusChecker.refresh()
+            } else {
+                CloudSyncStatusReporter.update(.unknown)
+                hasShownCloudWarning = false
+            }
+        }
+        .onChange(of: cloudSyncStatusRaw) { _, _ in
+            checkCloudSyncStatusForAlert()
         }
         .onChange(of: privacyLockEnabled) { _, newValue in
             if newValue { lockAndAuthenticate() } else { isLocked = false }
@@ -84,6 +118,13 @@ struct ContentView: View {
         }
         .preferredColorScheme(AppSettings.scheme(for: appearance))
         .tint(AppSettings.color(for: accentID))
+        .alert(item: $activeSystemAlert) { alert in
+            Alert(
+                title: Text(alert.title),
+                message: Text(alert.message),
+                dismissButton: .default(Text("OK"), action: showNextAlert)
+            )
+        }
         .overlay(privacyOverlay())
         .fullScreenCover(isPresented: $showWelcome) {
             WelcomeView {
@@ -111,6 +152,10 @@ struct ContentView: View {
 }
 
 private extension ContentView {
+    var cloudSyncStatus: CloudSyncStatus {
+        CloudSyncStatus(rawValue: cloudSyncStatusRaw) ?? .unknown
+    }
+
     func lockAndAuthenticate() {
         isLocked = true
         authenticate()
@@ -152,7 +197,75 @@ private extension ContentView {
     }
 }
 
+private extension ContentView {
+    func enqueueAlert(_ alert: SystemAlert) {
+        if activeSystemAlert == nil {
+            activeSystemAlert = alert
+        } else {
+            alertQueue.append(alert)
+        }
+    }
+
+    func showNextAlert() {
+        if alertQueue.isEmpty {
+            activeSystemAlert = nil
+        } else {
+            activeSystemAlert = alertQueue.removeFirst()
+        }
+    }
+
+    func checkCloudSyncStatusForAlert() {
+        guard cloudSyncEnabled else { return }
+
+        let message: String?
+        switch cloudSyncStatus {
+        case .missingEntitlement:
+            message = "This build is missing the CloudKit entitlement, so sync is disabled. Install an iCloud-signed build to enable syncing."
+        case .accountUnavailable:
+            message = "Sign in to iCloud on this device to turn on syncing."
+        case .error:
+            let trimmed = cloudSyncStatusMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+            message = trimmed.isEmpty ? "Cloud sync failed to start. Try again after restarting FairSplit." : trimmed
+        default:
+            message = nil
+        }
+
+        if let message, !hasShownCloudWarning {
+            enqueueAlert(.cloud(message))
+            hasShownCloudWarning = true
+        }
+    }
+}
+
+private enum SystemAlert: Identifiable {
+    case widget
+    case cloud(String)
+
+    var id: String {
+        switch self {
+        case .widget: return "widget"
+        case .cloud: return "cloud"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .widget: return "Widget Unavailable"
+        case .cloud: return "Cloud Sync Unavailable"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .widget:
+            return "This build is missing the shared App Group entitlement, so the widget cannot refresh. FairSplit will continue to work normally."
+        case .cloud(let message):
+            return message
+        }
+    }
+}
+
 #Preview {
     ContentView()
-        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self, Contact.self, DirectExpense.self, Comment.self, PersonalExpense.self], inMemory: true)
+        .modelContainer(for: [Group.self, Member.self, Expense.self, Settlement.self, RecurringExpense.self, Contact.self, DirectExpense.self, Comment.self, PersonalExpense.self, PersonalBudget.self], inMemory: true)
 }

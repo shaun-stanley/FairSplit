@@ -17,16 +17,23 @@ struct Provider: TimelineProvider {
     }
 
     private func readSummary() -> String {
-        let defaults = UserDefaults(suiteName: "group.com.sviftstudios.FairSplit")
-        let name = defaults?.string(forKey: "widget.topGroup.name")
-        if let totalString = defaults?.string(forKey: "widget.topGroup.total"),
-           let currency = defaults?.string(forKey: "widget.topGroup.currency"),
+        guard let defaults = UserDefaults(suiteName: "group.com.sviftstudios.FairSplit") else {
+            return "Widget unavailable in this build."
+        }
+
+        let name = defaults.string(forKey: "widget.topGroup.name")
+        if let totalString = defaults.string(forKey: "widget.topGroup.total"),
+           let currency = defaults.string(forKey: "widget.topGroup.currency"),
            let total = Double(totalString) {
             let formatted = CurrencyFormatter.string(from: Decimal(total), currencyCode: currency)
-            if let name { return "\(name): \(formatted) total" }
+            if let name, !name.isEmpty { return "\(name): \(formatted) total" }
             return formatted
         }
-        return name ?? "Top group: Tap to open"
+
+        if let name, !name.isEmpty {
+            return "\(name): Open FairSplit to refresh."
+        }
+        return "Open FairSplit to refresh."
     }
 }
 

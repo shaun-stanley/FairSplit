@@ -10,11 +10,8 @@ struct SettleUpView: View {
     @State private var pendingTransfer: (from: Member, to: Member, amount: Decimal)?
     @State private var showComposer = false
     @State private var composeBody: String = ""
-    @State private var showApplePay = false
-    @State private var applePayTarget: (from: Member, to: Member, amount: Decimal)?
     @State private var showShare = false
-    @State private var shareText: String = ""
-    @State private var memoText: String = ""
+    @State private var shareTarget: (from: Member, to: Member, amount: Decimal)?
 
     private var proposals: [(from: Member, to: Member, amount: Decimal)] {
         SplitCalculator.balances(for: group)
@@ -54,10 +51,11 @@ struct SettleUpView: View {
                                     showScanner = true
                                 }.tint(.blue)
 
-                                Button("Apple Pay") {
-                                    applePayTarget = item
-                                    showApplePay = true
-                                }.tint(.black)
+                                Button("Share Request") {
+                                    shareTarget = item
+                                    showShare = true
+                                }.tint(.indigo)
+
                             }
                             .contextMenu {
                                 Button("Copy Amount") {
@@ -69,9 +67,8 @@ struct SettleUpView: View {
                                     composeBody = "Hi \(item.from.name), please pay \(CurrencyFormatter.string(from: item.amount, currencyCode: group.defaultCurrency)) for \(group.name)."
                                     showComposer = true
                                 }
-                                Button("Apple Pay (Share)") {
-                                    applePayTarget = item
-                                    prepareShare()
+                                Button("Share Payment Request") {
+                                    shareTarget = item
                                     showShare = true
                                 }
                             }
@@ -152,24 +149,10 @@ struct SettleUpView: View {
                 showComposer = false
             }
         }
-        .sheet(isPresented: $showApplePay) {
-            if let target = applePayTarget {
-                ApplePaySheet(
-                    payer: target.from.name,
-                    payee: target.to.name,
-                    amountText: CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency),
-                    memo: $memoText
-                ) {
-                    prepareShare()
-                    showShare = true
-                    showApplePay = false
-                } onCancel: {
-                    showApplePay = false
-                }
+        .sheet(isPresented: $showShare, onDismiss: { shareTarget = nil }) {
+            if let target = shareTarget {
+                ShareSheet(activityItems: [shareMessage(for: target)])
             }
-        }
-        .sheet(isPresented: $showShare) {
-            ShareSheet(activityItems: [shareText])
         }
     }
 
@@ -179,57 +162,8 @@ struct SettleUpView: View {
         saved = true
     }
 
-    private func prepareShare() {
-        guard let target = applePayTarget else { return }
-        var parts: [String] = []
-        parts.append("Pay \(CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)) to \(target.to.name) for \(group.name).")
-        let memo = memoText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !memo.isEmpty { parts.append("Memo: \(memo)") }
-        shareText = parts.joined(separator: "\n")
-    }
-}
-
-// MARK: - Apple Pay Placeholder Sheet
-private struct ApplePaySheet: View {
-    let payer: String
-    let payee: String
-    let amountText: String
-    @Binding var memo: String
-    var onConfirm: () -> Void
-    var onCancel: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                Text("This is a placeholder Apple Pay flow.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text("\(payer) pays \(payee) \(amountText)")
-                    .font(.headline)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Memo (optional)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("What is this payment for?", text: $memo)
-                        .textFieldStyle(.roundedBorder)
-                }
-                #if canImport(PassKit)
-                ApplePayButton(type: .plain, style: .black) {
-                    onConfirm()
-                }
-                .frame(height: 44)
-                #else
-                Button("Apple Pay") { onConfirm() }
-                    .buttonStyle(.borderedProminent)
-                #endif
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Apple Pay")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: onCancel) }
-            }
-        }
+    private func shareMessage(for target: (from: Member, to: Member, amount: Decimal)) -> String {
+        "Pay \(CurrencyFormatter.string(from: target.amount, currencyCode: group.defaultCurrency)) to \(target.to.name) for \(group.name)."
     }
 }
 

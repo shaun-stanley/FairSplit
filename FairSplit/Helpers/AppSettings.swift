@@ -5,6 +5,8 @@ enum AppSettings {
     static let appearanceKey = "app_appearance"
     static let welcomeCompletedKey = "welcome_completed"
     static let cloudSyncKey = "cloud_sync_enabled"
+    static let cloudSyncStatusKey = "cloud_sync.status"
+    static let cloudSyncStatusMessageKey = "cloud_sync.statusMessage"
     static let notificationsEnabledKey = "notifications_enabled"
     static let notificationsHourKey = "notifications_hour"
     static let notificationsMinuteKey = "notifications_minute"
