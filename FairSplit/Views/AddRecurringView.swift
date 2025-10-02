@@ -3,6 +3,7 @@ import SwiftData
 
 struct AddRecurringView: View {
     var members: [Member]
+    var groupCurrencyCode: String
     var onSave: (_ title: String, _ amount: Decimal, _ frequency: RecurrenceFrequency, _ startDate: Date, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -15,12 +16,22 @@ struct AddRecurringView: View {
     @State private var category: ExpenseCategory?
     @State private var note: String = ""
 
+    init(
+        members: [Member],
+        groupCurrencyCode: String,
+        onSave: @escaping (_ title: String, _ amount: Decimal, _ frequency: RecurrenceFrequency, _ startDate: Date, _ payer: Member?, _ participants: [Member], _ category: ExpenseCategory?, _ note: String?) -> Void
+    ) {
+        self.members = members
+        self.groupCurrencyCode = groupCurrencyCode
+        self.onSave = onSave
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Details") {
                     TextField("Title", text: $title)
-                    TextField("Amount", value: $amount, format: .currency(code: Locale.current.currency?.identifier ?? "INR"))
+                    TextField("Amount", value: $amount, format: .currency(code: groupCurrencyCode))
                         .keyboardType(.decimalPad)
                     Picker("Frequency", selection: $frequency) {
                         ForEach(RecurrenceFrequency.allCases) { f in
@@ -86,5 +97,5 @@ struct AddRecurringView: View {
 
 #Preview {
     let ms = [Member(name: "Alex"), Member(name: "Sam")]
-    return AddRecurringView(members: ms) { _,_,_,_,_,_,_,_ in }
+    return AddRecurringView(members: ms, groupCurrencyCode: "USD") { _,_,_,_,_,_,_,_ in }
 }

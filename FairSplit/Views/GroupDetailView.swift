@@ -303,7 +303,7 @@ struct GroupDetailView: View {
                 Button("OK", role: .cancel) {}
             } message: { Text(importError ?? "") }
             .sheet(isPresented: $showingAddRecurring) {
-                AddRecurringView(members: group.members) { title, amount, freq, start, payer, participants, category, note in
+                AddRecurringView(members: group.members, groupCurrencyCode: group.defaultCurrency) { title, amount, freq, start, payer, participants, category, note in
                     DataRepository(context: modelContext).addRecurring(to: group, title: title, amount: amount, frequency: freq, nextDate: start, payer: payer, participants: participants, category: category, note: note)
                 }
             }

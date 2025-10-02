@@ -5,7 +5,7 @@
 //  Created by Shaun Stanley on 8/24/25.
 //
 
-# PLAN.md — FairSplit (iOS 18+, SwiftUI)
+# PLAN.md — FairSplit (iOS 26+, SwiftUI)
 
 ## Status
 - Build: ✅ runs on iOS Simulator
@@ -14,17 +14,21 @@
 - Input: ✅ Currency formatter + validation for amount
 
 ## Next Up (top first — keep ≤3)
-1. [PERS-4] Personal summary: this month total + simple chart
-2. [PERS-5] Quick Add: recent categories + smart defaults
-3. [PERS-6] Budgets: monthly caps per category with gentle alerts
+1. [REL-6] Ensure widget App Group access degrades gracefully when the entitlement is missing
+2. [REL-7] Validate CloudKit entitlements/configuration and run QA for sync on iCloud-signed builds
 
 ## In Progress
-[PERS-4] Personal summary: this month total + simple chart
+[REL-5] Replace placeholder Apple Pay sheet with a real Apple Pay flow or remove the entry point
 
 
 
 
 ## Done
+[REL-1] CloudKit sync — App initializes a CloudKit-capable SwiftData container (with automatic local fallback) when sync is enabled; toggle auto-disables on failure.
+[REL-2] Privacy usage strings — Camera, Contacts, and Face ID prompts now explain receipt scanning, member imports, and app lock access per Apple guidelines.
+[REL-3] Multi-currency entry — Amount field tracks the selected currency and captures a required FX rate when it differs from the group default, pre-filling with recent rates.
+[REL-4] Recurring & widget alignment — Recurring amount input now uses the group currency, and widget updates fall back to standard defaults when the App Group is unavailable.
+[PERS-4] Personal summary — Rebuilt Personal screen with a calm hero header (This Month total + mini chart), simplified list, and a refined empty state; removed chips/filters.
 [PERS-3] Personal filters — redesigned to a compact, Apple-like bar with segmented month scope, tidy category chips, and a Clear action; refined empty state.
 [PERS-2A] Toolbar polish — Account button is now rightmost on all main screens; Account sheet replaces overflow with a clear X close button.
 [PERS-2] Personal basics — added SwiftData PersonalExpense model, Personal list with add/edit/delete, and minimal empty state.
@@ -132,6 +136,11 @@
 
 ## Backlog (move items up to “Next Up” when ready)
 
+### Release Readiness
+- [REL-5] Replace placeholder Apple Pay sheet with a real Apple Pay flow or remove the entry point
+- [REL-6] Ensure widget App Group access degrades gracefully when the entitlement is missing
+- [REL-7] Validate CloudKit entitlements/configuration and run QA for sync on iCloud-signed builds
+
 ### Epic: Personal Expenses (Apple-like, simple and clear)
 - [PERS-5] Quick Add: one-tap add with recent categories and smart defaults
 - [PERS-6] Budgets: monthly caps per category with gentle alerts
@@ -220,6 +229,7 @@
 ---
 
 ## Changelog
+- 2025-09-10: PERS-4 — Personal summary rebuilt: elegant hero header for This Month with mini chart, simplified Recent list, and clean empty state. Removed previous filter bar and category chips.
 - 2025-09-10: PERS-3 — Personal filters: segmented month scope + category chips in a glass bar with Clear action; improved empty state card spacing.
 - 2025-09-09: PERS-2 — Personal basics: CRUD for personal expenses and refined empty state.
 - 2025-09-09: PERS-1 — Added Personal tab and Account screen; Account button on main screens; removed 3-dot overflow; refined empty state for Personal to minimal overlay.

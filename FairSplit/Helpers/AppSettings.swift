@@ -10,6 +10,7 @@ enum AppSettings {
     static let notificationsMinuteKey = "notifications_minute"
     static let defaultCurrencyKey = "default_currency_code"
     static let diagnosticsEnabledKey = "diagnostics_enabled"
+    static let cloudKitContainerIdentifier = "iCloud.com.sviftstudios.FairSplit"
 
     static let accentPresets: [(id: String, color: Color)] = [
         ("blue", .blue), ("green", .green), ("teal", .teal), ("indigo", .indigo),

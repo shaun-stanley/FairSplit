@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct AddExpenseView: View {
     var members: [Member]
@@ -13,11 +14,12 @@ struct AddExpenseView: View {
     @State private var title: String
     // Use numeric binding with currency formatting for polished input
     @State private var amount: Double?
+    @State private var currencyCode: String
+    @State private var fxRateToGroup: Double?
     @State private var payer: Member?
     @State private var selected: Set<PersistentIdentifier>
     @State private var category: ExpenseCategory?
     @State private var note: String
-    // Currency selection temporarily removed; we default to group currency (INR)
     @State private var receiptImageData: Data?
     @State private var showingScanner = false
 
@@ -29,6 +31,12 @@ struct AddExpenseView: View {
         self.onSave = onSave
         _title = State(initialValue: expense?.title ?? "")
         _amount = State(initialValue: expense.map { Double(truncating: NSDecimalNumber(decimal: $0.amount)) })
+        _currencyCode = State(initialValue: expense?.currencyCode ?? groupCurrencyCode)
+        if let decimalRate = expense?.fxRateToGroupCurrency {
+            _fxRateToGroup = State(initialValue: NSDecimalNumber(decimal: decimalRate).doubleValue)
+        } else {
+            _fxRateToGroup = State(initialValue: nil)
+        }
         _payer = State(initialValue: expense?.payer)
         _selected = State(initialValue: Set(expense?.participants.map { $0.persistentModelID } ?? []))
         _category = State(initialValue: expense?.category)
@@ -40,11 +48,12 @@ struct AddExpenseView: View {
         Form {
             Section("Details") {
                 TextField("Title", text: $title)
-                TextField("Amount", value: $amount, format: .currency(code: groupCurrencyCode))
+                TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                     .keyboardType(.decimalPad)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
             }
+            currencySection
             Section("Category & Notes") {
                 Picker("Category", selection: $category) {
                     Text("None").tag(nil as ExpenseCategory?)
@@ -54,19 +63,18 @@ struct AddExpenseView: View {
                 }
                 TextField("Note", text: $note)
             }
-            // Currency selection removed for now; defaulting to group currency
-            Section("Receipt") {
-                if let data = receiptImageData, let uiImage = UIImage(data: data) {
-                    HStack(alignment: .center) {
-                        Image(uiImage: uiImage)
-                            .resizable()
+        Section("Receipt") {
+            if let data = receiptImageData, let uiImage = UIImage(data: data) {
+                HStack(alignment: .center) {
+                    Image(uiImage: uiImage)
+                        .resizable()
                             .scaledToFill()
                             .frame(width: 64, height: 64)
                             .clipped()
                             .cornerRadius(8)
                         Spacer()
                         Button("Remove") { receiptImageData = nil }
-                            .foregroundStyle(.red)
+                            .foregroundColor(.red)
                     }
                 } else {
                     Button {
@@ -114,19 +122,99 @@ struct AddExpenseView: View {
                 self.showingScanner = false
             }
         }
-        // Currency change handler removed
         .onAppear {
             if expense == nil {
                 if payer == nil { payer = members.first }
                 if selected.isEmpty { selected = Set(members.map { $0.persistentModelID }) }
+                if fxRateToGroup == nil, currencyCode != groupCurrencyCode, let stored = lastRates[currencyCode] {
+                    fxRateToGroup = NSDecimalNumber(decimal: stored).doubleValue
+                }
             }
         }
+        .onChange(of: currencyCode, initial: false) { _, newValue in
+            if newValue == groupCurrencyCode {
+                fxRateToGroup = nil
+            } else if let existing = expense, existing.currencyCode == newValue, let rate = existing.fxRateToGroupCurrency {
+                fxRateToGroup = NSDecimalNumber(decimal: rate).doubleValue
+            } else if let stored = lastRates[newValue] {
+                fxRateToGroup = NSDecimalNumber(decimal: stored).doubleValue
+            } else {
+                fxRateToGroup = nil
+            }
+        }
+    }
+
+
+    private var currencyOptions: [String] {
+        var codes = Set(AppSettings.currencyPresets)
+        codes.insert(groupCurrencyCode)
+        codes.insert(currencyCode)
+        return Array(codes).sorted()
+    }
+
+    @ViewBuilder
+    private var currencySection: some View {
+        Section("Currency") {
+            currencyPicker
+            if currencyCode != groupCurrencyCode {
+                exchangeRateField
+                rateHelperText
+            }
+        }
+    }
+
+    private var currencyPicker: some View {
+        Picker("Currency", selection: $currencyCode) {
+            ForEach(currencyOptions, id: \.self) { code in
+                currencyRow(for: code)
+                    .tag(code)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
+
+    private func currencyRow(for code: String) -> some View {
+        HStack {
+            Text(Locale.current.localizedString(forCurrencyCode: code) ?? code)
+            Spacer()
+            Text(code).foregroundColor(.secondary)
+        }
+    }
+
+    private var exchangeRateField: some View {
+        TextField("Rate to \(groupCurrencyCode)", value: $fxRateToGroup, format: .number)
+            .keyboardType(.decimalPad)
+            .accessibilityLabel("Exchange rate to \(groupCurrencyCode)")
+            .foregroundColor((fxRateToGroup ?? 0) > 0 ? Color.primary : Color.red)
+    }
+
+    private var rateHelperText: some View {
+        SwiftUI.Group {
+            if let rate = fxRateToGroup, rate > 0 {
+                Text("\(currencyCode) × \(formattedRate(rate)) = \(groupCurrencyCode)")
+            } else {
+                Text("Enter how many \(groupCurrencyCode) one \(currencyCode) equals.")
+            }
+        }
+        .font(.footnote)
+        .foregroundColor(.secondary)
+    }
+
+    private func formattedRate(_ value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 6
+        formatter.minimumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: value)) ?? String(value)
     }
 
     private var canSave: Bool {
         guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
         guard let amount, amount > 0 else { return false }
         guard payer != nil else { return false }
+        if currencyCode != groupCurrencyCode {
+            guard let fxRateToGroup, fxRateToGroup > 0 else { return false }
+        }
         return !selected.isEmpty
     }
 
@@ -135,8 +223,15 @@ struct AddExpenseView: View {
         let amount = Decimal(amt)
         let included = members.filter { selected.contains($0.persistentModelID) }
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        let rateDecimal: Decimal? = nil
-        onSave(title, amount, groupCurrencyCode, rateDecimal, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
+        let rateDecimal: Decimal?
+        if currencyCode == groupCurrencyCode {
+            rateDecimal = nil
+        } else if let fxRateToGroup, fxRateToGroup > 0 {
+            rateDecimal = Decimal(fxRateToGroup)
+        } else {
+            rateDecimal = nil
+        }
+        onSave(title, amount, currencyCode, rateDecimal, payer, included, category, trimmed.isEmpty ? nil : trimmed, receiptImageData)
         Haptics.success()
         dismiss()
     }
